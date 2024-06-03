@@ -1,0 +1,145 @@
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv'
+import cors from 'cors'
+import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken"
+import cookieParser from 'cookie-parser';
+import User from './models/user.js';
+import Movie from './models/movie.js';
+
+// Create API server
+const app = express()
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use(cors({
+    origin:true
+}));
+
+
+dotenv.config();
+const port = process.env.PORT;
+
+// Strength of password protection (BCRYPT)
+const saltrounds = 10; 
+mongoose.connect("mongodb+srv://linkesvarun:JUF076PvImPU5eQt@clustertest.chekyvj.mongodb.net/sample_tester" )
+.then(()=>{
+    console.log('Connected to the database')
+})
+.catch((err)=>{
+    console.log(err)
+})
+
+//JWT
+const jsonwebtoken = process.env.JWT_SECRET
+
+app.post('/signIn',(req,res)=>{
+    bcrypt.hash(req.body.password, saltrounds, function(err,hash){
+        const user = new User({
+            fname: req.body.firstname,
+            lname:req.body.lastname,
+            email: req.body.email,
+            password: hash, //HASH FROM Bcrypt
+        })
+
+        user.save()
+        .then(()=>{
+            res.send({message:"Account created successfully. You may login Now"})
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
+    })
+})
+
+app.post('/login',(req,res)=>{
+    User.findOne({email:req.body.email})
+    .then((user)=>{
+        if(!user){
+            res.send({login:false,message:"Invalid email"})
+        }
+        else{
+            bcrypt.compare(req.body.password,user.password,function (err,result){
+                if(result == true){
+                    const token = jwt.sign({id:user._id, username:user.email,type:"user"}, jsonwebtoken, {expiresIn: "2h"})
+                    res.cookie("token", token, {maxAge: 2 * 60 * 60 * 1000, httpOnly: true}) 
+                    res.send({login:true,user:user, token:token})
+                }
+                else{
+                    res.send({login:false,message:"Invalid password"})
+                }
+            })
+        }
+    })
+})
+
+app.get('/logout',(req,res)=>{
+    res.clearCookie("token")
+})
+
+async function getMovieData() {
+    let response = [];
+    for(let i = 1; i <= 500; i ++) {
+        
+        const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${i}&sort_by=popularity.desc`;
+        const options = {
+        method: 'GET',
+        headers: {
+        accept: 'application/json',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3ZTQyMWZlNmNmOTM2MDI2NjEzNTRjYzRhOTgzNjRmMyIsInN1YiI6IjY0N2FiODI4Y2FlZjJkMDEzNjJhY2EzNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.5bh1aBfKZE2CuUZ--kHWRpL4mHB4x6fwCi9a67xGzw4'
+        }
+    };
+    await fetch(url, options)
+    .then(res => res.json())
+    .then(res => response.push(res))
+    .catch(err => console.error('error:' + err));
+    }
+
+    response.forEach(async (page) => {
+        await page.results.forEach(async (movie) => {
+            const moviedets = await new Movie({
+                dbid: movie.id,
+                title: movie.title,
+                overview: movie.overview,
+                release_date: movie.release_date,
+                genre_ids: movie.genre_ids,
+                picture: "https://image.tmdb.org/t/p/original" + movie.poster_path,
+            })
+            await moviedets.save()
+        })
+    })
+    return response
+}
+
+app.get('/getMovie', async (req, res) => {
+    const movies = await getMovieData()
+    res.send(movies)
+})
+
+app.get('/movie', async (req,res) => {
+    const movies = await Movie.find();
+    res.send(movies);
+})
+
+app.post('/addmovie', async (req,res) => {
+    // console.log(req)
+    await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
+    .then(()=>{
+        res.send({message:"Movie added successfully"})
+    })
+})
+
+app.post('/deleteMovie', async (req,res) => {
+    // console.log(req)
+    await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
+    .then(()=>{
+        res.send({message:"Movie deleted successfully"})
+    })
+})
+
+
+
+app.listen(port,()=>{
+    console.log(`Server connected to port ${port} successfully`)
+})
