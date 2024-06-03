@@ -1,0 +1,27 @@
+import mongoose from "mongoose";
+
+const movieSchema = new mongoose.Schema({
+    dbid:{
+        type:String,
+    },
+    title:{
+        type:String,
+    },
+    overview:{
+        type:String,
+    },
+    release_date:{
+        type:String,
+    },
+    genre_ids: {
+        type:Array,
+    },
+    picture:{
+        type:String,
+    },
+    reviews: {
+        type: Array,
+    },
+})
+const Movie = mongoose.model("movie",movieSchema);
+export default Movie;
