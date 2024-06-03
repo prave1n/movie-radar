@@ -3,10 +3,15 @@ import NavBar from './NavBar'
 import MovieCard from './MovieCard'
 import { useState } from 'react'
 import WatchList from './WatchList'
+import SearchBar from './SearchBar'
 
 function Home() {
     const [movies, setMovies] = useState([])
-    
+    const [search,setSearch] = useState("")
+
+    const updateSearch = (name) => {
+        setSearch(name);
+      }
     
     useEffect(() => {
          fetch("http://localhost:4000/movie", {
@@ -31,9 +36,10 @@ function Home() {
         </div>
         <h1 style={{marginTop:"50px", width:"1500px", display:"flex", justifyContent:"center", fontSize:"72px"}} > Movie List</h1>
         <span style={{marginTop:"0px", width:"1500px", display:"flex", justifyContent:"center", fontSize:"20px"}}>(Credits: Movie data taken from themoviedb)</span>
+        <SearchBar setSearch = {updateSearch}/>
         <div> 
             <div class = "d-flex flex-wrap" style={{marginTop:"10px", width:"1500px", }}>
-                {movies.slice(0,999).map((movie)=>{
+                {movies.slice(0,999).filter((x) => x.title.includes(search) || x.overview.includes(search)).map((movie)=>{
                     return(<div key={movie.id}><MovieCard movie = {movie} title = {movie.title} overview = {movie.overview}  picture = {movie.picture} /></div>)
                 })}
              </div>
