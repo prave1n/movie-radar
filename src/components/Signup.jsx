@@ -1,6 +1,8 @@
 import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import "./styles/Signup.css"
+import Button from 'react-bootstrap/esm/Button'
 
 function Signup() {
   const navigate = useNavigate()
@@ -59,21 +61,25 @@ function Signup() {
   }
 
   return (
-    <div className='loginbody'>
-        <label>First Name: </label><br></br>
+    <div class="mainbody">
+    <h1 class="movieTitle"> Movie Radar </h1>
+    <div class = "signinbody">
+
+        <label>First Name: </label>
         <input type="text" placeholder="Enter your first name" name="fname" required onChange={(e)=>{setFname(e.target.value)}}/><br></br>
 
-        <label>Last Name: </label><br></br>
+        <label>Last Name: </label>
         <input type="text" placeholder="Enter your last name" name="lname" required onChange={(e)=>{setLname(e.target.value)}}/><br></br>
 
-        <label>Email: </label><br></br>
+        <label>Email: </label>
         <input type="email" placeholder="Enter Email" name="email" required onChange={(e)=>{setEmail(e.target.value)}}/><br></br>
 
-        <label>Password: </label><br></br>
+        <label>Password: </label>
          <input type="password" placeholder="Enter Password" name="psw" required onChange={(e)=>{setPsw(e.target.value)}}/><br></br>
          
-        <button type="submit" onClick={submitHandler}>Sign Up</button>
+        <Button type="submit" onClick={submitHandler}>Sign Up</Button>
          
+    </div>
     </div>
   )
 }
