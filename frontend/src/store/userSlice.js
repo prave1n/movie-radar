@@ -11,7 +11,7 @@ const initialState  = {
 
 const userSlice = createSlice({
     name: "user",
-    initialState,
+    initialState, 
     reducers: {
         newuser(state, action) {
             state.authorized = true;

@@ -1,12 +1,12 @@
-import React from 'react'
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import React from "react";
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 
 function NavBar() {
   return (
     <div>
-        <Navbar bg="dark" data-bs-theme="dark">
+      <Navbar bg="dark" data-bs-theme="dark">
         <Container>
           <Navbar.Brand href="">MovieRadar</Navbar.Brand>
           <Nav className="me-auto">
@@ -15,7 +15,7 @@ function NavBar() {
         </Container>
       </Navbar>
     </div>
-  )
+  );
 }
 
-export default NavBar
+export default NavBar;

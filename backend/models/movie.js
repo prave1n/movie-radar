@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const reviewSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    rating: Number,
+    reviewText: String,
+    createdAt: { type: Date, default: Date.now }
+  });
+  
+
 const movieSchema = new mongoose.Schema({
     dbid:{
         type:String,
@@ -20,8 +28,8 @@ const movieSchema = new mongoose.Schema({
         type:String,
     },
     reviews: {
-        type: Array,
+        type: [reviewSchema],
     },
 })
 const Movie = mongoose.model("movie",movieSchema);
-export default Movie;
+export default Movie; 

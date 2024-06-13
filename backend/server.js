@@ -14,7 +14,7 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cors({
-    origin:true
+    origin:true 
 }));
 
 
@@ -137,6 +137,165 @@ app.post('/deleteMovie', async (req,res) => {
         res.send({message:"Movie deleted successfully"})
     })
 })
+
+app.get('/movie/:id', async (req, res) => {
+    const movie = await Movie.findOne({ dbid: req.params.id });
+    res.send(movie);
+  });
+
+
+/* app.get('/reviews/:movieId', async (req, res) => {
+    const movie = await Movie.findOne({ dbid: req.params.movieId });
+    res.send(movie.reviews);
+}); */
+  
+
+app.post('/review', async (req, res) => {
+    const { user, movieId, rating, reviewText } = req.body;
+    const movie = await Movie.findOne({ dbid: movieId });
+  
+    const newReview = {
+      user,
+      rating,
+      reviewText,
+    };
+  
+    movie.reviews.push(newReview);
+    await movie.save();
+  
+    res.send(newReview);
+  });
+
+/* app.post('/review', async (req, res) => {
+    const { userId, movieId, rating, reviewText } = req.body;
+    const movie = await Movie.findOne({ dbid: movieId });
+    const user = await User.findById(userId);
+  
+    if (!movie || !user) {
+        return res.status(404).send({ message: "Movie or User not found" });
+    }
+
+    const newReview = {
+        userId,
+        rating,
+        reviewText,
+    };
+
+    movie.reviews.push(newReview);
+    await movie.save();
+
+    user.reviews.push({
+        movieId: movie._id,
+        rating,
+        reviewText,
+    });
+    await user.save();
+
+    res.send(newReview);
+}); */
+
+
+/* app.post('/review', async (req, res) => {
+    const { userId, movieId, rating, reviewText } = req.body;
+
+    try {
+        const movie = await Movie.findOne({ dbid: movieId });
+        const user = await User.findById(userId);
+
+        if (!movie || !user) {
+            return res.status(404).send({ message: "Movie or User not found" });
+        }
+
+        const newReview = {
+            userId,
+            rating,
+            reviewText,
+            movieId: movie._id
+        };
+
+        movie.reviews.push(newReview);
+        await movie.save();
+
+        user.reviews.push(newReview);
+        await user.save();
+
+        res.send(newReview);
+    } catch (error) {
+        res.status(500).send({ message: "Server error", error });
+    }
+}); */
+
+
+  
+  app.get('/reviews/:movieId', async (req, res) => {
+    const movie = await Movie.findOne({ dbid: req.params.movieId }).populate('reviews.user', 'fname');
+    res.send(movie.reviews);
+  });
+
+
+  
+  /* app.post('/review', async (req, res) => {
+    const { userId, movieId, rating, reviewText } = req.body;
+    const movie = await Movie.findOne({ dbid: movieId });
+  
+    const newReview = {
+      user: mongoose.Types.ObjectId(userId),
+      rating,
+      reviewText,
+    };
+  
+    movie.reviews.push(newReview);
+    await movie.save();
+  
+    res.send(await movie.populate('reviews.user', 'fname').execPopulate());
+  }); */
+
+/* app.get('/profile/:userId', async (req, res) => {
+    const user = await User.findById(req.params.userId);
+    res.send(user);
+}); */
+
+app.get('/profile/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const user = await User.findById(userId).populate('reviews.movieId');
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+        res.send(user);
+    } catch (error) {
+        res.status(500).send({ message: "Server error", error });
+    }
+});
+
+
+
+app.get('/watchlist/:userId', async (req, res) => {
+    const user = await User.findById(req.params.userId).populate('favouriteMovies');
+    res.send(user.favouriteMovies);
+});
+
+app.get('/user-reviews/:userId', async (req, res) => {
+    const userReviews = await Movie.find({ 'reviews.userId': req.params.userId });
+    const reviews = userReviews.map(movie => {
+        return movie.reviews.filter(review => review.userId.toString() === req.params.userId);
+    }).flat();
+    res.send(reviews);
+});
+
+/* app.get('/user-reviews/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const user = await User.findById(userId).populate('reviews.movieId');
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+        res.send(user.reviews);
+    } catch (error) {
+        res.status(500).send({ message: "Server error", error });
+    }
+}); */
+
 
 
 
