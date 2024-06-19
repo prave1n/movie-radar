@@ -9,7 +9,8 @@ import WatchList from './components/WatchList';
 import MovieDetails from './components/MovieDetails';
 import Profile from './components/Profile';
 import UserReviews from './components/UserReviews';
-
+import Reset from './components/Reset';
+import Otp from './components/Otp';
 
 function App() {
 
@@ -30,8 +31,11 @@ function App() {
           
           <Route path="/user-reviews" element={<UserReviews />} />
 
-          <Route exact path = '*' element={<p>PAGE NOT FOUND</p>}/>
+          <Route path="/reset" element={<Reset />} />
 
+          <Route path="/forgotpsw/:id" element={<Otp />} />
+
+          <Route exact path = '*' element={<p>PAGE NOT FOUND</p>}/>
 
       </Routes>
     </BrowserRouter>

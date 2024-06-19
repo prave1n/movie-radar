@@ -17,7 +17,7 @@ function WatchList() {
     // Do fetch req
 
     try {
-      await fetch("http://localhost:4000/deleteMovie", {
+      await fetch("http://localhost:5000/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

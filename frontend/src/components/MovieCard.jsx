@@ -14,7 +14,7 @@ function MovieCard({ movie }) {
   const addMovieHandler = async (e) => {
     let mov = [...watchlist, movie];
     e.preventDefault();
-    await fetch("http://localhost:4000/addmovie", {
+    await fetch("http://localhost:5000/addmovie", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": true,

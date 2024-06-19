@@ -15,19 +15,19 @@ function MovieDetails() {
 
   useEffect(() => {
     // Fetch movie details
-    fetch(`http://localhost:4000/movie/${id}`)
+    fetch(`http://localhost:5000/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data));
 
     // Fetch reviews
-    fetch(`http://localhost:4000/reviews/${id}`)
+    fetch(`http://localhost:5000/reviews/${id}`)
       .then((res) => res.json())
       .then((data) => setReviews(data));
   }, [id]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    await fetch(`http://localhost:4000/review`, {
+    await fetch(`http://localhost:5000/review`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

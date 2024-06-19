@@ -17,7 +17,7 @@ function Home() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/movie", {
+    fetch("http://localhost:5000/movie", {
       method: "GET",
       headers: {
         "Access-Control-Allow-Origin": true,

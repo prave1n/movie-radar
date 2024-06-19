@@ -13,15 +13,15 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:4000/profile/${userId}`)
+    fetch(`http://localhost:5000/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => setUser(data));
 
-    fetch(`http://localhost:4000/watchlist/${userId}`)
+    fetch(`http://localhost:5000/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
-    fetch(`http://localhost:4000/user-reviews/${userId}`)
+    fetch(`http://localhost:5000/user-reviews/${userId}`)
       .then((res) => res.json())
       .then((data) => setReviews(data));
   }, [userId]);

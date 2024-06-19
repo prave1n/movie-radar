@@ -74,6 +74,41 @@ app.post('/login',(req,res)=>{
     })
 })
 
+app.post('/sendemail', async (req,res)=>{
+    await User.findOne({email:req.body.email})
+    .then(async (user)=>{
+        if(!user){
+            res.send({email:false,message:"Invalid email"})
+        }
+        else{
+            let otp = `${Math.random().toString(36).substring(2,7)}`
+            await User.findOneAndUpdate({email:req.body.email},{otp:otp})
+            res.send({email:true,message:"Check your email for OTP and click on link in the email",id: user._id, OTP:otp, useremail:user.email, username: user.fname})
+        }
+    })
+})
+
+app.post('/checkOtp', async (req,res)=>{
+    await User.findOne({_id:req.body.id})
+    .then(async (user)=>{
+       if(user.otp == req.body.otp){
+             res.send({result:true,message:"OTP is correct, enter your new password"})
+        }
+        else{
+            res.send({result:false,message:"OTP is wrong"})
+        }  
+    })
+})
+
+app.post('/changepsw',(req,res)=>{
+    bcrypt.hash(req.body.password, saltrounds, function(err,hash){
+        User.findByIdAndUpdate({_id:req.body.id},{password:hash})
+        .then(()=>{
+            res.send({message:'Password updated successfully'})
+        })
+    })
+})
+
 app.get('/logout',(req,res)=>{
     res.clearCookie("token")
 })

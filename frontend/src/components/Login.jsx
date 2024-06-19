@@ -16,7 +16,7 @@ export default function Login() {
 
   const submitHandler = async () => {
     try {
-      await fetch("http://localhost:4000/login", {
+      await fetch("http://localhost:5000/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -44,7 +44,7 @@ export default function Login() {
       console.log(err);
     }
   };
-  /* <span><Link to='/resetpsw'>Forgot Password?</Link></span> */
+  
   return (
     <div class="mainformbody">
       <h1 class="movieTitle">Movie Radar</h1>
@@ -78,6 +78,10 @@ export default function Login() {
         <div>
           <p>
             Dont have an acount? <Link to="/signup">Sign Up</Link>
+          </p>
+          <br></br>
+          <p>
+            Forgot Password? <Link to="/reset">Reset Password</Link>
           </p>
         </div>
       </div>
