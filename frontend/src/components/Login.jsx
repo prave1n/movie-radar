@@ -16,7 +16,7 @@ export default function Login() {
 
   const submitHandler = async () => {
     try {
-      await fetch("http://localhost:5000/login", {
+      await fetch("http://localhost:4000/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -44,7 +44,7 @@ export default function Login() {
       console.log(err);
     }
   };
-  
+
   return (
     <div class="mainformbody">
       <h1 class="movieTitle">Movie Radar</h1>

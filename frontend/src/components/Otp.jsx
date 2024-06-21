@@ -14,7 +14,7 @@ function Otp() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("http://localhost:5000/checkOtp", {
+      fetch("http://localhost:4000/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -45,7 +45,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("http://localhost:5000/changepsw", {
+        fetch("http://localhost:4000/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

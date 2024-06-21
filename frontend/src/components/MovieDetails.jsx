@@ -11,28 +11,47 @@ function MovieDetails() {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
-  const userId = useSelector((state) => state.user.userid);
+  const email = useSelector((state) => state.user.email);
 
   useEffect(() => {
-    // Fetch movie details
-    fetch(`http://localhost:5000/movie/${id}`)
+    //fetch movie details
+    fetch(`http://localhost:4000/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data));
 
-    // Fetch reviews
-    fetch(`http://localhost:5000/reviews/${id}`)
-      .then((res) => res.json())
-      .then((data) => setReviews(data));
+    //fetch reviews
+    fetch(`http://localhost:4000/reviews/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (Array.isArray(data)) {
+          setReviews(data);
+        } else {
+          setReviews([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching reviews:", error);
+        setReviews([]);
+      });
   }, [id]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    await fetch(`http://localhost:5000/review`, {
+    const payload = {
+      user: email,
+      movie: id,
+      rating,
+      reviewText,
+    };
+    console.log("Payload:", payload);
+    console.log(email);
+    await fetch(`http://localhost:4000/review`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId, movieId: id, rating, reviewText }),
+      body: JSON.stringify({ user: email, movie: id, rating, reviewText }),
     })
       .then((res) => res.json())
       .then((data) => setReviews([...reviews, data]));

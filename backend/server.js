@@ -6,6 +6,7 @@ import cors from 'cors'
 import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
 import cookieParser from 'cookie-parser';
+import Review from './models/review.js';
 import User from './models/user.js';
 import Movie from './models/movie.js';
 
@@ -179,160 +180,72 @@ app.get('/movie/:id', async (req, res) => {
   });
 
 
-/* app.get('/reviews/:movieId', async (req, res) => {
-    const movie = await Movie.findOne({ dbid: req.params.movieId });
-    res.send(movie.reviews);
-}); */
-  
-
-app.post('/review', async (req, res) => {
-    const { user, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
-  
-    const newReview = {
-      user,
-      rating,
-      reviewText,
-    };
-  
-    movie.reviews.push(newReview);
-    await movie.save();
-  
-    res.send(newReview);
-  });
-
-/* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
-    const user = await User.findById(userId);
-  
-    if (!movie || !user) {
-        return res.status(404).send({ message: "Movie or User not found" });
-    }
-
-    const newReview = {
-        userId,
-        rating,
-        reviewText,
-    };
-
-    movie.reviews.push(newReview);
-    await movie.save();
-
-    user.reviews.push({
-        movieId: movie._id,
-        rating,
-        reviewText,
-    });
-    await user.save();
-
-    res.send(newReview);
-}); */
 
 
 /* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-
     try {
-        const movie = await Movie.findOne({ dbid: movieId });
-        const user = await User.findById(userId);
+        const { rating, reviewText, user, movieId } = req.body;
 
-        if (!movie || !user) {
-            return res.status(404).send({ message: "Movie or User not found" });
-        }
-
-        const newReview = {
-            userId,
+        const newReview = new Review({
             rating,
             reviewText,
-            movieId: movie._id
-        };
+            user,
+            movie: movieId
+        });
 
-        movie.reviews.push(newReview);
-        await movie.save();
-
-        user.reviews.push(newReview);
-        await user.save();
-
+        await newReview.save();
         res.send(newReview);
     } catch (error) {
-        res.status(500).send({ message: "Server error", error });
+        console.error('Error submitting review:', error);
+        res.status(500).send({ message: "Server error" });
     }
-}); */
+});
+ */
 
 
+
+app.post('/review', async (req, res) => {
+    const { user, movie, rating, reviewText } = req.body;
+    
   
-  app.get('/reviews/:movieId', async (req, res) => {
-    const movie = await Movie.findOne({ dbid: req.params.movieId }).populate('reviews.user', 'fname');
-    res.send(movie.reviews);
+    try {
+      
+      const existingUser = await User.findOne({email:user});
+      const existingMovie = await Movie.findOne({dbid:movie});
+  
+      if (!existingUser || !existingMovie) {
+        return res.status(404).json({ message: 'User or Movie not found' });
+      }
+
+      const newReview = new Review({
+        user: existingUser,
+        movie: existingMovie,
+        rating: parseInt(rating),
+        reviewText: reviewText,
+      });
+  
+      await newReview.save();
+
+      res.status(201).json(newReview);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   });
 
 
-  
-  /* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
-  
-    const newReview = {
-      user: mongoose.Types.ObjectId(userId),
-      rating,
-      reviewText,
-    };
-  
-    movie.reviews.push(newReview);
-    await movie.save();
-  
-    res.send(await movie.populate('reviews.user', 'fname').execPopulate());
-  }); */
 
-/* app.get('/profile/:userId', async (req, res) => {
-    const user = await User.findById(req.params.userId);
-    res.send(user);
-}); */
-
-app.get('/profile/:userId', async (req, res) => {
-    const userId = req.params.userId;
+app.get('/reviews/:movieId', async (req, res) => {
     try {
-        const user = await User.findById(userId).populate('reviews.movieId');
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        res.send(user);
+        const movie = req.params.movieId;
+        const nowmovie = await Movie.findOne({dbid:movie}); 
+        const reviews = await Review.find({ movie: nowmovie }).populate('user', 'fname');
+        res.send(reviews);
     } catch (error) {
-        res.status(500).send({ message: "Server error", error });
+        console.error('Error fetching reviews:', error);
+        res.status(500).send({ message: "Server error" });
     }
 });
-
-
-
-app.get('/watchlist/:userId', async (req, res) => {
-    const user = await User.findById(req.params.userId).populate('favouriteMovies');
-    res.send(user.favouriteMovies);
-});
-
-app.get('/user-reviews/:userId', async (req, res) => {
-    const userReviews = await Movie.find({ 'reviews.userId': req.params.userId });
-    const reviews = userReviews.map(movie => {
-        return movie.reviews.filter(review => review.userId.toString() === req.params.userId);
-    }).flat();
-    res.send(reviews);
-});
-
-/* app.get('/user-reviews/:userId', async (req, res) => {
-    const userId = req.params.userId;
-    try {
-        const user = await User.findById(userId).populate('reviews.movieId');
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        res.send(user.reviews);
-    } catch (error) {
-        res.status(500).send({ message: "Server error", error });
-    }
-}); */
-
-
-
 
 app.listen(port,()=>{
     console.log(`Server connected to port ${port} successfully`)

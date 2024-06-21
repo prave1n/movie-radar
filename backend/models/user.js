@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const reviewSchema = new mongoose.Schema({
-    movieId: { type: mongoose.Schema.Types.ObjectId, ref: "Movie" },
-    rating: Number,
-    reviewText: String,
-});
-
 const userSchema = new mongoose.Schema({
     fname:{
         type:String,
@@ -18,7 +12,6 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        
     },
     otp:{
         type:String,
@@ -27,10 +20,13 @@ const userSchema = new mongoose.Schema({
     favouriteMovies:{
         type:Array
     },
-    reviews: [reviewSchema],
     pfp:{
         type:String
-    }
+    },
+    reviews: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Review' 
+    }]
 })
 const User = mongoose.model("User", userSchema);
 export default User;
