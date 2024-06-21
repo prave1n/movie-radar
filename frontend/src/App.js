@@ -12,7 +12,7 @@ import UserReviews from './components/UserReviews';
 import Reset from './components/Reset';
 import Otp from './components/Otp';
 
-function App() {
+function App() { 
 
   return (
     <BrowserRouter>

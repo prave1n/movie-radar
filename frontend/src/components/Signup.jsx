@@ -33,7 +33,7 @@ function Signup() {
         result = false;
       }
       if (result) {
-        await fetch("http://localhost:4000/signIn", {
+        await fetch("http://localhost:8080/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

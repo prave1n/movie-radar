@@ -14,13 +14,14 @@ function MovieDetails() {
   const email = useSelector((state) => state.user.email);
 
   useEffect(() => {
+    console.log(email)
     //fetch movie details
-    fetch(`http://localhost:4000/movie/${id}`)
+    fetch(`http://localhost:8080/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data));
 
     //fetch reviews
-    fetch(`http://localhost:4000/reviews/${id}`)
+    fetch(`http://localhost:8080/reviews/${id}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -46,7 +47,7 @@ function MovieDetails() {
     };
     console.log("Payload:", payload);
     console.log(email);
-    await fetch(`http://localhost:4000/review`, {
+    await fetch(`http://localhost:8080/review`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

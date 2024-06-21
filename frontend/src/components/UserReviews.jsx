@@ -7,7 +7,7 @@ const UserReviews = () => {
   const userId = useSelector((state) => state.user.userid);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/user-reviews/${userId}`)
+    fetch(`http://localhost:8080/user-reviews/${userId}`)
       .then((res) => res.json())
       .then((data) => setReviews(data));
   }, [userId]);
