@@ -24,5 +24,5 @@ const movieSchema = new mongoose.Schema({
         ref: 'Review' 
     }]
 })
-const Movie = mongoose.model("movie",movieSchema);
+const Movie = mongoose.model("Movie",movieSchema);
 export default Movie; 

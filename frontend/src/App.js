@@ -31,6 +31,8 @@ function App() {
           
           <Route path="/user-reviews" element={<UserReviews />} />
 
+          <Route path="/user/reviews" element={<UserReviews />} />
+
           <Route path="/reset" element={<Reset />} />
 
           <Route path="/forgotpsw/:id" element={<Otp />} />

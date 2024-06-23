@@ -1,16 +1,12 @@
 import React, { useEffect } from "react";
-import NavBar from "./NavBar";
 import MovieCard from "./MovieCard";
 import { useState } from "react";
 import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
-import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button";
 
 function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
 
   const updateSearch = (name) => {
     setSearch(name);
@@ -34,10 +30,6 @@ function Home() {
 
   return (
     <div>
-      <NavBar />
-      <div>
-        <Button onClick={() => navigate("/profile")}>View Profile</Button>
-      </div>
       <div>
         <WatchList />
       </div>
