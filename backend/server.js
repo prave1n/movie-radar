@@ -153,10 +153,17 @@ app.get('/getMovie', async (req, res) => {
     res.send(movies)
 })
 
-app.get('/movie', async (req,res) => {
-    const movies = await Movie.find();
-    res.send(movies);
-})
+//updated /movie to handle filter by genre
+app.get('/movie', async (req, res) => {
+    const genre = req.query.genre;
+    const filter = genre ? { genre_ids: { $in: [Number(genre)] } } : {};
+    try {
+      const movies = await Movie.find(filter);
+      res.send(movies);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
 
 app.post('/addmovie', async (req,res) => {
     // console.log(req)

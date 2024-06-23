@@ -1,84 +1,123 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import MovieCard from "./MovieCard";
-import { useState } from "react";
 import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
+import { Form } from "react-bootstrap";
+
+const genres = [
+  { id: 28, name: "Action" },
+  { id: 12, name: "Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy" },
+  { id: 80, name: "Crime" },
+  { id: 99, name: "Documentary" },
+  { id: 18, name: "Drama" },
+  { id: 10751, name: "Family" },
+  { id: 14, name: "Fantasy" },
+  { id: 36, name: "History" },
+  { id: 27, name: "Horror" },
+  { id: 10402, name: "Music" },
+  { id: 9648, name: "Mystery" },
+  { id: 10749, name: "Romance" },
+  { id: 878, name: "Science Fiction" },
+  { id: 10770, name: "TV Movie" },
+  { id: 53, name: "Thriller" },
+  { id: 10752, name: "War" },
+  { id: 37, name: "Western" },
+];
 
 function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
 
   const updateSearch = (name) => {
     setSearch(name);
   };
 
-  useEffect(() => {
-    fetch("http://localhost:8080/movie", {
+  //updated fetchMovies to handle filter by genre
+  const fetchMovies = useCallback(() => {
+    let url = "http://localhost:8080/movie";
+    if (selectedGenre) {
+      url += `?genre=${selectedGenre}`;
+    }
+    fetch(url, {
       method: "GET",
       headers: {
         "Access-Control-Allow-Origin": true,
         "Content-Type": "application/json",
       },
     })
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        setMovies(res);
-      });
-  }, []);
+      .then((res) => res.json())
+      .then((res) => setMovies(res))
+      .catch((error) => console.error("Error fetching movies:", error));
+  }, [selectedGenre]);
+
+  useEffect(() => {
+    fetchMovies();
+  }, [fetchMovies]);
+
+  //filter movies based on search and genre
+  const filteredMovies = movies
+    .filter(
+      (movie) =>
+        movie.title.toLowerCase().includes(search.toLowerCase()) ||
+        movie.overview.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((movie) =>
+      selectedGenre ? movie.genre_ids.includes(parseInt(selectedGenre)) : true
+    );
 
   return (
     <div>
       <div>
         <WatchList />
       </div>
-      <h1
-        style={{
-          marginTop: "50px",
-          width: "1500px",
-          display: "flex",
-          justifyContent: "center",
-          fontSize: "72px",
-        }}
-      >
-        {" "}
+      <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
         Movie List
       </h1>
-      <span
-        style={{
-          marginTop: "0px",
-          width: "1500px",
-          display: "flex",
-          justifyContent: "center",
-          fontSize: "20px",
-        }}
-      >
+      <span style={{ display: "block", textAlign: "center", fontSize: "14px" }}>
         (Credits: Movie data taken from themoviedb)
       </span>
-      <SearchBar setSearch={updateSearch} />
-      <div>
-        <div
-          class="d-flex flex-wrap"
-          style={{ marginTop: "10px", width: "1500px" }}
-        >
-          {movies
-            .slice(0, 999)
-            .filter(
-              (x) => x.title.includes(search) || x.overview.includes(search)
-            )
-            .map((movie) => {
-              return (
-                <div key={movie.id}>
-                  <MovieCard
-                    movie={movie}
-                    title={movie.title}
-                    overview={movie.overview}
-                    picture={movie.picture}
-                  />
-                </div>
-              );
-            })}
+      <div className="search-genre-container" style={{ margin: "20px auto" }}>
+        <SearchBar setSearch={updateSearch} />
+        <div className="genre-filter-container">
+          <Form.Label
+            style={{
+              fontSize: "16px",
+              fontWeight: "bold",
+              marginRight: "10px",
+            }}
+          >
+            Filter by Genre:
+          </Form.Label>
+          <Form.Control
+            as="select"
+            value={selectedGenre}
+            onChange={(e) => setSelectedGenre(e.target.value)}
+            style={{ width: "200px" }}
+          >
+            <option value="">All Genres</option>
+            {genres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </Form.Control>
+        </div>
+      </div>
+      <div style={{ marginTop: "20px" }}>
+        <div className="d-flex flex-wrap">
+          {filteredMovies.map((movie) => (
+            <div key={movie.id}>
+              <MovieCard
+                movie={movie}
+                title={movie.title}
+                overview={movie.overview}
+                picture={movie.picture}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
