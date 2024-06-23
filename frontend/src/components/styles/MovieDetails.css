@@ -1,0 +1,49 @@
+/* MovieDetails.css */
+.movie-details-container {
+    padding: 20px;
+  }
+  
+  .movie-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .movie-image {
+    width: 300px;
+    height: auto;
+    margin-right: 20px;
+    border-radius: 10px;
+  }
+  
+  .movie-info {
+    flex: 1;
+  }
+  
+  .movie-title {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .movie-overview {
+    margin-top: 10px;
+  }
+  
+  .movie-rating {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .review-form {
+    margin-top: 30px;
+  }
+  
+  .review-section {
+    margin-top: 40px;
+  }
+  
+  .review-card-container {
+    margin-bottom: 15px;
+  }
+  

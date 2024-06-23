@@ -1,0 +1,52 @@
+.review-card {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .review-card .card-body {
+    padding: 20px;
+  }
+  
+  .review-card .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .review-card .card-subtitle {
+    margin-bottom: 10px;
+  }
+  
+  .review-card .card-text {
+    margin-bottom: 15px;
+  }
+  
+  .review-card .text-muted {
+    font-size: 0.9rem;
+  }
+  
+  .review-card .btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+  
+  .review-card .badge {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    margin-left: 10px;
+  }
+
+  .delete-review-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .delete-review-section .btn {
+    margin-bottom: 10px;
+  }
+  
+  .delete-review-section .badge {
+    margin-left: 0;
+  }
+  

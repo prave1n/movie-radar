@@ -6,6 +6,7 @@ import cors from 'cors'
 import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
 import cookieParser from 'cookie-parser';
+import Review from './models/review.js';
 import User from './models/user.js';
 import Movie from './models/movie.js';
 
@@ -179,159 +180,246 @@ app.get('/movie/:id', async (req, res) => {
   });
 
 
-/* app.get('/reviews/:movieId', async (req, res) => {
-    const movie = await Movie.findOne({ dbid: req.params.movieId });
-    res.send(movie.reviews);
-}); */
-  
-
-app.post('/review', async (req, res) => {
-    const { user, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
-  
-    const newReview = {
-      user,
-      rating,
-      reviewText,
-    };
-  
-    movie.reviews.push(newReview);
-    await movie.save();
-  
-    res.send(newReview);
-  });
-
 /* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
-    const user = await User.findById(userId);
-  
-    if (!movie || !user) {
-        return res.status(404).send({ message: "Movie or User not found" });
-    }
-
-    const newReview = {
-        userId,
-        rating,
-        reviewText,
-    };
-
-    movie.reviews.push(newReview);
-    await movie.save();
-
-    user.reviews.push({
-        movieId: movie._id,
-        rating,
-        reviewText,
-    });
-    await user.save();
-
-    res.send(newReview);
-}); */
-
-
-/* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-
     try {
-        const movie = await Movie.findOne({ dbid: movieId });
-        const user = await User.findById(userId);
+        const { rating, reviewText, user, movieId } = req.body;
 
-        if (!movie || !user) {
-            return res.status(404).send({ message: "Movie or User not found" });
-        }
-
-        const newReview = {
-            userId,
+        const newReview = new Review({
             rating,
             reviewText,
-            movieId: movie._id
-        };
+            user,
+            movie: movieId
+        });
 
-        movie.reviews.push(newReview);
-        await movie.save();
-
-        user.reviews.push(newReview);
-        await user.save();
-
+        await newReview.save();
         res.send(newReview);
     } catch (error) {
-        res.status(500).send({ message: "Server error", error });
+        console.error('Error submitting review:', error);
+        res.status(500).send({ message: "Server error" });
     }
-}); */
+});
+ */
 
 
+app.post('/review', async (req, res) => {
+    const { user, movie, rating, reviewText } = req.body;
+    
+    try {
+      const existingUser = await User.findOne({email:user});
+      const existingMovie = await Movie.findOne({dbid:movie});
   
-  app.get('/reviews/:movieId', async (req, res) => {
-    const movie = await Movie.findOne({ dbid: req.params.movieId }).populate('reviews.user', 'fname');
-    res.send(movie.reviews);
+      if (!existingUser || !existingMovie) {
+        return res.status(404).json({ message: 'User or Movie not found' });
+      }
+
+      const newReview = new Review({
+        user: existingUser,
+        movie: existingMovie,
+        rating: parseInt(rating),
+        reviewText: reviewText,
+      });
+  
+      await newReview.save();
+
+      res.status(201).json(newReview);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   });
 
+app.get('/reviews/:movieId', async (req, res) => {
+    try {
+        const movie = req.params.movieId;
+        const nowmovie = await Movie.findOne({dbid:movie}); 
+        const reviews = await Review.find({ movie: nowmovie })
+                                    .populate('user', 'fname')
+                                    .sort({ upvotes: -1, createdAt: -1 });
+        res.send(reviews);
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).send({ message: "Server error" });
+    }
+});
 
+app.delete('/review/:reviewId', async (req, res) => {
+    const reviewId = req.params.reviewId;
   
-  /* app.post('/review', async (req, res) => {
-    const { userId, movieId, rating, reviewText } = req.body;
-    const movie = await Movie.findOne({ dbid: movieId });
+    try {
+      await Review.findByIdAndDelete(reviewId);
   
-    const newReview = {
-      user: mongoose.Types.ObjectId(userId),
-      rating,
-      reviewText,
-    };
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      res.status(500).json({ error: 'Failed to delete review' });
+    }
+});
+
+/* app.delete('/review/:id', async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
   
-    movie.reviews.push(newReview);
-    await movie.save();
+    try {
+      const review = await Review.findById(id);
   
-    res.send(await movie.populate('reviews.user', 'fname').execPopulate());
+      if (!review) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+  
+      if (review.user.toString() !== userId) {
+        return res.status(403).json({ message: 'You are not authorized to delete this review' });
+      }
+  
+      await review.remove();
+      res.status(200).json({ message: 'Review deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   }); */
 
-/* app.get('/profile/:userId', async (req, res) => {
-    const user = await User.findById(req.params.userId);
-    res.send(user);
-}); */
+/* app.delete('/review/:reviewId', async (req, res) => {
+    const { reviewId } = req.params;
+  
+    try {
+      const review = await Review.findById(reviewId);
+      if (!review) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+  
+      if (review.user.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
+  
+      await review.remove();
+      res.json({ message: 'Review deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }); */
+
+app.get('/movie/:id/average-rating', async (req, res) => {
+    try {
+      const movieId = req.params.id;
+      const nowMovie = await Movie.findOne({ dbid: movieId });
+      
+      if (!nowMovie) {
+        return res.status(404).json({ message: 'Movie not found' });
+      }
+  
+      const reviews = await Review.find({ movie: nowMovie._id });
+      
+      if (reviews.length === 0) {
+        return res.json({ averageRating: null });
+      }
+  
+      const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+  
+      res.json({ averageRating });
+      //console.log(averageRating);
+    } catch (error) {
+      console.error('Error calculating average rating:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//upvote review
+app.post('/review/upvote/:id', async (req, res) => {
+    const reviewId = req.params.id;
+    const { userId } = req.body;
+
+    try {
+        const user = await User.findOne({ email: userId });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const review = await Review.findById(reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        if (review.upvotedBy.includes(user._id)) {
+            return res.status(400).json({ message: 'User has already upvoted this review' });
+        }
+
+        review.upvotes += 1;
+        review.upvotedBy.push(user._id);
+        await review.save();
+
+        res.status(200).json(review);
+    } catch (error) {
+        console.error('Error upvoting review:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//remove upvote from review
+app.post('/review/remove-upvote/:id', async (req, res) => {
+    const reviewId = req.params.id;
+    const { userId } = req.body;
+
+    try {
+        const user = await User.findOne({ email: userId });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const review = await Review.findById(reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        if (!review.upvotedBy.includes(user._id)) {
+            return res.status(400).json({ message: 'User has not upvoted this review' });
+        }
+
+        review.upvotes -= 1;
+        review.upvotedBy = review.upvotedBy.filter(id => id.toString() !== user._id.toString());
+        await review.save();
+
+        res.status(200).json(review);
+    } catch (error) {
+        console.error('Error removing upvote from review:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 app.get('/profile/:userId', async (req, res) => {
-    const userId = req.params.userId;
     try {
-        const user = await User.findById(userId).populate('reviews.movieId');
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
+        const user = await User.findById(req.params.userId).populate('favouriteMovies');
+        if (!user) return res.status(404).send({ message: "User not found" });
         res.send(user);
     } catch (error) {
         res.status(500).send({ message: "Server error", error });
     }
 });
 
-
-
 app.get('/watchlist/:userId', async (req, res) => {
     const user = await User.findById(req.params.userId).populate('favouriteMovies');
     res.send(user.favouriteMovies);
 });
 
-app.get('/user-reviews/:userId', async (req, res) => {
-    const userReviews = await Movie.find({ 'reviews.userId': req.params.userId });
-    const reviews = userReviews.map(movie => {
-        return movie.reviews.filter(review => review.userId.toString() === req.params.userId);
-    }).flat();
-    res.send(reviews);
-});
+app.get('/user/reviews/:email', async (req, res) => {
+    const { email } = req.params;
+    //console.log(`user email: ${email}`);
 
-/* app.get('/user-reviews/:userId', async (req, res) => {
-    const userId = req.params.userId;
     try {
-        const user = await User.findById(userId).populate('reviews.movieId');
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).send({ message: "User not found" });
+            return res.status(404).json({ message: 'User not found' });
         }
-        res.send(user.reviews);
+        const reviews = await Review.find({ user: user._id }).populate('movie', 'title');
+
+        //console.log('id: ${user._id}');
+
+        res.json(reviews);
     } catch (error) {
-        res.status(500).send({ message: "Server error", error });
+        console.error('Error fetching user reviews:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}); */
-
-
+});
 
 
 app.listen(port,()=>{

@@ -12,7 +12,7 @@ import UserReviews from './components/UserReviews';
 import Reset from './components/Reset';
 import Otp from './components/Otp';
 
-function App() {
+function App() { 
 
   return (
     <BrowserRouter>
@@ -30,6 +30,8 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           
           <Route path="/user-reviews" element={<UserReviews />} />
+
+          <Route path="/user/reviews" element={<UserReviews />} />
 
           <Route path="/reset" element={<Reset />} />
 

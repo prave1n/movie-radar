@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import NavBar from "./NavBar";
 import "./styles/WatchList.css";
 import { useDispatch } from "react-redux";
 import { removemovie } from "../store/userSlice";
@@ -17,7 +18,7 @@ function WatchList() {
     // Do fetch req
 
     try {
-      await fetch("http://localhost:5000/deleteMovie", {
+      await fetch("http://localhost:8080/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -41,6 +42,7 @@ function WatchList() {
   };
   return (
     <div>
+      <NavBar />
       <h1 style={{ marginTop: "40px" }}>{fname}'s WatchList</h1>
       <div
         class="d-flex scroll"

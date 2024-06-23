@@ -1,0 +1,27 @@
+.user-review-card {
+    margin-bottom: 20px;
+  }
+  
+  .upvotes-badge {
+    font-size: 1.2rem;
+  }
+  
+  .d-flex > div {
+    display: flex;
+    gap: 10px;
+  }
+
+  .deletereviews-upvote-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .deletereviews-upvote-section .btn {
+    margin-bottom: 10px;
+  }
+  
+  .deletereviews-upvote-section .badge {
+    margin-left: 0;
+  }
+  
