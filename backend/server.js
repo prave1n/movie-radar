@@ -110,6 +110,23 @@ app.post('/changepsw',(req,res)=>{
     })
 })
 
+app.post("/auth", async (req,res) => {
+    const token = req.body.token
+    if (!token) {
+        return res.send({ login: false });
+    } else {
+        try {
+            const decoded = jwt.verify(token, jsonwebtoken);
+            const userId = decoded.id
+            const user = await User.findOne({_id:userId}) 
+            return res.send({login: true, user: user})
+        } catch (err) {
+            return res.send({ login: false });
+        }
+    }
+   
+})
+
 app.get('/logout',(req,res)=>{
     res.clearCookie("token")
 })
@@ -420,6 +437,13 @@ app.get('/user/reviews/:email', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// FRIENDS MIDDLEWARE
+
+app.get('/getUsers', async (req,res) => {
+    const users = await User.find();
+    res.send({users: users})
+})
 
 
 app.listen(port,()=>{
