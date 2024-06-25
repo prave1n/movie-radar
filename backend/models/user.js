@@ -26,7 +26,24 @@ const userSchema = new mongoose.Schema({
     reviews: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Review' 
-    }]
+    }],
+
+    username: {
+        type:String
+    },
+    friendList : [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: []
+    }],
+
+    activityList : [String],
+
+    status : {
+        type: String,
+        default: "offline"
+    }
+
 })
 const User = mongoose.model("User", userSchema);
 export default User;

@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import Review from './models/review.js';
 import User from './models/user.js';
 import Movie from './models/movie.js';
+import FriendRequest from './models/friendRequest.js';
 
 // Create API server
 const app = express()
@@ -40,8 +41,10 @@ app.post('/signIn',(req,res)=>{
         const user = new User({
             fname: req.body.firstname,
             lname:req.body.lastname,
+            username:req.body.username,
             email: req.body.email,
             password: hash, //HASH FROM Bcrypt
+            pfp: req.body.pfp
         })
 
         user.save()
@@ -445,6 +448,88 @@ app.get('/getUsers', async (req,res) => {
     res.send({users: users})
 })
 
+app.post(`/fReq/:id`, async (req,res) => {
+    const from = await User.findById(req.params.id)
+    const to = await User.findById(req.body.to)
+
+    await FriendRequest.findOne({sender: from, recipient:to})
+    .then(async (req) => {
+        if(!req) {
+            const newRequest = new FriendRequest({
+                sender: from,
+                recipient: to,
+              });
+        
+            await newRequest.save();
+            res.send({message:"Request made successfully"})
+        } else {
+            res.send({message:"Already made this request"})
+        }
+    })
+})
+
+app.get(`/fReq/get/:id`, async (req,res) => {
+    const to = await User.findById(req.params.id)
+    await FriendRequest.find({ recipient: to })
+    .then(async (freq) => {
+        res.send({fReq: freq})
+    })
+})
+
+app.post('/getUserDetails', async (req,res) => {
+    await User.findById(req.body.id).then((user) => {
+        res.send({user: user, fname: user.fname})
+    })
+    
+})
+
+app.delete('/fReq/delete', async (req,res) => {
+   await FriendRequest.findByIdAndDelete(req.body.id)
+   .then((fReq) => {
+        if(fReq) {
+            res.send({message:"Deletion successful"})
+        } else {
+            res.send({message:"Request is not found"})
+        }
+   })
+    
+})
+
+app.post('/acceptReq', async (req,res) => {
+    const freq = await FriendRequest.findByIdAndDelete(req.body.id)
+   
+    await User.findByIdAndUpdate(freq.recipient, {$addToSet: {friendList: freq.sender}})
+    await User.findByIdAndUpdate(freq.sender, {$addToSet: {friendList: freq.recipient}})
+    .then(() => {
+        res.send({id: freq.sender})
+    })
+
+    /*
+    await User.findById(freq.recipient)
+    .then(async (user) => {
+        let fList = user.friendList
+        fList = fList.push(freq.sender)
+        await User.findByIdAndUpdate(freq.recipient, {friendList: fList})
+    })
+
+    await User.findById(freq.sender)
+    .then(async (user) => {
+        let fList = user.friendList
+        fList = fList.push(freq.recipient)
+        await User.findByIdAndUpdate(freq.sender, {friendList: fList})
+    })
+
+    res.send({msg:"success"})
+     */
+})
+
+app.delete('/friend/delete/:id', async (req,res) => {
+    const id = req.params.id
+    await User.findByIdAndUpdate(id, {$unset: {friendList: req.body.id}})
+    .then((user) => {
+        res.send({msg: "Friend Deleted", friendList: user.friendList})
+    })
+})
 
 app.listen(port,()=>{
     console.log(`Server connected to port ${port} successfully`)

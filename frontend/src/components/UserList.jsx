@@ -21,14 +21,18 @@ function FriendsList() {
           })
           .then((res) => {
             setUsers(res.users)
-            console.log(userList)
           })
         } catch (err) {
           console.log(err)
         } 
-      },[]) 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      },[])
+
+  
   return (
-    <div>
+    <div style={{display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
+      <h1>Users</h1>
+      <div style={{border:"1px solid black", height:"650px", overflow:"scroll", borderRadius:"20px"}}>
         {userList.map((user) => {
             return(
             <div key={user._id}>
@@ -37,6 +41,9 @@ function FriendsList() {
             />
           </div>)
         })}
+    </div>
+
+    
     </div>
   )
 }
