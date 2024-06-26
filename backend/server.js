@@ -477,7 +477,8 @@ app.get(`/fReq/get/:id`, async (req,res) => {
 })
 
 app.post('/getUserDetails', async (req,res) => {
-    await User.findById(req.body.id).then((user) => {
+    await User.findById(req.body.id)
+    .then((user) => {
         res.send({user: user, fname: user.fname})
     })
     
@@ -528,6 +529,15 @@ app.delete('/friend/delete/:id', async (req,res) => {
     await User.findByIdAndUpdate(id, {$unset: {friendList: req.body.id}})
     .then((user) => {
         res.send({msg: "Friend Deleted", friendList: user.friendList})
+    })
+})
+
+app.get("/pendingReq/:id", async (req,res) => {
+    const id = req.params.id
+    await FriendRequest.find({sender: id})
+    .then((reqs) => {
+        console.log(reqs)
+        res.send({reqs: reqs})
     })
 })
 

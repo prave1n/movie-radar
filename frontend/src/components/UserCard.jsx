@@ -4,11 +4,13 @@ import Button from "react-bootstrap/Button";
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 
-function UserCard({user}) {
+function UserCard({user, pending}) {
     const [button, setButton] = useState();
     const thisEmail = useSelector((state) => state.user.email);
     const thisId = useSelector((state) => state.user.userid)
+    const friendList = useSelector((state) => state.user.friendList)
 
+    console.log(pending)
     const addFriendHandler = (e) => {
       try {
         fetch(`http://localhost:8080/fReq/${thisId}`, {
@@ -40,6 +42,10 @@ function UserCard({user}) {
     useEffect(() => {
       if(user.email === thisEmail) {
         setButton(<Button variant="dark" disabled> This is You </Button>);
+      } else if (pending.filter((req) => req.recipient === user._id).length !== 0) {
+        setButton(<Button variant="dark" disabled> Request Sent </Button>)
+      }else if (friendList.filter((x) => x === user._id).length !== 0) {
+        setButton(<Button variant="dark" disabled> Friend </Button>)
       } else {
         setButton(<Button variant="primary" onClick={addFriendHandler}> Add Friend</Button>)
       }
