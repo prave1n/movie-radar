@@ -7,11 +7,16 @@ import UserReviewCard from "./UserReviewCard";
 import MovieCard from "./MovieCard";
 import NavBar from "./NavBar";
 import "./styles/Profile.css";
+import Form from "react-bootstrap/Form";
 
 const Profile = () => {
   const [user, setUser] = useState({});
   const [watchlist, setWatchlist] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+
   const userId = useSelector((state) => state.user.userid);
   const email = useSelector((state) => state.user.email);
   const navigate = useNavigate();
@@ -19,7 +24,11 @@ const Profile = () => {
   useEffect(() => {
     fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
-      .then((data) => setUser(data));
+      .then((data) => {
+        setUser(data);
+        setFname(data.fname);
+        setLname(data.lname);
+      });
 
     fetch(`http://localhost:8080/watchlist/${userId}`)
       .then((res) => res.json())
@@ -116,23 +125,83 @@ const Profile = () => {
     }
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = async () => {
+    const updatedUser = { fname, lname };
+
+    try {
+      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!response.ok) {
+        throw new Error("failed to update user name");
+      }
+
+      const updatedUserData = await response.json();
+      setUser(updatedUserData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("error updating profile:", error);
+    }
+  };
+
   return (
     <div>
       <NavBar />
       <div className="profile-container">
         <h1 className="mb-4">Profile</h1>
         <div className="personal-info mb-4">
-          <p>
-            <strong>First Name:</strong> {user.fname}
-          </p>
-          <p>
-            <strong>Last Name:</strong> {user.lname}
-          </p>
-          <p>
-            <strong>Email:</strong> {user.email}
-          </p>
+          {isEditing ? (
+            <div>
+              <Form.Group controlId="formFname">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={fname}
+                  onChange={(e) => setFname(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group controlId="formLname">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={lname}
+                  onChange={(e) => setLname(e.target.value)}
+                />
+              </Form.Group>
+              <Button
+                variant="primary"
+                onClick={handleSaveClick}
+                className="mt-2"
+              >
+                Save
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <p>
+                <strong>First Name:</strong> {user.fname}
+              </p>
+              <p>
+                <strong>Last Name:</strong> {user.lname}
+              </p>
+              <p>
+                <strong>Email:</strong> {user.email}
+              </p>
+              <Button variant="secondary" onClick={handleEditClick}>
+                Edit
+              </Button>
+            </div>
+          )}
         </div>
-
         <div className="watchlist mb-4">
           <h2>Your Watchlist</h2>
           <div className="d-flex flex-wrap">

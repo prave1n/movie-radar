@@ -282,50 +282,6 @@ app.delete('/review/:reviewId', async (req, res) => {
     }
 });
 
-/* app.delete('/review/:id', async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.body;
-  
-    try {
-      const review = await Review.findById(id);
-  
-      if (!review) {
-        return res.status(404).json({ message: 'Review not found' });
-      }
-  
-      if (review.user.toString() !== userId) {
-        return res.status(403).json({ message: 'You are not authorized to delete this review' });
-      }
-  
-      await review.remove();
-      res.status(200).json({ message: 'Review deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  }); */
-
-/* app.delete('/review/:reviewId', async (req, res) => {
-    const { reviewId } = req.params;
-  
-    try {
-      const review = await Review.findById(reviewId);
-      if (!review) {
-        return res.status(404).json({ message: 'Review not found' });
-      }
-  
-      if (review.user.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: 'Unauthorized' });
-      }
-  
-      await review.remove();
-      res.json({ message: 'Review deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  }); */
-
 app.get('/movie/:id/average-rating', async (req, res) => {
     try {
       const movieId = req.params.id;
@@ -422,6 +378,27 @@ app.get('/profile/:userId', async (req, res) => {
         res.status(500).send({ message: "Server error", error });
     }
 });
+
+app.put('/profile/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const { fname, lname } = req.body;
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+  
+      user.fname = fname;
+      user.lname = lname;
+      await user.save();
+  
+      res.send(user);
+    } catch (error) {
+      res.status(500).send('Server error');
+    }
+  });
+
 
 app.get('/watchlist/:userId', async (req, res) => {
     const user = await User.findById(req.params.userId).populate('favouriteMovies');
