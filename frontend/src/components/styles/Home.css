@@ -1,0 +1,12 @@
+.search-genre-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1500px;
+    margin: 20px auto 0;
+  }
+  
+  .genre-filter-container {
+    display: flex;
+    align-items: center;
+  }
