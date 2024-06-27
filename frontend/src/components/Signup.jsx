@@ -8,8 +8,10 @@ function Signup() {
   const navigate = useNavigate();
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
+  const [uName, setUname] = useState("");
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
+  const [pfp, setPfp] = useState("");
 
   let result = true;
   const pswchecker = new RegExp(
@@ -42,8 +44,10 @@ function Signup() {
           body: JSON.stringify({
             firstname: fname,
             lastname: lname,
+            username: uName,
             email: email,
             password: psw,
+            pfp: pfp
           }),
         })
           .then((res) => {
@@ -64,6 +68,18 @@ function Signup() {
     <div class="mainbody">
       <h1 class="movieTitle"> Movie Radar </h1>
       <div class="signinbody">
+        <label>UserName: </label>
+        <input
+          type="text"
+          placeholder="Enter your preffered username"
+          name="username"
+          required
+          onChange={(e) => {
+            setUname(e.target.value);
+          }}
+        />
+        <br></br>
+
         <label>First Name: </label>
         <input
           type="text"
@@ -96,6 +112,18 @@ function Signup() {
           required
           onChange={(e) => {
             setEmail(e.target.value);
+          }}
+        />
+        <br></br>
+
+        <label>Profile picture: </label>
+        <input
+          type="text"
+          placeholder="Enter an url for your profile picture"
+          name="pfp"
+          required
+          onChange={(e) => {
+            setPfp(e.target.value);
           }}
         />
         <br></br>

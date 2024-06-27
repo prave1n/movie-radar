@@ -13,6 +13,7 @@ function NavBar() {
   const logoutHandler = () => {
     dispatch(clearuser());
     localStorage.removeItem("persist:root");
+    localStorage.removeItem("token");
     navigate("/");
   };
   return (
@@ -31,6 +32,9 @@ function NavBar() {
             </Nav.Link>
             <Nav.Link as={Link} to="/user/reviews">
               Reviews
+            </Nav.Link>
+            <Nav.Link as={Link} to="/friends">
+              Friends List
             </Nav.Link>
           </Nav>
         </Container>

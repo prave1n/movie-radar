@@ -10,9 +10,51 @@ import MovieDetails from './components/MovieDetails';
 import Profile from './components/Profile';
 import UserReviews from './components/UserReviews';
 import Reset from './components/Reset';
-import Otp from './components/Otp';
+import Otp from './components/Otp'; 
+import {useEffect } from 'react';
+import FriendsPage from './components/FriendsPage';
+import { useDispatch } from 'react-redux';
+import { newuser } from './store/userSlice';
+import { clearuser } from './store/userSlice';
+import { useSelector } from 'react-redux';
 
 function App() { 
+  const loggedIn = useSelector((state) => state.user.authorized);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+ 
+    try {
+      fetch("http://localhost:8080/auth", {
+        method: "POST",
+        headers: {
+          "Access-Control-Allow-Origin": true,
+          "Content-Type": "application/json",
+        }, 
+        body: JSON.stringify({
+          token: token
+        }),
+      })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        if(res.login) {
+          dispatch(newuser(res.user));
+          
+        } else {
+          dispatch(clearuser());
+          
+          localStorage.removeItem("persist:root");
+          localStorage.removeItem("token");
+        }
+      })
+    } catch (err) {
+      console.log(err)
+    } // eslint-disable-next-line 
+  },[]) 
+  
 
   return (
     <BrowserRouter>
@@ -21,21 +63,23 @@ function App() {
 
           <Route exact path = '/signup' element={<Signup/>}/>
 
-          <Route exact path = '/home' element={<Home/>}/>
+          <Route exact path = '/home' element={!loggedIn ? <Login/> : <Home/>}/>
 
-          <Route exact path = '/watchlist' element={<WatchList/>}/>
+          <Route exact path = '/watchlist' element={!loggedIn ? <Login/> : <WatchList/>}/>
 
-          <Route exact path='/movie/:id' element={<MovieDetails />} />
+          <Route exact path='/movie/:id' element={!loggedIn ? <Login/> : <MovieDetails />} />
 
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={!loggedIn ? <Login/> : <Profile />} />
           
-          <Route path="/user-reviews" element={<UserReviews />} />
+          <Route path="/user-reviews" element={!loggedIn ? <Login/> : <UserReviews />} />
 
-          <Route path="/user/reviews" element={<UserReviews />} />
+          <Route path="/user/reviews" element={!loggedIn ? <Login/> : <UserReviews />} />
 
-          <Route path="/reset" element={<Reset />} />
+          <Route path="/reset" element={!loggedIn ? <Login/> : <Reset />} />
 
-          <Route path="/forgotpsw/:id" element={<Otp />} />
+          <Route path="/forgotpsw/:id" element={!loggedIn ? <Login/> : <Otp />} />
+
+          <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
 
           <Route exact path = '*' element={<p>PAGE NOT FOUND</p>}/>
 
