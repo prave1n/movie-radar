@@ -1,0 +1,31 @@
+e4eaa8e7,prave1n,3 days ago,Merge pull request #6 from prave1n/update-user-details
+dcd7f265,prave1n,3 days ago,feat: user can not update first and last name
+845e8c7e,prave1n,3 days ago,Merge pull request #5 from prave1n/filter-by-genre-feature
+b31ffe88,prave1n,3 days ago,milestone 2
+b970b2f2,prave1n,3 days ago,feat: user can now sort movies by genre
+2b3dc5e2,prave1n,3 days ago,Merge pull request #3 from prave1n/friend-list
+ee0fd0f8,Linkes,4 days ago,friend-lists feature PROGRESS : 99% Pending Fix --> Update user list upon removal of friend
+07c327ad,Linkes,5 days ago,friend-list progress:90% sign-In page: Updated
+fea4815f,Linkes,6 days ago,Friend-list feature progress: 10%
+d69a4cea,prave1n,7 days ago,basic filtering by genre
+2fe735dd,prave1n,7 days ago,Merge pull request #2 from prave1n/main
+fbd1e523,prave1n,7 days ago,filter by genre feature
+00be178d,prave1n,7 days ago,Merge pull request #1 from prave1n/user-review
+e7bb774b,prave1n,7 days ago,delete review feature, fixed bugs with handling upvotes
+1c5605b7,Linkes,9 days ago,user bug fix for reviews
+54e4b71f,prave1n,9 days ago,fixed user review feature
+f46ee301,Linkes,11 days ago,reset psw feature push
+fc3003df,prave1n,2 weeks ago,UserReview, Profile features
+34b8fbf0,prave1n,3 weeks ago,testing again
+e2d61aaa,LinkesV,3 weeks ago,Merge branch 'main' of github.com:prave1n/movie-radar
+9a2e4a04,prave1n,3 weeks ago,testing
+24f0a6bc,LinkesV,3 weeks ago,yes
+81290e49,LinkesV,3 weeks ago,Merge branch 'main' of github.com:LinkesV/MS1FrontEnd
+e6f60be9,LinkesV,4 weeks ago,yes
+1134c576,prave1n,4 weeks ago,miletone 1
+5e5dc70d,prave1n,4 weeks ago,milestone 1
+8f8faf18,LinkesV,4 weeks ago,yes
+db45269d,LinkesV,4 weeks ago,first commit
+ee719f8b,LinkesV,4 weeks ago,yes
+ab9d422a,LinkesV,4 weeks ago,yes
+0f9d0355,Linkes Varun,4 weeks ago,Initialize project using Create React App

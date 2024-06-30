@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Signup.css";
-import Button from "react-bootstrap/esm/Button";
+import Button from "react-bootstrap/Button";
 
 function Signup() {
   const navigate = useNavigate();
@@ -13,14 +13,15 @@ function Signup() {
   const [psw, setPsw] = useState("");
   const [pfp, setPfp] = useState("");
 
-  let result = true;
+  //let result = true;
   const pswchecker = new RegExp(
     "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})"
   );
 
   const submitHandler = async () => {
+    let result = true;
     try {
-      if (fname.length === 0 || lname.length === 0) {
+      if (fname.trim() === "" || lname.trim() === "") {
         alert("Please fill in all the fields to create an account");
         result = false;
       }
@@ -47,7 +48,7 @@ function Signup() {
             username: uName,
             email: email,
             password: psw,
-            pfp: pfp
+            pfp: pfp,
           }),
         })
           .then((res) => {

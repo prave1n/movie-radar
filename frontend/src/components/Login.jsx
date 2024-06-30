@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { newuser } from "../store/userSlice";
 import "./styles/Login.css";
-import Button from "react-bootstrap/esm/Button";
+import Button from "react-bootstrap/Button";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -46,9 +46,9 @@ export default function Login() {
   };
 
   return (
-    <div class="mainformbody">
-      <h1 class="movieTitle">Movie Radar</h1>
-      <div class="formbody">
+    <div className="mainformbody">
+      <h1 className="movieTitle">Movie Radar</h1>
+      <div className="formbody">
         <label>Email: </label>
         <input
           type="email"
