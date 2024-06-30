@@ -59,7 +59,7 @@ function App() {
   return (
     <BrowserRouter>
     <Routes>
-          <Route exact path = '/' element={<Login/>}/>
+          <Route exact path = '/' element={!loggedIn ? <Login/> : <Home/>}/>
 
           <Route exact path = '/signup' element={<Signup/>}/>
 

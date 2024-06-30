@@ -58,7 +58,7 @@ function Home() {
   }, [fetchMovies]);
 
   //filter movies based on search and genre
-  const filteredMovies = movies
+  const filteredMovies = movies.slice(0,300)
     .filter(
       (movie) =>
         movie.title.toLowerCase().includes(search.toLowerCase()) ||
