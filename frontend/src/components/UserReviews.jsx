@@ -16,7 +16,7 @@ const UserReviews = () => {
     const fetchUserReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/user/reviews/${email}`
+          `https://movie-radar-2.onrender.com/user/reviews/${email}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -40,7 +40,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -71,7 +71,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -100,7 +100,7 @@ const UserReviews = () => {
   /* const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -125,7 +125,7 @@ const UserReviews = () => {
   const handleRemoveUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/remove-upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,9 +151,12 @@ const UserReviews = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -211,7 +214,7 @@ const UserReviews = () => {
     const fetchUserReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/user/reviews/${email}`
+          `https://movie-radar-2.onrender.com/user/reviews/${email}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -233,7 +236,7 @@ const UserReviews = () => {
   const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,7 +261,7 @@ const UserReviews = () => {
   const handleRemoveUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/remove-upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

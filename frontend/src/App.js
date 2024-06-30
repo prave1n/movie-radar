@@ -26,7 +26,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("http://localhost:8080/auth", {
+      fetch("https://movie-radar-2.onrender.com/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
