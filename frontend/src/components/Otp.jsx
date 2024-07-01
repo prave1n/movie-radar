@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Otp() {
   const [otp, setOtp] = useState("");
   const [psw, setPsw] = useState("");
   const [cfmpsw, setCfmpsw] = useState("");
   const [correctOtp, setcorrectOtp] = useState(true);
+  const navigate = useNavigate()
 
   const id = useParams().id;
   const otpHandler = (e) => {
@@ -61,6 +63,7 @@ function Otp() {
           })
           .then((res) => {
             alert(res.message);
+            navigate("/ ")
           });
       } catch (err) {
         console.log(err);
@@ -73,7 +76,8 @@ function Otp() {
   return (
     <div>
       <div className="formparent" style={{ display: correctOtp ? "" : "none" }}>
-        <div className="otpform">
+        <div className="sendemailform">
+          <h2>Enter OTP</h2>
           <Form>
             <Form.Group className="mb-3" controlId="formBasicOTP">
               <Form.Label>Enter your OTP: </Form.Label>
@@ -102,7 +106,9 @@ function Otp() {
       </div>
       <div style={{ display: correctOtp ? "none" : "" }}>
         <div className="formparent">
-          <div className="pswform">
+          
+          <div className="sendemailform">
+            <h4>Passsword Reset</h4>
             <Form>
               <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Enter your new password:</Form.Label>

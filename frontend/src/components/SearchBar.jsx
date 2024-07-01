@@ -11,7 +11,7 @@ function SearchBar({ setSearch }) {
         className="searchBar"
         type="text"
         id="search"
-        placeholder="Type to search title and overview ..."
+        placeholder="Type to search ..."
         onChange={(e) => handleSearch(e.target.value)}
         style={{ height: "50px", width: "600px", marginTop: "70px" }}
       />

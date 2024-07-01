@@ -75,9 +75,9 @@ function App() {
 
           <Route path="/user/reviews" element={!loggedIn ? <Login/> : <UserReviews />} />
 
-          <Route path="/reset" element={!loggedIn ? <Login/> : <Reset />} />
+          <Route path="/reset" element={<Reset />} />
 
-          <Route path="/forgotpsw/:id" element={!loggedIn ? <Login/> : <Otp />} />
+          <Route path="/forgotpsw/:id" element={ <Otp />} />
 
           <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
 

@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
+import "./styles/Reset.css"
 
 function Reset() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ function Reset() {
                 username: res.username,
                 message: `
                       Your OTP IS ${res.OTP}
-                      Click on this url to proceed: https://movie-radar-2.onrender.com/forgotpsw/${res.id}
+                      Click on this url to proceed: https://movie-radar-6491.vercel.app/forgotpsw/${res.id}
                       `,
               },
               "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
@@ -56,6 +57,7 @@ function Reset() {
   return (
     <div className="formparent">
       <div className="sendemailform">
+      <h2> Reset Passsword</h2>
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Enter your email:</Form.Label>
