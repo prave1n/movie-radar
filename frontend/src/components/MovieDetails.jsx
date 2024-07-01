@@ -20,12 +20,12 @@ function MovieDetails() {
 
   useEffect(() => {
     //fetch movie details
-    fetch(`http://localhost:8080/movie/${id}`)
+    fetch(`https://movie-radar-2.onrender.com/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data));
 
     //fetch reviews
-    fetch(`http://localhost:8080/reviews/${id}`)
+    fetch(`https://movie-radar-2.onrender.com/reviews/${id}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedReviews = data.sort((a, b) => {
@@ -43,7 +43,7 @@ function MovieDetails() {
       });
 
     //fetch avg rating
-    fetch(`http://localhost:8080/movie/${id}/average-rating`)
+    fetch(`https://movie-radar-2.onrender.com/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
         if (data.averageRating === null) {
@@ -67,13 +67,16 @@ function MovieDetails() {
       reviewText,
     };
     try {
-      const response = await fetch(`http://localhost:8080/review`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `https://movie-radar-2.onrender.com/review`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to add review");
@@ -91,9 +94,12 @@ function MovieDetails() {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -108,7 +114,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -139,7 +145,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -168,7 +174,7 @@ function MovieDetails() {
   /* const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -193,7 +199,7 @@ function MovieDetails() {
   const handleRemoveUpvote = async (reviewId) => {
     const payload = { userId: email };
 
-    await fetch(`http://localhost:8080/review/remove-upvote/${reviewId}`, {
+    await fetch(`https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

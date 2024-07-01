@@ -22,7 +22,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:8080/profile/${userId}`)
+    fetch(`https://movie-radar-2.onrender.com/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
@@ -30,11 +30,11 @@ const Profile = () => {
         setLname(data.lname);
       });
 
-    fetch(`http://localhost:8080/watchlist/${userId}`)
+    fetch(`https://movie-radar-2.onrender.com/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
-    fetch(`http://localhost:8080/user/reviews/${email}`)
+    fetch(`https://movie-radar-2.onrender.com/user/reviews/${email}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched reviews data:", data);
@@ -54,7 +54,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -85,7 +85,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -113,9 +113,12 @@ const Profile = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -133,13 +136,16 @@ const Profile = () => {
     const updatedUser = { fname, lname };
 
     try {
-      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedUser),
-      });
+      const response = await fetch(
+        `https://movie-radar-2.onrender.com/profile/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedUser),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("failed to update user name");

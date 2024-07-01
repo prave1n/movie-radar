@@ -37,7 +37,7 @@ function Home() {
 
   //updated fetchMovies to handle filter by genre
   const fetchMovies = useCallback(() => {
-    let url = "http://localhost:8080/movie";
+    let url = "https://movie-radar-2.onrender.com/movie";
     if (selectedGenre) {
       url += `?genre=${selectedGenre}`;
     }
@@ -59,6 +59,7 @@ function Home() {
 
   //filter movies based on search and genre
   const filteredMovies = movies
+    .slice(0, 300)
     .filter(
       (movie) =>
         movie.title.toLowerCase().includes(search.toLowerCase()) ||

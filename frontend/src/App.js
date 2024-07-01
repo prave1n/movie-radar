@@ -26,7 +26,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("http://localhost:8080/auth", {
+      fetch("https://movie-radar-2.onrender.com/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -59,7 +59,7 @@ function App() {
   return (
     <BrowserRouter>
     <Routes>
-          <Route exact path = '/' element={<Login/>}/>
+          <Route exact path = '/' element={!loggedIn ? <Login/> : <Home/>}/>
 
           <Route exact path = '/signup' element={<Signup/>}/>
 

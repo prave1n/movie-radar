@@ -5,7 +5,8 @@ import { useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { addFriend } from "../store/userSlice";
 import { useDispatch } from "react-redux";
-import moment from "moment";
+
+
 
 function FriendRequestCard({ from, createdAt, id }) {
   const dispatch = useDispatch();
@@ -14,7 +15,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const [hide, setHide] = useState(false);
   useEffect(() => {
     try {
-      fetch(`http://localhost:8080/getUserDetails`, {
+      fetch(`https://movie-radar-2.onrender.com/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -41,7 +42,9 @@ function FriendRequestCard({ from, createdAt, id }) {
   const deleteRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`http://localhost:8080/fReq/delete`, {
+
+      fetch(`https://movie-radar-2.onrender.com/fReq/delete`, {
+
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -66,7 +69,8 @@ function FriendRequestCard({ from, createdAt, id }) {
   const acceptRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`http://localhost:8080/acceptReq`, {
+      fetch(`https://movie-radar-2.onrender.com/acceptReq`, {
+
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -97,9 +101,11 @@ function FriendRequestCard({ from, createdAt, id }) {
             <Card.Title>
               {fname} {lname}
             </Card.Title>
+
             <Card.Subtitle>
               Sent at: {moment(createdAt).format("MMMM Do YYYY, h:mm a")}
             </Card.Subtitle>
+
           </Card.Body>
           <div style={{ display: "flex", justifyContent: "space-around" }}>
             <Button variant="outline-success" onClick={acceptRequestHandler}>
