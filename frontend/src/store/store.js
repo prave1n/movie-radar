@@ -19,13 +19,13 @@ const persitConfig = {key:"root",storage, version:1};
 const persistedReducer = persistReducer(persitConfig,userReducer);
 
 export default configureStore({
-    reducer: {
-        user: persistedReducer, 
-    }, 
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          serializableCheck: {
-            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-          },
-        }),
+  reducer: {
+      user: persistedReducer, 
+  }, 
+  middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        },
+      }),
 });

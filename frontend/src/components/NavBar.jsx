@@ -38,9 +38,11 @@ function NavBar() {
             </Nav.Link>
           </Nav>
         </Container>
-        <button onClick={logoutHandler} className="btn btn-outline-light">
-          Log Out
-        </button>
+        <div>
+          <button onClick={logoutHandler} className="btn btn-outline-light">
+            Log Out
+          </button>
+        </div>
       </Navbar>
     </div>
   );
