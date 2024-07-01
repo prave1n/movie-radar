@@ -83,6 +83,7 @@ function Home() {
         <SearchBar setSearch={updateSearch} />
         <div className="genre-filter-container">
           <Form.Label
+            htmlFor="genre-select"
             style={{
               fontSize: "16px",
               fontWeight: "bold",
@@ -92,6 +93,7 @@ function Home() {
             Filter by Genre:
           </Form.Label>
           <Form.Control
+            id="genre-select"
             as="select"
             value={selectedGenre}
             onChange={(e) => setSelectedGenre(e.target.value)}

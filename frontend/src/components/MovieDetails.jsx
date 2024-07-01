@@ -238,8 +238,9 @@ function MovieDetails() {
         <h2>Add a Review</h2>
         <Form onSubmit={handleReviewSubmit} className="review-form">
           <Form.Group>
-            <Form.Label>Rating</Form.Label>
+            <Form.Label htmlFor="rating">Rating</Form.Label>
             <Form.Control
+              id="rating"
               type="number"
               value={rating}
               onChange={(e) => setRating(e.target.value)}
@@ -248,8 +249,9 @@ function MovieDetails() {
             />
           </Form.Group>
           <Form.Group>
-            <Form.Label>Review</Form.Label>
+            <Form.Label htmlFor="review">Review</Form.Label>
             <Form.Control
+              id="review"
               as="textarea"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}

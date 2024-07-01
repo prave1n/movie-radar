@@ -18,14 +18,24 @@ import {
 const persitConfig = {key:"root",storage, version:1};
 const persistedReducer = persistReducer(persitConfig,userReducer);
 
-export default configureStore({
+export const configureTestStore = () => {
+  const store = configureStore({
     reducer: {
-        user: persistedReducer, 
-    }, 
+      user: persistedReducer,
+    },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          serializableCheck: {
-            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-          },
-        }),
-});
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        },
+      }),
+  });
+
+  return store;
+};
+
+export const setupTestStore = () => {
+  const store = configureTestStore();
+  const persistor = persistStore(store);
+  return { store, persistor };
+};
