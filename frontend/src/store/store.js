@@ -33,9 +33,3 @@ export const configureTestStore = () => {
 
   return store;
 };
-
-export const setupTestStore = () => {
-  const store = configureTestStore();
-  const persistor = persistStore(store);
-  return { store, persistor };
-};
