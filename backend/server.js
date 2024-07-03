@@ -173,10 +173,38 @@ app.get('/getMovie', async (req, res) => {
     res.send(movies)
 })
 
-//updated /movie to handle filter by genre
-app.get('/movie', async (req, res) => {
-    const genre = req.query.genre;
-    const filter = genre ? { genre_ids: { $in: [Number(genre)] } } : {};
+//updated /movie to handle filter by multiple genres
+/* app.get('/movie', async (req, res) => {
+    const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
+    const filter = genres.length > 0 ? { genre_ids: { $in: genres } } : {};
+    try {
+      const movies = await Movie.find(filter);
+      res.send(movies);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }); */
+
+  //updated /movie to handle filter by multiple genres and multiple year intervals
+  app.get('/movie', async (req, res) => {
+    const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
+    const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
+  
+    let filter = {};
+  
+    if (genres.length > 0) {
+      filter.genre_ids = { $in: genres };
+    }
+  
+    if (yearRanges.length > 0) {
+      filter.release_date = {
+        $or: yearRanges.map(range => ({
+          $gte: new Date(range.start, 0, 1),
+          $lte: new Date(range.end, 11, 31)
+        }))
+      };
+    }
+  
     try {
       const movies = await Movie.find(filter);
       res.send(movies);

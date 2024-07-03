@@ -26,21 +26,57 @@ const genres = [
   { id: 37, name: "Western" },
 ];
 
+const yearRanges = [
+  { id: 1, name: "Before 1980", start: 0, end: 1979 },
+  { id: 2, name: "1980-1989", start: 1980, end: 1989 },
+  { id: 3, name: "1990-1999", start: 1990, end: 1999 },
+  { id: 4, name: "2000-2009", start: 2000, end: 2009 },
+  { id: 5, name: "2010-2019", start: 2010, end: 2019 },
+  { id: 6, name: "2020 and later", start: 2020, end: 9999 },
+];
+
 function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedYearRanges, setSelectedYearRanges] = useState([]);
 
   const updateSearch = (name) => {
     setSearch(name);
   };
 
-  //updated fetchMovies to handle filter by genre
+  const handleGenreChange = (genreId) => {
+    setSelectedGenres((prevGenres) =>
+      prevGenres.includes(genreId)
+        ? prevGenres.filter((id) => id !== genreId)
+        : [...prevGenres, genreId]
+    );
+  };
+
+  const handleYearRangeChange = (rangeId) => {
+    setSelectedYearRanges((prevRanges) =>
+      prevRanges.includes(rangeId)
+        ? prevRanges.filter((id) => id !== rangeId)
+        : [...prevRanges, rangeId]
+    );
+  };
+
   const fetchMovies = useCallback(() => {
-    let url = "https://movie-radar-2.onrender.com/movie";
-    if (selectedGenre) {
-      url += `?genre=${selectedGenre}`;
+    let url = "https://movie-radar-2.onrender.com/movie?";
+    const params = new URLSearchParams();
+
+    if (selectedGenres.length > 0) {
+      params.append("genres", selectedGenres.join(","));
     }
+    if (selectedYearRanges.length > 0) {
+      const yearRangesData = selectedYearRanges.map((id) =>
+        yearRanges.find((range) => range.id.toString() === id)
+      );
+      params.append("yearRanges", JSON.stringify(yearRangesData));
+    }
+
+    url += params.toString();
+
     fetch(url, {
       method: "GET",
       headers: {
@@ -51,13 +87,13 @@ function Home() {
       .then((res) => res.json())
       .then((res) => setMovies(res))
       .catch((error) => console.error("Error fetching movies:", error));
-  }, [selectedGenre]);
+  }, [selectedGenres, selectedYearRanges]);
 
   useEffect(() => {
     fetchMovies();
   }, [fetchMovies]);
 
-  //filter movies based on search and genre
+  //filter movies based on search and genres and release year intercals
   const filteredMovies = movies
     .slice(0, 300)
     .filter(
@@ -66,8 +102,20 @@ function Home() {
         movie.overview.toLowerCase().includes(search.toLowerCase())
     )
     .filter((movie) =>
-      selectedGenre ? movie.genre_ids.includes(parseInt(selectedGenre)) : true
-    );
+      selectedGenres.length > 0
+        ? selectedGenres.some((genreId) =>
+            movie.genre_ids.includes(parseInt(genreId))
+          )
+        : true
+    )
+    .filter((movie) => {
+      if (selectedYearRanges.length === 0) return true;
+      const movieYear = new Date(movie.release_date).getFullYear();
+      return selectedYearRanges.some((rangeId) => {
+        const range = yearRanges.find((r) => r.id.toString() === rangeId);
+        return movieYear >= range.start && movieYear <= range.end;
+      });
+    });
 
   return (
     <div>
@@ -91,22 +139,45 @@ function Home() {
               marginRight: "10px",
             }}
           >
-            Filter by Genre:
+            Filter by Genres:
           </Form.Label>
-          <Form.Control
-            id="genre-select"
-            as="select"
-            value={selectedGenre}
-            onChange={(e) => setSelectedGenre(e.target.value)}
-            style={{ width: "200px" }}
-          >
-            <option value="">All Genres</option>
+          <div>
             {genres.map((genre) => (
-              <option key={genre.id} value={genre.id}>
-                {genre.name}
-              </option>
+              <Form.Check
+                key={genre.id}
+                type="checkbox"
+                id={`genre-${genre.id}`}
+                label={genre.name}
+                checked={selectedGenres.includes(genre.id.toString())}
+                onChange={() => handleGenreChange(genre.id.toString())}
+                inline
+              />
             ))}
-          </Form.Control>
+          </div>
+        </div>
+        <div className="year-filter-container">
+          <Form.Label
+            style={{
+              fontSize: "16px",
+              fontWeight: "bold",
+              marginRight: "10px",
+            }}
+          >
+            Filter by Release Years:
+          </Form.Label>
+          <div>
+            {yearRanges.map((range) => (
+              <Form.Check
+                key={range.id}
+                type="checkbox"
+                id={`year-${range.id}`}
+                label={range.name}
+                checked={selectedYearRanges.includes(range.id.toString())}
+                onChange={() => handleYearRangeChange(range.id.toString())}
+                inline
+              />
+            ))}
+          </div>
         </div>
       </div>
       <div style={{ marginTop: "20px" }}>
