@@ -36,7 +36,11 @@ mongoose.connect("mongodb+srv://linkesvarun:JUF076PvImPU5eQt@clustertest.chekyvj
 //JWT
 const jsonwebtoken = process.env.JWT_SECRET
 
-app.post('/signIn',(req,res)=>{
+app.post('/signIn',async (req,res)=>{
+    const user = await User.findOne({email:req.body.email})
+    if(user) {
+        res.send({result:false, message:"You already have an account linked with this email account"})
+    } else {
     bcrypt.hash(req.body.password, saltrounds, function(err,hash){
         const user = new User({
             fname: req.body.firstname,
@@ -44,16 +48,45 @@ app.post('/signIn',(req,res)=>{
             username:req.body.username,
             email: req.body.email,
             password: hash, //HASH FROM Bcrypt
-            pfp: req.body.pfp
+            pfp: req.body.pfp,
+            otp: `${Math.random().toString(36).substring(2,7)}`,
+            telegramHandle: req.body.telegram,
         })
 
         user.save()
-        .then(()=>{
-            res.send({message:"Account created successfully. You may login Now"})
+        .then((user)=>{
+            res.send({result:true, message:"Account created successfully. You may login Now", userId: user._id, useremail: user.email, username:user.username, otp: user.otp})
         })
         .catch((err)=>{
             console.log(err)
         })
+    })
+    }
+})
+
+app.post('/verify', async (req,res) => {
+    await User.findOne({_id:req.body.id})
+    .then(async (user)=>{
+       if(user.otp == req.body.otp){
+            await User.findByIdAndUpdate({_id:user._id},{verified:true, otp: `${Math.random().toString(36).substring(2,7)}`})
+            res.send({result:true,message:"OTP is correct, you may login now"})
+        }
+        else{
+            res.send({result:false,message:"OTP is wrong", otp:user.otp})
+        }  
+    })
+})
+
+app.post('/resend', async (req,res) => {
+    const otp = Math.random().toString(36).substring(2,7)
+    await User.findByIdAndUpdate({_id:req.body.id},{otp: otp})
+    .then((user)=>{
+       if(user){
+            res.send({result:true,message:"Your verification code has been resent",otp: otp, useremail: user.email, username:user.username,})
+        }
+        else{
+            res.send({result:false,message:"You have not registered properly"})
+        }  
     })
 })
 
@@ -62,8 +95,9 @@ app.post('/login',(req,res)=>{
     .then((user)=>{
         if(!user){
             res.send({login:false,message:"Invalid email"})
-        }
-        else{
+        } else if (!user.verified){
+            res.send({login:false,message:"Your email account still has not been verified"})
+        } else {
             bcrypt.compare(req.body.password,user.password,function (err,result){
                 if(result == true){
                     const token = jwt.sign({id:user._id, username:user.email,type:"user"}, jsonwebtoken, {expiresIn: "2h"})
@@ -552,6 +586,86 @@ app.get("/pendingReq/:id", async (req,res) => {
         res.send({reqs: reqs})
     })
 })
+
+// Create New PlayList
+app.post("/createPlaylist", async (req,res) => {
+    await User.findByIdAndUpdate(req.body.id, {$push: {playLists: {name: req.body.name, description: req.body.description, movies: []}}})
+    .then(async (user) => {
+        const updated = await User.findById(req.body.id)
+        res.send({playLists:updated.playLists})
+    })
+})
+
+// Add To PlayList 
+app.post("/addToPlayList", async (req,res) => {
+    const movie = await Movie.findById(req.body.movieID)
+    await User.findByIdAndUpdate(req.body.userID, {$push: {"playLists.$[elem].movies" : movie}},
+        { 
+        "arrayFilters": [{ "elem._id": req.body.playListID}], 
+        }
+     )
+     .then(async (user) => {
+        
+        const updated = await User.findById(req.body.userID)
+        
+        res.send({user:updated})
+     })
+})
+
+// Send PlayList
+app.post("/getMovieList", async (req,res) => {
+    const list = req.body.list;
+    const movieDets = [];
+    for(let id of list) {
+        const movie = await Movie.findById(id)
+        if(movie) {
+            movieDets.push(movie)
+        }
+    }
+
+    res.send({movieList:movieDets})
+})
+
+// app.post("/getPlayLists", async (req,res) => {
+//     await User.findById(req.body.id)
+//     .then((user) => {
+//         res.send({playlist:user.playLists})
+//     })
+// })
+
+// Delete PlayList
+app.post("/delPlayList", async (req,res) => {
+    const id = req.body.userID;
+    const listID = req.body.listID
+    const movie = await Movie.findById(req.body.movieID)
+
+    await User.findByIdAndUpdate(id, {$pull: {playLists: {_id:listID}}})
+    .then(async (user) => {
+        const updated = await User.findById(id)
+        res.send({user: updated})
+    })
+
+})
+
+// Del Movie From PlayList 
+app.post("/delmoviePlayList", async (req,res) => {
+    const id = req.body.userID;
+    const listID = req.body.listID
+    const movieID = req.body.movieID
+
+    const movie = await Movie.findById(movieID)
+    await User.findByIdAndUpdate(id, {$pull: {"playLists.$[elem].movies" : movieID}},
+        { 
+        "arrayFilters": [{ "elem._id": listID}], 
+        }
+     )
+    .then(async (user) => {
+        const updated = await User.findById(id)
+        res.send({user: updated})
+    })
+
+})
+
 
 app.listen(port,()=>{
     console.log(`Server connected to port ${port} successfully`)

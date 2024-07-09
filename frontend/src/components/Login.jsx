@@ -1,22 +1,32 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import Link from '@mui/material/Link';
 import { useDispatch } from "react-redux";
 import { newuser } from "../store/userSlice";
 import "./styles/Login.css";
-import Button from "react-bootstrap/Button";
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import CssBaseline from '@mui/material/CssBaseline';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import LocalMoviesRoundedIcon from '@mui/icons-material/LocalMoviesRounded';
+
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const defaultTheme = createTheme();
 
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
 
   const submitHandler = async () => {
     try {
-      await fetch("https://movie-radar-2.onrender.com/login", {
+      await fetch("http://localhost:8080/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -32,7 +42,7 @@ export default function Login() {
         })
         .then((res) => {
           if (!res.login) {
-            alert("Login Credentials are incorrect");
+            alert(res.message);
           } else {
             dispatch(newuser(res.user));
             console.log(res.token);
@@ -47,44 +57,77 @@ export default function Login() {
 
   return (
     <div className="mainformbody">
-      <h1 className="movieTitle">Movie Radar</h1>
-      <div className="formbody">
-        <label>Email: </label>
-        <input
-          type="email"
-          placeholder="Enter Email"
-          name="email"
+      <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="sm">
+        <CssBaseline />
+      <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: "40px",
+          }}
+         
+        >
+          <Typography component="h1" variant="h3">
+            Movie Radar  <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px"}}/>
+        </Typography>
+
+        <Box component="form" noValidate sx={{ mt: 1 }}>
+        <TextField
+          margin="normal"
           required
+          fullWidth
+          id="email"
+          placeholder="Enter Email"
+          label="Email Address"
+          name="email"
+          autoFocus
           onChange={(e) => {
             setEmail(e.target.value);
           }}
         />
-        <br></br>
-        <label>Password: </label>
-        <input
-          type="password"
-          placeholder="Enter Password"
-          name="psw"
+        
+        
+        <TextField
+          margin="normal"
           required
+          fullWidth
+          type="password"
+          name="password"
+          label="Password"
+          id="password"
           onChange={(e) => {
             setPsw(e.target.value);
           }}
         />
-        <br></br>
-        <Button type="submit" onClick={submitHandler}>
+        
+        <Button type="submit" 
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={submitHandler}>
           Login
         </Button>
 
-        <div>
-          <p>
-            Dont have an acount? <Link to="/signup">Sign Up</Link>
-          </p>
-          <br></br>
-          <p>
-            Forgot Password? <Link to="/reset">Reset Password</Link>
-          </p>
-        </div>
-      </div>
+        <Grid container>
+              <Grid item xs>
+                <Link href="/signup" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="/reset" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+        </Box>
+        </Box>
+        </Container>
+    </ThemeProvider>
     </div>
+    
   );
 }

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Signup.css";
 import Button from "react-bootstrap/Button";
+import emailjs from "@emailjs/browser";
 
 function Signup() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
   const [pfp, setPfp] = useState("");
+  const [tele, setTele] = useState("");
 
   //let result = true;
   const pswchecker = new RegExp(
@@ -21,7 +23,7 @@ function Signup() {
   const submitHandler = async () => {
     let result = true;
     try {
-      if (fname.trim() === "" || lname.trim() === "") {
+      if (fname.trim() === "" || lname.trim() === "" || uName.trim() === "") {
         alert("Please fill in all the fields to create an account");
         result = false;
       }
@@ -36,7 +38,7 @@ function Signup() {
         result = false;
       }
       if (result) {
-        await fetch("https://movie-radar-2.onrender.com/signIn", {
+        await fetch("http://localhost:8080/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -49,6 +51,7 @@ function Signup() {
             email: email,
             password: psw,
             pfp: pfp,
+            telegram: tele
           }),
         })
           .then((res) => {
@@ -56,8 +59,27 @@ function Signup() {
           })
           .then((res) => {
             console.log(res);
-            navigate("/");
-            alert("Account Creater Successfully. Please log in");
+
+            // SEND EMAIL
+            if(res.result) {
+              emailjs.send(
+                "service_vwt5hn4", //service ID
+                "template_qxyvfa6", //Template ID
+                {
+                  email: res.useremail,
+                  username: res.username,
+                  message: `
+                        In order to verify your email, your OTP IS ${res.otp}
+                        `,
+                },
+                "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
+              );
+  
+              alert("Account Created Successfully. Please verify your email before logging in");
+              navigate(`/verify/${res.userId}`);
+            } else {
+              alert(res.message);
+            }
           });
       }
     } catch (err) {
@@ -126,6 +148,18 @@ function Signup() {
           onChange={(e) => {
             setPfp(e.target.value);
           }}
+        />
+        <br></br>
+
+        <label>Telegram Handle (Optional): </label>
+        <input
+        type="text"
+        placeholder="Enter your telegram handle"
+        name="pfp"
+        required
+        onChange={(e) => {
+          setTele(e.target.value);
+        }}
         />
         <br></br>
 

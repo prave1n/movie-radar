@@ -2,13 +2,12 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import NavBar from "./NavBar";
 import "./styles/WatchList.css";
 import { useDispatch } from "react-redux";
 import { removemovie } from "../store/userSlice";
 
 function WatchList() {
-  let watchlist = useSelector((state) => state.user.watchlist);
+  const watchlist = useSelector((state) => state.user.watchlist);
   const fname = useSelector((state) => state.user.fname);
   const id = useSelector((state) => state.user.userid);
 
@@ -18,7 +17,7 @@ function WatchList() {
     // Do fetch req
 
     try {
-      await fetch("https://movie-radar-2.onrender.com/deleteMovie", {
+      await fetch("http://localhost:8080/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -26,7 +25,7 @@ function WatchList() {
         },
         body: JSON.stringify({
           id: id,
-          movie: movie,
+          movie: watchlist.filter((x) => x._id !== movie._id),
         }),
       })
         .then((res) => {
@@ -34,7 +33,9 @@ function WatchList() {
         })
         .then((res) => {
           console.log(res.message);
-          dispatch(removemovie(watchlist.filter((x) => x !== movie)));
+          
+          dispatch(removemovie(watchlist.filter((x) => x._id !== movie._id)));
+          console.log(watchlist)
         });
     } catch (err) {
       console.log(err);
@@ -42,15 +43,15 @@ function WatchList() {
   };
   return (
     <div>
-      <NavBar />
       <h1 style={{ marginTop: "40px" }}>{fname}'s WatchList</h1>
       <div
         class="d-flex scroll"
-        style={{ marginTop: "10px", width: "1500px", overflow: "scroll" }}
-      >
+        style={{ marginTop: "10px", width: "1500px", overflowX: "scroll" }}
+      > {watchlist.length === 0 ? <div style={{width:"1500px", height:"300px", display:"flex", alignItems:"center", justifyContent:"center"}}>Search and Add Movies</div> : <></> }
         {watchlist.map((movie) => {
           return (
             <Card
+              key={movie._id}
               border="secondary"
               style={{
                 maxWidth: "18rem",

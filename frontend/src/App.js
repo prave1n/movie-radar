@@ -4,8 +4,6 @@ import Login from './components/Login';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from './components/Signup';
 import Home from './components/Home';
-import WatchList from './components/WatchList';
-//import MovieCard from './components/MovieCard';
 import MovieDetails from './components/MovieDetails';
 import Profile from './components/Profile';
 import UserReviews from './components/UserReviews';
@@ -17,6 +15,8 @@ import { useDispatch } from 'react-redux';
 import { newuser } from './store/userSlice';
 import { clearuser } from './store/userSlice';
 import { useSelector } from 'react-redux';
+import Verify from './components/Verify';
+import PlayListsPage from './components/PlayListsPage';
 
 function App() { 
   const loggedIn = useSelector((state) => state.user.authorized);
@@ -26,7 +26,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("https://movie-radar-2.onrender.com/auth", {
+      fetch("http://localhost:8080/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -65,7 +65,7 @@ function App() {
 
           <Route exact path = '/home' element={!loggedIn ? <Login/> : <Home/>}/>
 
-          <Route exact path = '/watchlist' element={!loggedIn ? <Login/> : <WatchList/>}/>
+          <Route exact path = '/watchlist' element={!loggedIn ? <Login/> : <PlayListsPage/>}/>
 
           <Route exact path='/movie/:id' element={!loggedIn ? <Login/> : <MovieDetails />} />
 
@@ -78,6 +78,8 @@ function App() {
           <Route path="/reset" element={<Reset />} />
 
           <Route path="/forgotpsw/:id" element={ <Otp />} />
+
+          <Route path="/verify/:id" element={ <Verify/>} />
 
           <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
 

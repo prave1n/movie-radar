@@ -11,6 +11,7 @@ const initialState  = {
     watchlist:[],
     friendList:[],
     activityList:[],
+    playLists:[],
 };
 
 const userSlice = createSlice({
@@ -28,6 +29,7 @@ const userSlice = createSlice({
             state.watchlist = action.payload.favouriteMovies;
             state.friendList = action.payload.friendList;
             state.activityList = action.payload.activityList;
+            state.playLists = action.payload.playLists;
         },
         clearuser(state) {
             state.authorized = false;
@@ -40,6 +42,7 @@ const userSlice = createSlice({
             state.watchlist = [];
             state.friendList = [];
             state.activityList = [];
+            state.playLists = [];
         },
         addmovie(state, action) {
             state.watchlist = [...state.watchlist, action.payload.movie]
@@ -52,9 +55,12 @@ const userSlice = createSlice({
         }, 
         removeFriend(state, action) {
             state.friendList = action.payload
+        },
+        updatePlayLists(state, action) {
+            state.playLists = action.payload
         }
     },
 });
 
-export const {newuser,clearuser, addmovie, removemovie, addFriend, removeFriend} = userSlice.actions;
+export const {newuser,clearuser, addmovie, removemovie, addFriend, removeFriend, updatePlayLists} = userSlice.actions;
 export default userSlice.reducer
