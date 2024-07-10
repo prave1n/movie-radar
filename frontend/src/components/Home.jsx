@@ -63,7 +63,7 @@ function Home() {
   };
 
   const fetchMovies = useCallback(() => {
-    let url = "http://localhost:8080/movie?";
+    let url = "https://movie-radar-2.onrender.com/movie?";
     const params = new URLSearchParams();
 
     if (selectedGenres.length > 0) {

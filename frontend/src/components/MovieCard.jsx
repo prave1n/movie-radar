@@ -76,7 +76,7 @@ function MovieCard({ movie }) {
   const addMovieHandler = async (e) => {
     let mov = [...watchlist, movie];
     e.preventDefault();
-    await fetch("http://localhost:8080/addmovie", {
+    await fetch("https://movie-radar-2.onrender.com/addmovie", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": true,
@@ -109,7 +109,7 @@ function MovieCard({ movie }) {
       alert("This movie is already part of the playlist")
     } else {
       try {
-        await fetch("http://localhost:8080/addToPlayList", {
+        await fetch("https://movie-radar-2.onrender.com/addToPlayList", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

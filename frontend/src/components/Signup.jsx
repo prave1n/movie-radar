@@ -38,7 +38,7 @@ function Signup() {
         result = false;
       }
       if (result) {
-        await fetch("http://localhost:8080/signIn", {
+        await fetch("https://movie-radar-2.onrender.com/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

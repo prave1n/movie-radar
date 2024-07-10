@@ -18,7 +18,7 @@ function PlayListsCard({list}) {
 
     useEffect(() => {
         try {
-          fetch("http://localhost:8080/getMovieList", {
+          fetch("https://movie-radar-2.onrender.com/getMovieList", {
             method: "POST",
             headers: {
               "Access-Control-Allow-Origin": true,
@@ -42,7 +42,7 @@ function PlayListsCard({list}) {
       const delPlayList = (e) => {
         e.preventDefault()
         try {
-            fetch("http://localhost:8080/delPlayList", {
+            fetch("https://movie-radar-2.onrender.com/delPlayList", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,
@@ -68,7 +68,7 @@ function PlayListsCard({list}) {
       const delMovie = (e,movieID) => {
         e.preventDefault()
         try {
-            fetch("http://localhost:8080/delmoviePlayList", {
+            fetch("https://movie-radar-2.onrender.com/delmoviePlayList", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,

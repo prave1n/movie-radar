@@ -26,7 +26,7 @@ export default function Login() {
 
   const submitHandler = async () => {
     try {
-      await fetch("http://localhost:8080/login", {
+      await fetch("https://movie-radar-2.onrender.com/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
