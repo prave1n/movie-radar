@@ -28,7 +28,7 @@ function NavBar() {
               Profile
             </Nav.Link>
             <Nav.Link as={Link} to="/watchlist">
-              Watchlist
+              Playlists
             </Nav.Link>
             <Nav.Link as={Link} to="/user/reviews">
               Reviews

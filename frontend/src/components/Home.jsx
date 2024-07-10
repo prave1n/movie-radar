@@ -3,6 +3,7 @@ import MovieCard from "./MovieCard";
 import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
 import { Form } from "react-bootstrap";
+import NavBar from "./NavBar";
 
 const genres = [
   { id: 28, name: "Action" },
@@ -120,6 +121,7 @@ function Home() {
   return (
     <div>
       <div>
+        <NavBar/>
         <WatchList />
       </div>
       <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
@@ -183,7 +185,7 @@ function Home() {
       <div style={{ marginTop: "20px" }}>
         <div className="d-flex flex-wrap">
           {filteredMovies.map((movie) => (
-            <div key={movie.id}>
+            <div key={movie._id}>
               <MovieCard
                 movie={movie}
                 title={movie.title}

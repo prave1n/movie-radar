@@ -43,7 +43,6 @@ function Reset() {
               },
               "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
             );
-            console.log("send");
             navigate(`/forgotpsw/${res.id}`);
           } else {
             alert(res.message);
