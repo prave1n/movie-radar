@@ -24,7 +24,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
 
-  const submitHandler = async () => {
+  const submitHandler = async (e) => {
+    e.preventDefault()
     try {
       await fetch("https://movie-radar-2.onrender.com/login", {
         method: "POST",
@@ -72,7 +73,7 @@ export default function Login() {
         >
           <Typography component="h1" variant="h3">
             Movie Radar  <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px"}}/>
-        </Typography>
+          </Typography>
 
         <Box component="form" noValidate sx={{ mt: 1 }}>
         <TextField
