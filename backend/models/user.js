@@ -60,7 +60,21 @@ const userSchema = new mongoose.Schema({
         default: false
     },
 
-    playLists: [playListSchema]
+    playLists: [playListSchema],
+
+    preferredGenres: {
+        type: [{
+          id: Number,
+          name: String
+        }],
+        validate: {
+          validator: function(arr) {
+            return arr.length <= 3;
+          },
+          message: 'You can select up to 3 preferred genres only.'
+        },
+        default: []
+    }
 
 })
 const User = mongoose.model("User", userSchema);

@@ -24,6 +24,9 @@ function NavBar() {
             MovieRadar
           </Navbar.Brand>
           <Nav className="me-auto">
+            <Nav.Link as={Link} to="/myhome">
+              My Home
+            </Nav.Link>
             <Nav.Link as={Link} to="/profile">
               Profile
             </Nav.Link>

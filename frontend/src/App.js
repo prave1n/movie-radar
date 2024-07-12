@@ -4,6 +4,7 @@ import Login from './components/Login';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from './components/Signup';
 import Home from './components/Home';
+import MyHome from  './components/MyHome'
 import MovieDetails from './components/MovieDetails';
 import Profile from './components/Profile';
 import UserReviews from './components/UserReviews';
@@ -64,6 +65,8 @@ function App() {
           <Route exact path = '/signup' element={<Signup/>}/>
 
           <Route exact path = '/home' element={!loggedIn ? <Login/> : <Home/>}/>
+
+          <Route exact path = '/myhome' element={!loggedIn ? <Login/> : <MyHome/>}/>
 
           <Route exact path = '/watchlist' element={!loggedIn ? <Login/> : <PlayListsPage/>}/>
 
