@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import MovieCard from "./MovieCard";
 import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
-import { Form } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import NavBar from "./NavBar";
 
 const genres = [
@@ -41,9 +41,13 @@ function Home() {
   const [search, setSearch] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedYearRanges, setSelectedYearRanges] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateSearch = (name) => {
     setSearch(name);
+    resetState();
   };
 
   const handleGenreChange = (genreId) => {
@@ -52,6 +56,7 @@ function Home() {
         ? prevGenres.filter((id) => id !== genreId)
         : [...prevGenres, genreId]
     );
+    resetState();
   };
 
   const handleYearRangeChange = (rangeId) => {
@@ -60,10 +65,20 @@ function Home() {
         ? prevRanges.filter((id) => id !== rangeId)
         : [...prevRanges, rangeId]
     );
+    resetState();
+  };
+
+  const resetState = () => {
+    setPage(1);
+    //setMovies([]);
+    setHasMore(true);
   };
 
   const fetchMovies = useCallback(() => {
-    let url = "https://movie-radar-2.onrender.com/movie?";
+    if (isLoading || !hasMore) return;
+
+    setIsLoading(true);
+    let url = `http://localhost:8080/movie?page=${page}&limit=50`;
     const params = new URLSearchParams();
 
     if (selectedGenres.length > 0) {
@@ -75,8 +90,11 @@ function Home() {
       );
       params.append("yearRanges", JSON.stringify(yearRangesData));
     }
+    if (search) {
+      params.append("search", search);
+    }
 
-    url += params.toString();
+    url += "&" + params.toString();
 
     fetch(url, {
       method: "GET",
@@ -86,42 +104,78 @@ function Home() {
       },
     })
       .then((res) => res.json())
-      .then((res) => setMovies(res))
-      .catch((error) => console.error("Error fetching movies:", error));
-  }, [selectedGenres, selectedYearRanges]);
+      .then((res) => {
+        const newMovies = res.movies.filter(
+          (newMovie) =>
+            !movies.some((existingMovie) => existingMovie._id === newMovie._id)
+        );
+        setMovies((prevMovies) => [...prevMovies, ...newMovies]);
+        setHasMore(res.hasMore && newMovies.length > 0);
+        setPage((prevPage) => prevPage + 1);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+        setIsLoading(false);
+      });
+  }, [
+    selectedGenres,
+    selectedYearRanges,
+    search,
+    page,
+    isLoading,
+    hasMore,
+    movies,
+  ]);
+
+  const initialFetch = useCallback(() => {
+    setIsLoading(true);
+    let url = `http://localhost:8080/movie?page=1&limit=50`;
+    const params = new URLSearchParams();
+
+    if (selectedGenres.length > 0) {
+      params.append("genres", selectedGenres.join(","));
+    }
+    if (selectedYearRanges.length > 0) {
+      const yearRangesData = selectedYearRanges.map((id) =>
+        yearRanges.find((range) => range.id.toString() === id)
+      );
+      params.append("yearRanges", JSON.stringify(yearRangesData));
+    }
+    if (search) {
+      params.append("search", search);
+    }
+
+    url += "&" + params.toString();
+
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Access-Control-Allow-Origin": true,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setMovies(res.movies);
+        setHasMore(res.hasMore);
+        setPage(2);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching movies:", error);
+        setIsLoading(false);
+      });
+  }, [selectedGenres, selectedYearRanges, search]);
 
   useEffect(() => {
-    fetchMovies();
-  }, [fetchMovies]);
-
-  //filter movies based on search and genres and release year intercals
-  const filteredMovies = movies
-    .slice(0, 300)
-    .filter(
-      (movie) =>
-        movie.title.toLowerCase().includes(search.toLowerCase()) ||
-        movie.overview.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((movie) =>
-      selectedGenres.length > 0
-        ? selectedGenres.some((genreId) =>
-            movie.genre_ids.includes(parseInt(genreId))
-          )
-        : true
-    )
-    .filter((movie) => {
-      if (selectedYearRanges.length === 0) return true;
-      const movieYear = new Date(movie.release_date).getFullYear();
-      return selectedYearRanges.some((rangeId) => {
-        const range = yearRanges.find((r) => r.id.toString() === rangeId);
-        return movieYear >= range.start && movieYear <= range.end;
-      });
-    });
+    initialFetch();
+  }, [initialFetch]);
 
   return (
     <div>
       <div>
-        <NavBar/>
+        <NavBar />
         <WatchList />
       </div>
       <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
@@ -184,7 +238,7 @@ function Home() {
       </div>
       <div style={{ marginTop: "20px" }}>
         <div className="d-flex flex-wrap">
-          {filteredMovies.map((movie) => (
+          {movies.map((movie) => (
             <div key={movie._id}>
               <MovieCard
                 movie={movie}
@@ -196,6 +250,13 @@ function Home() {
           ))}
         </div>
       </div>
+      {hasMore && (
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <Button onClick={fetchMovies} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Load More"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -207,20 +207,114 @@ app.get('/getMovie', async (req, res) => {
     res.send(movies)
 })
 
-//updated /movie to handle filter by multiple genres
-/* app.get('/movie', async (req, res) => {
-    const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
-    const filter = genres.length > 0 ? { genre_ids: { $in: genres } } : {};
+const genres = [
+    { id: 28, name: "Action" },
+    { id: 12, name: "Adventure" },
+    { id: 16, name: "Animation" },
+    { id: 35, name: "Comedy" },
+    { id: 80, name: "Crime" },
+    { id: 99, name: "Documentary" },
+    { id: 18, name: "Drama" },
+    { id: 10751, name: "Family" },
+    { id: 14, name: "Fantasy" },
+    { id: 36, name: "History" },
+    { id: 27, name: "Horror" },
+    { id: 10402, name: "Music" },
+    { id: 9648, name: "Mystery" },
+    { id: 10749, name: "Romance" },
+    { id: 878, name: "Science Fiction" },
+    { id: 10770, name: "TV Movie" },
+    { id: 53, name: "Thriller" },
+    { id: 10752, name: "War" },
+    { id: 37, name: "Western" },
+  ];
+  
+app.get('/myhome', async (req, res) => {
+      const userId = req.query.userId;
+  
+      if (!userId) {
+          return res.status(400).send('User ID is required');
+      }
+  
+      try {
+          const user = await User.findById(userId);
+  
+          if (!user) {
+              return res.status(404).send('User not found');
+          }
+  
+          const preferredGenres = user.preferredGenres.length > 0 ? user.preferredGenres : genres.sort(() => 0.5 - Math.random()).slice(0, 3);
+  
+          let moviesByGenre = [];
+          for (const genre of preferredGenres) {
+              const movies = await Movie.find({ genre_ids: genre.id }).limit(15).lean();
+              moviesByGenre.push({ genre: genre.name, movies });
+          }
+  
+          res.json(moviesByGenre);
+      } catch (error) {
+          console.error("Error fetching movies:", error);
+          res.status(500).send(error.message);
+      }
+});
+
+
+app.get('/user-details', async (req, res) => {
+    const userId = req.query.userId;
+  
+    if (!userId) {
+      return res.status(400).send('User ID is required');
+    }
+  
     try {
-      const movies = await Movie.find(filter);
-      res.send(movies);
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+  
+      res.json({
+        preferredGenres: user.preferredGenres,
+      });
     } catch (error) {
+      console.error("Error fetching user details:", error);
       res.status(500).send(error.message);
     }
-  }); */
+  });
+  
 
-  //updated /movie to handle filter by multiple genres and multiple year intervals
-  app.get('/movie', async (req, res) => {
+
+  app.post('/update-preferred-genres', async (req, res) => {
+    const { userId, preferredGenres } = req.body;
+
+    if (!userId || !preferredGenres || preferredGenres.length !== 3) {
+        return res.status(400).send('User ID and exactly 3 preferred genres are required');
+    }
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        
+        user.preferredGenres = preferredGenres.map(genre => ({
+            id: genre.id,
+            name: genre.name
+        }));
+
+        await user.save();
+
+        res.send('Preferred genres updated successfully');
+    } catch (error) {
+        console.error("Error updating preferred genres:", error);
+        res.status(500).send(error.message);
+    }
+});
+
+
+//updated /movie to handle filter by multiple genres and multiple year intervals
+/* app.get('/movie', async (req, res) => {
     const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
     const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
   
@@ -245,7 +339,57 @@ app.get('/getMovie', async (req, res) => {
     } catch (error) {
       res.status(500).send(error.message);
     }
-  });
+  }); */
+
+//updated /movie to handle filter by multiple genres and multiple year intervals with pagination
+  app.get('/movie', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
+    const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
+    const search = req.query.search || '';
+  
+    let filter = {};
+  
+    if (genres.length > 0) {
+      filter.genre_ids = { $in: genres };
+    }
+  
+    if (yearRanges.length > 0) {
+        filter.$or = yearRanges.map(range => ({
+          release_date: {
+            $gte: new Date(range.start, 0, 1),
+            $lte: new Date(range.end, 11, 31)
+          }
+        }));
+      }
+  
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { overview: { $regex: search, $options: 'i' } }
+      ];
+    }
+  
+    try {
+      const totalMovies = await Movie.countDocuments(filter);
+      const movies = await Movie.find(filter)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean();
+  
+      const hasMore = page * limit < totalMovies;
+  
+      res.json({
+        movies,
+        hasMore,
+        totalPages: Math.ceil(totalMovies / limit)
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+});
+
 
 app.post('/addmovie', async (req,res) => {
     // console.log(req)
