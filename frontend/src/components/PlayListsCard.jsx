@@ -9,16 +9,22 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { updatePlayLists } from '../store/userSlice';
+import Chip from '@mui/material/Chip';
+import SecurityIcon from '@mui/icons-material/Security';
+import PublicIcon from '@mui/icons-material/Public';
 
 function PlayListsCard({list}) {
     const [movies, setMovies] = useState([])
     const dispatch = useDispatch();
     const playLists = useSelector((state) => state.user.playLists);
     const id = useSelector((state) => state.user.userid);
+    const [pub,setPublic] = useState(list.public)
 
+    
+    
     useEffect(() => {
         try {
-          fetch("https://movie-radar-2.onrender.com/getMovieList", {
+          fetch("http://localhost:8080/getMovieList", {
             method: "POST",
             headers: {
               "Access-Control-Allow-Origin": true,
@@ -42,7 +48,7 @@ function PlayListsCard({list}) {
       const delPlayList = (e) => {
         e.preventDefault()
         try {
-            fetch("https://movie-radar-2.onrender.com/delPlayList", {
+            fetch("http://localhost:8080/delPlayList", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,
@@ -68,7 +74,7 @@ function PlayListsCard({list}) {
       const delMovie = (e,movieID) => {
         e.preventDefault()
         try {
-            fetch("https://movie-radar-2.onrender.com/delmoviePlayList", {
+            fetch("http://localhost:8080/delmoviePlayList", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,
@@ -91,20 +97,57 @@ function PlayListsCard({list}) {
             console.log(err)
           }
       }
+
+      const changePrivacyHandler = (e) => {
+        e.preventDefault()
+        try {
+          fetch("http://localhost:8080/changePrivacy", {
+            method: "POST",
+            headers: {
+              "Access-Control-Allow-Origin": true,
+              "Content-Type": "application/json",
+            }, 
+            body: JSON.stringify({
+              userID: id,
+              listID:list._id,
+              pub : pub,
+            }),
+          })
+          .then((res) => {
+            return res.json();
+          })
+          .then((res) => {
+              alert(`${list.name} changed to ${pub ? "Private" : "Public"}`)
+              dispatch(updatePlayLists(res.playLists))
+              setPublic(!pub)
+          })
+        } catch (err) {
+          console.log(err)
+        }
+      }
     
   return (
     <div>
     
     <CardHeader
       action={
-        <Button variant="outlined" color="error"  startIcon={<DeleteIcon />} sx={{height:"40px"}} onClick={delPlayList}>
+        <div>
+        
+          <Button variant="contained" color="error"  startIcon={<DeleteIcon />} sx={{m: 1, height:"40px"}} onClick={delPlayList}>
                      Delete Playlist
          </Button>
+
+         <Button variant="contained" color="primary"  startIcon={pub ? <SecurityIcon/>:<PublicIcon />} sx={{height:"40px"}} onClick={changePrivacyHandler}>
+                     Make {pub ? "Private" : "Public"}
+         </Button>
+         </div>
       }
-      title= {list.name}
+      title= {<div>{list.name} <Chip variant="filled" color="primary"label={!pub ? "Private" : "Public"} icon ={!pub ? <SecurityIcon/>:<PublicIcon />}/></div>}
       subheader= {list.description}
     /> 
     
+      
+
 
       <div
         class="d-flex scroll"

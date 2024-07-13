@@ -15,7 +15,7 @@ function FriendCard({ userId }) {
 
   useEffect(() => {
     try {
-      fetch(`https://movie-radar-2.onrender.com/getUserDetails`, {
+      fetch(`http://localhost:8080/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -41,7 +41,7 @@ function FriendCard({ userId }) {
   const deleteFriendHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`https://movie-radar-2.onrender.com/friend/delete/${thisId}`, {
+      fetch(`http://localhost:8080/friend/delete/${thisId}`, {
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,

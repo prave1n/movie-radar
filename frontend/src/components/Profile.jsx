@@ -22,7 +22,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://movie-radar-2.onrender.com/profile/${userId}`)
+    fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
@@ -30,11 +30,11 @@ const Profile = () => {
         setLname(data.lname);
       });
 
-    fetch(`https://movie-radar-2.onrender.com/watchlist/${userId}`)
+    fetch(`http://localhost:8080/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
-    fetch(`https://movie-radar-2.onrender.com/user/reviews/${email}`)
+    fetch(`http://localhost:8080/user/reviews/${email}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched reviews data:", data);
@@ -54,7 +54,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -85,7 +85,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -114,7 +114,7 @@ const Profile = () => {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        `http://localhost:8080/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -137,7 +137,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/profile/${userId}`,
+        `http://localhost:8080/profile/${userId}`,
         {
           method: "PUT",
           headers: {
