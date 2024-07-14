@@ -2412,6 +2412,21 @@
   dependencies:
     tslib "^2.4.0"
 
+
+"@testing-library/dom@^10.0.0", "@testing-library/dom@>=7.21.4":
+  version "10.3.1"
+  resolved "https://registry.npmjs.org/@testing-library/dom/-/dom-10.3.1.tgz"
+  integrity sha512-q/WL+vlXMpC0uXDyfsMtc1rmotzLV8Y0gq6q1gfrrDjQeHoeLrqHbxdPvPNAh1i+xuJl7+BezywcXArz7vLqKQ==
+  dependencies:
+    "@babel/code-frame" "^7.10.4"
+    "@babel/runtime" "^7.12.5"
+    "@types/aria-query" "^5.0.1"
+    aria-query "5.3.0"
+    chalk "^4.1.0"
+    dom-accessibility-api "^0.5.9"
+    lz-string "^1.5.0"
+    pretty-format "^27.0.2"
+    
 "@testing-library/jest-dom@^6.4.6":
   version "6.4.6"
   resolved "https://registry.npmjs.org/@testing-library/jest-dom/-/jest-dom-6.4.6.tgz"

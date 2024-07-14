@@ -28,7 +28,7 @@ function MyHome() {
   }, [userId]);
 
   const fetchUserDetails = useCallback(() => {
-    fetch(`http://localhost:8080/user-details?userId=${userId}`)
+    fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.preferredGenres.length === 0) {
@@ -44,25 +44,6 @@ function MyHome() {
     fetchMovies();
     fetchUserDetails();
   }, [fetchMovies, fetchUserDetails]);
-
-  /* const handleSaveGenres = (selectedGenres) => {
-    fetch("http://localhost:8080/update-preferred-genres", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, preferredGenres: selectedGenres }),
-    })
-      .then((res) => {
-        if (res.ok) {
-          setShowGenrePopup(false);
-          fetchMovies();
-        } else {
-          console.error("Error updating preferred genres:", res.statusText);
-        }
-      })
-      .catch((error) =>
-        console.error("Error updating preferred genres:", error)
-      );
-  }; */
 
   const handleSaveGenres = (selectedGenres) => {
     fetch("http://localhost:8080/update-preferred-genres", {

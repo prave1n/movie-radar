@@ -8,7 +8,6 @@ import { removemovie } from "../store/userSlice";
 
 function WatchList() {
   const watchlist = useSelector((state) => state.user.watchlist);
-  const fname = useSelector((state) => state.user.fname);
   const id = useSelector((state) => state.user.userid);
 
   const dispatch = useDispatch();
@@ -33,9 +32,9 @@ function WatchList() {
         })
         .then((res) => {
           console.log(res.message);
-          
+
           dispatch(removemovie(watchlist.filter((x) => x._id !== movie._id)));
-          console.log(watchlist)
+          console.log(watchlist);
         });
     } catch (err) {
       console.log(err);
@@ -43,11 +42,27 @@ function WatchList() {
   };
   return (
     <div>
-      <h1 style={{ marginTop: "40px" }}>{fname}'s WatchList</h1>
+      <h1 style={{ marginTop: "40px" }}>Your WatchList</h1>
       <div
         class="d-flex scroll"
         style={{ marginTop: "10px", width: "1500px", overflowX: "scroll" }}
-      > {watchlist.length === 0 ? <div style={{width:"1500px", height:"300px", display:"flex", alignItems:"center", justifyContent:"center"}}>Search and Add Movies</div> : <></> }
+      >
+        {" "}
+        {watchlist.length === 0 ? (
+          <div
+            style={{
+              width: "1500px",
+              height: "300px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            Search and Add Movies
+          </div>
+        ) : (
+          <></>
+        )}
         {watchlist.map((movie) => {
           return (
             <Card

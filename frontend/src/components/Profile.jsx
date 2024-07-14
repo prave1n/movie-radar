@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Alert } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import ListGroup from "react-bootstrap/ListGroup";
 import UserReviewCard from "./UserReviewCard";
@@ -8,6 +9,7 @@ import MovieCard from "./MovieCard";
 import NavBar from "./NavBar";
 import "./styles/Profile.css";
 import Form from "react-bootstrap/Form";
+import GenreSelectorPopup from "./GenreSelectorPopup";
 
 const Profile = () => {
   const [user, setUser] = useState({});
@@ -16,18 +18,31 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
+  const [username, setUsername] = useState("");
+  const [preferredGenres, setPreferredGenres] = useState([]);
+  const [showGenrePopup, setShowGenrePopup] = useState(false);
+  const [error, setError] = useState(null);
 
   const userId = useSelector((state) => state.user.userid);
   const email = useSelector((state) => state.user.email);
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
+      .then((res) => res.json())
+      .then((data) => setPreferredGenres(data.preferredGenres))
+      .catch((error) =>
+        console.error("Error fetching preferred genres:", error)
+      );
+
     fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
         setFname(data.fname);
         setLname(data.lname);
+        setUsername(data.username);
       });
 
     fetch(`http://localhost:8080/watchlist/${userId}`)
@@ -48,6 +63,34 @@ const Profile = () => {
         console.error("Error fetching user reviews:", error);
       });
   }, [userId, email]);
+
+  const handleOpenGenrePopup = () => {
+    setShowGenrePopup(true);
+  };
+
+  const handleSaveGenres = async (selectedGenres) => {
+    try {
+      const response = await fetch(
+        "http://localhost:8080/update-preferred-genres",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, preferredGenres: selectedGenres }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update preferred genres");
+      }
+
+      setPreferredGenres(selectedGenres);
+      setShowGenrePopup(false);
+    } catch (error) {
+      console.error("Error updating preferred genres:", error);
+    }
+  };
 
   const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
@@ -113,12 +156,11 @@ const Profile = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/review/${reviewId}`,
-        {
-          method: "DELETE",
-        }
-      );
+
+      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
+        method: "DELETE",
+      });
+
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -133,19 +175,43 @@ const Profile = () => {
   };
 
   const handleSaveClick = async () => {
+    const updatedUser = { fname, lname, username };
+    setError(null);
+    try {
+      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update user information");
+      }
+
+      const updatedUserData = await response.json();
+      setUser(updatedUserData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("error updating profile:", error);
+      setError(error.message);
+    }
+  };
+
+  /* const handleSaveClick = async () => {
     const updatedUser = { fname, lname };
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/profile/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedUser),
-        }
-      );
+      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
 
       if (!response.ok) {
         throw new Error("failed to update user name");
@@ -157,16 +223,25 @@ const Profile = () => {
     } catch (error) {
       console.error("error updating profile:", error);
     }
-  };
+  }; */
 
   return (
     <div>
       <NavBar />
       <div className="profile-container">
         <h1 className="mb-4">Profile</h1>
+        {error && <Alert variant="danger">{error}</Alert>}
         <div className="personal-info mb-4">
           {isEditing ? (
             <div>
+              <Form.Group controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </Form.Group>
               <Form.Group controlId="formFname">
                 <Form.Label>First Name</Form.Label>
                 <Form.Control
@@ -194,6 +269,9 @@ const Profile = () => {
           ) : (
             <div>
               <p>
+                <strong>Username:</strong> {user.username}
+              </p>
+              <p>
                 <strong>First Name:</strong> {user.fname}
               </p>
               <p>
@@ -207,6 +285,23 @@ const Profile = () => {
               </Button>
             </div>
           )}
+          <div className="preferred-genres mb-4">
+            <h2>Preferred Genres</h2>
+            <ul>
+              {preferredGenres.map((genre) => (
+                <li key={genre.id}>{genre.name}</li>
+              ))}
+            </ul>
+            <Button variant="primary" onClick={handleOpenGenrePopup}>
+              Edit Preferred Genres
+            </Button>
+          </div>
+          <GenreSelectorPopup
+            show={showGenrePopup}
+            onHide={() => setShowGenrePopup(false)}
+            onSave={handleSaveGenres}
+            initialGenres={preferredGenres}
+          />
         </div>
         <div className="watchlist mb-4">
           <h2>Your Watchlist</h2>
@@ -215,13 +310,12 @@ const Profile = () => {
               <MovieCard key={movie._id} movie={movie} />
             ))}
           </div>
-          {watchlist.length > 5 && (
+          {watchlist.length > 3 && (
             <Button className="mt-3" onClick={() => navigate("/watchlist")}>
               See all Movies in Watchlist
             </Button>
           )}
         </div>
-
         <div className="reviews mb-4">
           <h2>Your Reviews</h2>
           <ListGroup>
@@ -237,9 +331,11 @@ const Profile = () => {
               </ListGroup.Item>
             ))}
           </ListGroup>
-          <Button className="mt-3" onClick={() => navigate("/user-reviews")}>
-            View All Reviews
-          </Button>
+          {reviews.length > 3 && (
+            <Button className="mt-3" onClick={() => navigate("/user-reviews")}>
+              View All Reviews
+            </Button>
+          )}
         </div>
       </div>
     </div>

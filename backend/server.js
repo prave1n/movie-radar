@@ -38,8 +38,11 @@ const jsonwebtoken = process.env.JWT_SECRET
 
 app.post('/signIn',async (req,res)=>{
     const user = await User.findOne({email:req.body.email})
-    if(user) {
+    const user2 = await User.findOne({ username:req.body.username });
+    if (user) {
         res.send({result:false, message:"You already have an account linked with this email account"})
+    } else if (user2) {
+        res.send({result:false, message:"Username has already been taken"})
     } else {
     bcrypt.hash(req.body.password, saltrounds, function(err,hash){
         const user = new User({
@@ -259,7 +262,7 @@ app.get('/myhome', async (req, res) => {
 });
 
 
-app.get('/user-details', async (req, res) => {
+app.get('/get-preferred-genres', async (req, res) => {
     const userId = req.query.userId;
   
     if (!userId) {
@@ -280,7 +283,7 @@ app.get('/user-details', async (req, res) => {
       console.error("Error fetching user details:", error);
       res.status(500).send(error.message);
     }
-  });
+});
   
 
 
@@ -312,37 +315,8 @@ app.get('/user-details', async (req, res) => {
     }
 });
 
-
-//updated /movie to handle filter by multiple genres and multiple year intervals
-/* app.get('/movie', async (req, res) => {
-    const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
-    const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
-  
-    let filter = {};
-  
-    if (genres.length > 0) {
-      filter.genre_ids = { $in: genres };
-    }
-  
-    if (yearRanges.length > 0) {
-      filter.release_date = {
-        $or: yearRanges.map(range => ({
-          $gte: new Date(range.start, 0, 1),
-          $lte: new Date(range.end, 11, 31)
-        }))
-      };
-    }
-  
-    try {
-      const movies = await Movie.find(filter);
-      res.send(movies);
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
-  }); */
-
 //updated /movie to handle filter by multiple genres and multiple year intervals with pagination
-  app.get('/movie', async (req, res) => {
+app.get('/movie', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
@@ -350,25 +324,36 @@ app.get('/user-details', async (req, res) => {
     const search = req.query.search || '';
   
     let filter = {};
+    let andConditions = [];
   
     if (genres.length > 0) {
       filter.genre_ids = { $in: genres };
     }
   
     if (yearRanges.length > 0) {
-        filter.$or = yearRanges.map(range => ({
-          release_date: {
-            $gte: new Date(range.start, 0, 1),
-            $lte: new Date(range.end, 11, 31)
-          }
-        }));
-      }
+        const yearFilter = {
+            $or: yearRanges.map(range => ({
+              release_date: {
+                $gte: `${range.start}-01-01`,
+                $lte: `${range.end}-12-31`
+              }
+            }))
+          };
+          andConditions.push(yearFilter);
+    }
   
     if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { overview: { $regex: search, $options: 'i' } }
-      ];
+        const searchFilter = {
+            $or: [
+              { title: { $regex: search, $options: 'i' } },
+              { overview: { $regex: search, $options: 'i' } }
+            ]
+          };
+          andConditions.push(searchFilter);
+    }
+
+    if (andConditions.length > 0) {
+        filter.$and = andConditions;
     }
   
     try {
@@ -411,27 +396,6 @@ app.get('/movie/:id', async (req, res) => {
     const movie = await Movie.findOne({ dbid: req.params.id });
     res.send(movie);
   });
-
-
-/* app.post('/review', async (req, res) => {
-    try {
-        const { rating, reviewText, user, movieId } = req.body;
-
-        const newReview = new Review({
-            rating,
-            reviewText,
-            user,
-            movie: movieId
-        });
-
-        await newReview.save();
-        res.send(newReview);
-    } catch (error) {
-        console.error('Error submitting review:', error);
-        res.status(500).send({ message: "Server error" });
-    }
-});
- */
 
 
 app.post('/review', async (req, res) => {
@@ -585,9 +549,10 @@ app.get('/profile/:userId', async (req, res) => {
     }
 });
 
+//update first and last name and username
 app.put('/profile/:userId', async (req, res) => {
     const { userId } = req.params;
-    const { fname, lname } = req.body;
+    const { fname, lname, username } = req.body;
   
     try {
       const user = await User.findById(userId);
@@ -597,11 +562,15 @@ app.put('/profile/:userId', async (req, res) => {
   
       user.fname = fname;
       user.lname = lname;
+      user.username = username;
       await user.save();
   
       res.send(user);
     } catch (error) {
-      res.status(500).send('Server error');
+        if (error.code === 11000 && error.keyPattern && error.keyPattern.username) {
+            return res.status(400).json({ error: 'Username already taken' });
+        }
+        res.status(500).send('Server error');
     }
   });
 
