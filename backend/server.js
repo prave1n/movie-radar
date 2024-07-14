@@ -780,6 +780,25 @@ app.post("/delmoviePlayList", async (req,res) => {
 })
 
 
+// Change Privacy
+app.post("/changePrivacy", async (req,res) => {
+    const id = req.body.userID;
+    const listID = req.body.listID
+    const curr = req.body.pub
+
+    await User.findByIdAndUpdate(id, {$set: {"playLists.$[elem].public" : !curr}},
+        { 
+        "arrayFilters": [{ "elem._id": listID}], 
+        }
+     )
+    .then(async (user) => {
+        const updated = await User.findById(id)
+        res.send({playLists: updated.playLists, pub:!curr})
+    })
+
+})
+
+
 app.listen(port,()=>{
     console.log(`Server connected to port ${port} successfully`)
 })

@@ -28,6 +28,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => setPreferredGenres(data.preferredGenres))
@@ -155,9 +156,11 @@ const Profile = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
+
       const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
         method: "DELETE",
       });
+
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -208,6 +211,7 @@ const Profile = () => {
         },
         body: JSON.stringify(updatedUser),
       });
+
 
       if (!response.ok) {
         throw new Error("failed to update user name");

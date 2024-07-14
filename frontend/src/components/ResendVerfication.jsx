@@ -8,7 +8,7 @@ function ResendVerfication() {
     const submitHandler = (e) => {
         e.preventDefault()
         try {
-            fetch("https://movie-radar-2.onrender.com/resend", {
+            fetch("http://localhost:8080/resend", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,
