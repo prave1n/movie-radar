@@ -14,7 +14,7 @@ function Verify() {
     const otpHandler = (e) => {
         e.preventDefault()
         try {
-            fetch("https://movie-radar-2.onrender.com/verify", {
+            fetch("http://localhost:8080/verify", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,

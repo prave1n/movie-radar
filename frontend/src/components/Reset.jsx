@@ -13,7 +13,7 @@ function Reset() {
     e.preventDefault();
     try {
       console.log(email);
-      await fetch("https://movie-radar-2.onrender.com/sendemail", {
+      await fetch("http://localhost:8080/sendemail", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

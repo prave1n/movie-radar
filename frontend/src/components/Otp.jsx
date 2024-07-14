@@ -16,7 +16,7 @@ function Otp() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/checkOtp", {
+      fetch("http://localhost:8080/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -47,7 +47,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("https://movie-radar-2.onrender.com/changepsw", {
+        fetch("http://localhost:8080/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

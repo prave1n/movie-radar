@@ -17,7 +17,7 @@ function WatchList() {
     // Do fetch req
 
     try {
-      await fetch("https://movie-radar-2.onrender.com/deleteMovie", {
+      await fetch("http://localhost:8080/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
