@@ -23,8 +23,8 @@ const genres = [
   { id: 37, name: "Western" },
 ];
 
-function GenreSelectorPopup({ show, onHide, onSave }) {
-  const [selectedGenres, setSelectedGenres] = useState([]);
+function GenreSelectorPopup({ show, onHide, onSave, initialGenres }) {
+  const [selectedGenres, setSelectedGenres] = useState(initialGenres || []);
 
   const handleCheckboxChange = (genre) => {
     setSelectedGenres((prevSelected) => {

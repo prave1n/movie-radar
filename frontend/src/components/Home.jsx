@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import MovieCard from "./MovieCard";
-import WatchList from "./WatchList";
+//import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
-import { Form, Button } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import NavBar from "./NavBar";
+import Pagination from "./Pagination";
 
 const genres = [
   { id: 28, name: "Action" },
@@ -42,7 +43,7 @@ function Home() {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedYearRanges, setSelectedYearRanges] = useState([]);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   const updateSearch = (name) => {
@@ -68,80 +69,44 @@ function Home() {
     resetState();
   };
 
+  const contentStartRef = useRef(null);
+
+  const scrollToContentStart = () => {
+    if (contentStartRef.current) {
+      contentStartRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    scrollToContentStart();
+  };
+
   const resetState = () => {
     setPage(1);
     //setMovies([]);
-    setHasMore(true);
+    scrollToContentStart();
   };
 
   const fetchMovies = useCallback(() => {
-    if (isLoading || !hasMore) return;
+    if (isLoading) return;
 
     setIsLoading(true);
-    let url = `http://localhost:8080/movie?page=${page}&limit=50`;
+    let url = `http://localhost:8080/movie?page=${page}&limit=20`;
     const params = new URLSearchParams();
 
     if (selectedGenres.length > 0) {
       params.append("genres", selectedGenres.join(","));
     }
+
     if (selectedYearRanges.length > 0) {
-      const yearRangesData = selectedYearRanges.map((id) =>
-        yearRanges.find((range) => range.id.toString() === id)
-      );
-      params.append("yearRanges", JSON.stringify(yearRangesData));
-    }
-    if (search) {
-      params.append("search", search);
-    }
-
-    url += "&" + params.toString();
-
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Access-Control-Allow-Origin": true,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        const newMovies = res.movies.filter(
-          (newMovie) =>
-            !movies.some((existingMovie) => existingMovie._id === newMovie._id)
-        );
-        setMovies((prevMovies) => [...prevMovies, ...newMovies]);
-        setHasMore(res.hasMore && newMovies.length > 0);
-        setPage((prevPage) => prevPage + 1);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching movies:", error);
-        setIsLoading(false);
+      const yearRangesData = selectedYearRanges.map((id) => {
+        const range = yearRanges.find((range) => range.id.toString() === id);
+        return { start: range.start, end: range.end };
       });
-  }, [
-    selectedGenres,
-    selectedYearRanges,
-    search,
-    page,
-    isLoading,
-    hasMore,
-    movies,
-  ]);
-
-  const initialFetch = useCallback(() => {
-    setIsLoading(true);
-    let url = `http://localhost:8080/movie?page=1&limit=50`;
-    const params = new URLSearchParams();
-
-    if (selectedGenres.length > 0) {
-      params.append("genres", selectedGenres.join(","));
-    }
-    if (selectedYearRanges.length > 0) {
-      const yearRangesData = selectedYearRanges.map((id) =>
-        yearRanges.find((range) => range.id.toString() === id)
-      );
       params.append("yearRanges", JSON.stringify(yearRangesData));
     }
+
     if (search) {
       params.append("search", search);
     }
@@ -158,25 +123,23 @@ function Home() {
       .then((res) => res.json())
       .then((res) => {
         setMovies(res.movies);
-        setHasMore(res.hasMore);
-        setPage(2);
+        setTotalPages(res.totalPages);
         setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching movies:", error);
         setIsLoading(false);
       });
-  }, [selectedGenres, selectedYearRanges, search]);
+  }, [isLoading, selectedGenres, selectedYearRanges, search, page]);
 
   useEffect(() => {
-    initialFetch();
-  }, [initialFetch]);
+    fetchMovies();
+  }, [fetchMovies]);
 
   return (
     <div>
       <div>
         <NavBar />
-        <WatchList />
       </div>
       <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
         Movie List
@@ -184,7 +147,11 @@ function Home() {
       <span style={{ display: "block", textAlign: "center", fontSize: "14px" }}>
         (Credits: Movie data taken from themoviedb)
       </span>
-      <div className="search-genre-container" style={{ margin: "20px auto" }}>
+      <div
+        ref={contentStartRef}
+        className="search-genre-container"
+        style={{ margin: "20px auto" }}
+      >
         <SearchBar setSearch={updateSearch} />
         <div className="genre-filter-container">
           <Form.Label
@@ -250,13 +217,15 @@ function Home() {
           ))}
         </div>
       </div>
-      {hasMore && (
-        <div style={{ textAlign: "center", margin: "20px 0" }}>
-          <Button onClick={fetchMovies} disabled={isLoading}>
-            {isLoading ? "Loading..." : "Load More"}
-          </Button>
-        </div>
-      )}
+      <div
+        style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}
+      >
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }

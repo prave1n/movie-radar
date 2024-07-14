@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     },
     email:{
         type:String,
+        unique: true,
     },
     password:{
         type:String,
@@ -36,7 +37,10 @@ const userSchema = new mongoose.Schema({
     }],
 
     username: {
-        type:String
+        type:String,
+        unique: true,
+        required: true,
+
     },
     friendList : [{
         type: mongoose.Schema.Types.ObjectId,
@@ -52,6 +56,7 @@ const userSchema = new mongoose.Schema({
     },
     telegramHandle: {
         type: String,
+        unique: true,
         default: null
     },
 
