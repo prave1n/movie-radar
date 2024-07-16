@@ -92,7 +92,7 @@ function Home() {
     if (isLoading) return;
 
     setIsLoading(true);
-    let url = `http://localhost:8080/movie?page=${page}&limit=20`;
+    let url = `https://movie-radar-2.onrender.com/movie?page=${page}&limit=20`;
     const params = new URLSearchParams();
 
     if (selectedGenres.length > 0) {

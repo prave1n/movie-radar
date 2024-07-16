@@ -10,10 +10,10 @@ function UserCard({ user, pending }) {
   const thisId = useSelector((state) => state.user.userid);
   const friendList = useSelector((state) => state.user.friendList);
 
-  console.log(pending);
+
   const addFriendHandler = (e) => {
     try {
-      fetch(`http://localhost:8080/fReq/${thisId}`, {
+      fetch(`https://movie-radar-2.onrender.com/fReq/${thisId}`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -28,7 +28,6 @@ function UserCard({ user, pending }) {
           return res.json();
         })
         .then((res) => {
-          console.log(res);
           setButton(
             <Button variant="dark" disabled>
               {" "}
@@ -83,10 +82,10 @@ function UserCard({ user, pending }) {
       <Card style={{ width: "18rem" }}>
         <Card.Body>
           <Card.Title>
-            {user.fname} {user.lname}
+            {user.username}
           </Card.Title>
           <Card.Subtitle className="mb-2 text-muted">
-            Online Status?{" "}
+            {user.fname} {user.lname}
           </Card.Subtitle>
           {button}
         </Card.Body>

@@ -39,6 +39,9 @@ function NavBar() {
             <Nav.Link as={Link} to="/friends">
               Friends List
             </Nav.Link>
+            <Nav.Link as={Link} to="/activityList">
+              Activity List
+            </Nav.Link>
           </Nav>
         </Container>
         <div>

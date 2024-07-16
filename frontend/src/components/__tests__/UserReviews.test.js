@@ -127,7 +127,7 @@ describe('UserReviews Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/review/upvote/1',
+        'https://movie-radar-2.onrender.com/review/upvote/1',
         expect.any(Object)
       );
     });
@@ -161,7 +161,7 @@ describe('UserReviews Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/review/remove-upvote/1',
+        'https://movie-radar-2.onrender.com/review/remove-upvote/1',
         expect.any(Object)
       );
     });
@@ -195,7 +195,7 @@ describe('UserReviews Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/review/1',
+        'https://movie-radar-2.onrender.com/review/1',
         expect.objectContaining({ method: 'DELETE' })
       );
     });

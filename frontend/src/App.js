@@ -18,6 +18,7 @@ import { clearuser } from './store/userSlice';
 import { useSelector } from 'react-redux';
 import Verify from './components/Verify';
 import PlayListsPage from './components/PlayListsPage';
+import ActivityList from './components/ActivityList';
 
 function App() { 
   const loggedIn = useSelector((state) => state.user.authorized);
@@ -27,7 +28,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("http://localhost:8080/auth", {
+      fetch("https://movie-radar-2.onrender.com/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -85,6 +86,8 @@ function App() {
           <Route path="/verify/:id" element={ <Verify/>} />
 
           <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
+
+          <Route exact path = '/activityList' element={!loggedIn ? <Login/> : <ActivityList/>} />
 
           <Route exact path = '*' element={<p>PAGE NOT FOUND</p>}/>
 

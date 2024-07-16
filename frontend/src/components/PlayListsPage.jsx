@@ -31,7 +31,7 @@ function PlayListsPage() {
 
     // useEffect(() => {
     //     try {
-    //       fetch("http://localhost:8080/getPlayLists", {
+    //       fetch("https://movie-radar-2.onrender.com/getPlayLists", {
     //         method: "POST",
     //         headers: {
     //           "Access-Control-Allow-Origin": true,
@@ -72,7 +72,7 @@ function PlayListsPage() {
     const createHandler = async (e) => {
         e.preventDefault()
         try {
-            await fetch("http://localhost:8080/createPlaylist", {
+            await fetch("https://movie-radar-2.onrender.com/createPlaylist", {
               method: "POST",
               headers: {
                 "Access-Control-Allow-Origin": true,

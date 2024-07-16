@@ -58,7 +58,7 @@ describe('WatchList Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/deleteMovie',
+        'https://movie-radar-2.onrender.com/deleteMovie',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({

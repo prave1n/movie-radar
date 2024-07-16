@@ -377,11 +377,27 @@ app.get('/movie', async (req, res) => {
 
 
 app.post('/addmovie', async (req,res) => {
-    // console.log(req)
-    await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
-    .then(()=>{
-        res.send({message:"Movie added successfully"})
-    })
+    
+    try {
+        const user = await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
+
+            if(user.activityList.length >= 15) {
+                let newList = [... user.activityList]
+                newList.shift()
+                newList.push(`${user.username} has added ${req.body.movie[req.body.movie.length - 1].title} to their Watchlist`)
+                await User.findByIdAndUpdate(user._id,{activityList:newList})
+                res.send({message:"Movie added successfully"})
+              } else {
+                let newList = [... user.activityList]
+                newList.push(`${user.username} has added ${req.body.movie[req.body.movie.length - 1].title} to their Watchlist`)
+                await User.findByIdAndUpdate(user._id,{activityList:newList})
+                res.send({message:"Movie added successfully"})
+              }
+
+    }
+    catch (err) {
+        res.status(500).send({message:"Error"})
+    }
 })
 
 app.post('/deleteMovie', async (req,res) => {
@@ -417,6 +433,18 @@ app.post('/review', async (req, res) => {
       });
   
       await newReview.save();
+
+      // Adding to the ActivityList
+      if(existingUser.activityList.length >= 15) {
+        let newList = [... existingUser.activityList]
+        newList.shift()
+        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+        await User.findOneAndUpdate({email:user},{activityList:newList})
+      } else {
+        let newList = [... existingUser.activityList]
+        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+        await User.findOneAndUpdate({email:user},{activityList:newList})
+      }
 
       res.status(201).json(newReview);
     } catch (error) {
@@ -695,7 +723,7 @@ app.get("/pendingReq/:id", async (req,res) => {
     const id = req.params.id
     await FriendRequest.find({sender: id})
     .then((reqs) => {
-        console.log(reqs)
+        // console.log(reqs)
         res.send({reqs: reqs})
     })
 })
@@ -796,6 +824,31 @@ app.post("/changePrivacy", async (req,res) => {
         res.send({playLists: updated.playLists, pub:!curr})
     })
 
+})
+
+app.post("/getActivityList", async (req,res) => {
+    try {
+        const friendList = req.body.friendList
+        let arr = []
+        for(let friend of friendList) {
+            const user = await User.findById(friend)
+            arr.push(user.activityList)
+        }
+        
+        let finalList = []
+         for(let i = 14; i >= 0; i --) {
+            for(let list of arr) {
+                if(list[i] !== null && list[i] !== undefined) {
+                    finalList.push(list[i])
+                } 
+            }
+        }
+
+        res.send({list:finalList})
+    }
+    catch (err) {
+        res.send(err)
+    }
 })
 
 

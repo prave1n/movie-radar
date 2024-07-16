@@ -4,8 +4,8 @@ import FriendCard from './FriendCard'
 
 function FriendList() {
   const friendList = useSelector((state) => state.user.friendList)
-  console.log(friendList)
   let count = friendList.length === 0 ? <>No Friends :O</> : <></>
+  
   return (
     <div style={{display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
       <h1>Friends</h1>

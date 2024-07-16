@@ -3,6 +3,7 @@ import NavBar from './NavBar'
 import UserList from "./UserList"
 import FriendRequests from './FriendRequests'
 import FriendsList from './FriendList'
+import ActivityList from './ActivityList'
 
 
 export default function FriendsPage() {
