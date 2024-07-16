@@ -105,7 +105,7 @@ describe('MovieDetails Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'https://movie-radar-2.onrender.com/review',
+        'http://localhost:8080/review',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({
@@ -144,7 +144,7 @@ describe('MovieDetails Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'https://movie-radar-2.onrender.com/review/1',
+        'http://localhost:8080/review/1',
         expect.objectContaining({ method: 'DELETE' })
       );
     });
@@ -175,7 +175,7 @@ describe('MovieDetails Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'https://movie-radar-2.onrender.com/review/upvote/1',
+        'http://localhost:8080/review/upvote/1',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ userId: 'test@example.com' }),
@@ -209,7 +209,7 @@ describe('MovieDetails Component', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'https://movie-radar-2.onrender.com/review/remove-upvote/1',
+        'http://localhost:8080/review/remove-upvote/1',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ userId: 'test@example.com' }),

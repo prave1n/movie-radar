@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
-import "./styles/Reset.css"
+import "./styles/Reset.css";
 
 function Reset() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ function Reset() {
     e.preventDefault();
     try {
       console.log(email);
-      await fetch("https://movie-radar-2.onrender.com/sendemail", {
+      await fetch("http://localhost:8080/sendemail", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -56,7 +56,7 @@ function Reset() {
   return (
     <div className="formparent">
       <div className="sendemailform">
-      <h2> Reset Passsword</h2>
+        <h2> Reset Passsword</h2>
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Enter your email:</Form.Label>

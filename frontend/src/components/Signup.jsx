@@ -38,7 +38,7 @@ function Signup() {
         result = false;
       }
       if (result) {
-        await fetch("https://movie-radar-2.onrender.com/signIn", {
+        await fetch("http://localhost:8080/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -51,7 +51,7 @@ function Signup() {
             email: email,
             password: psw,
             pfp: pfp,
-            telegram: tele
+            telegram: tele,
           }),
         })
           .then((res) => {
@@ -61,7 +61,7 @@ function Signup() {
             console.log(res);
 
             // SEND EMAIL
-            if(res.result) {
+            if (res.result) {
               emailjs.send(
                 "service_vwt5hn4", //service ID
                 "template_qxyvfa6", //Template ID
@@ -74,8 +74,10 @@ function Signup() {
                 },
                 "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
               );
-  
-              alert("Account Created Successfully. Please verify your email before logging in");
+
+              alert(
+                "Account Created Successfully. Please verify your email before logging in"
+              );
               navigate(`/verify/${res.userId}`);
             } else {
               alert(res.message);
@@ -153,13 +155,13 @@ function Signup() {
 
         <label>Telegram Handle (Optional): </label>
         <input
-        type="text"
-        placeholder="Enter your telegram handle"
-        name="pfp"
-        required
-        onChange={(e) => {
-          setTele(e.target.value);
-        }}
+          type="text"
+          placeholder="Enter your telegram handle"
+          name="pfp"
+          required
+          onChange={(e) => {
+            setTele(e.target.value);
+          }}
         />
         <br></br>
 

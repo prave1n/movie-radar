@@ -46,7 +46,7 @@ describe('Home Component', () => {
     render(<Home />);
     
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
-    expect(fetch).toHaveBeenCalledWith('https://movie-radar-2.onrender.com/movie', expect.any(Object));
+    expect(fetch).toHaveBeenCalledWith('http://localhost:8080/movie', expect.any(Object));
   });
 
   test('filters movies based on search input', async () => {

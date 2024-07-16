@@ -10,6 +10,7 @@ import NavBar from "./NavBar";
 import "./styles/Profile.css";
 import Form from "react-bootstrap/Form";
 import GenreSelectorPopup from "./GenreSelectorPopup";
+import PlayListsCard from "./PlayListsCard";
 
 const Profile = () => {
   const [user, setUser] = useState({});
@@ -28,15 +29,14 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    fetch(`https://movie-radar-2.onrender.com/get-preferred-genres?userId=${userId}`)
+    fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => setPreferredGenres(data.preferredGenres))
       .catch((error) =>
         console.error("Error fetching preferred genres:", error)
       );
 
-    fetch(`https://movie-radar-2.onrender.com/profile/${userId}`)
+    fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
@@ -45,11 +45,11 @@ const Profile = () => {
         setUsername(data.username);
       });
 
-    fetch(`https://movie-radar-2.onrender.com/watchlist/${userId}`)
+    fetch(`http://localhost:8080/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
-    fetch(`https://movie-radar-2.onrender.com/user/reviews/${email}`)
+    fetch(`http://localhost:8080/user/reviews/${email}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched reviews data:", data);
@@ -71,7 +71,7 @@ const Profile = () => {
   const handleSaveGenres = async (selectedGenres) => {
     try {
       const response = await fetch(
-        "https://movie-radar-2.onrender.com/update-preferred-genres",
+        "http://localhost:8080/update-preferred-genres",
         {
           method: "POST",
           headers: {
@@ -97,7 +97,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -128,7 +128,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -156,8 +156,7 @@ const Profile = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-
-      const response = await fetch(`https://movie-radar-2.onrender.com/review/${reviewId}`, {
+      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
         method: "DELETE",
       });
 
@@ -178,7 +177,7 @@ const Profile = () => {
     const updatedUser = { fname, lname, username };
     setError(null);
     try {
-      const response = await fetch(`https://movie-radar-2.onrender.com/profile/${userId}`, {
+      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -199,31 +198,6 @@ const Profile = () => {
       setError(error.message);
     }
   };
-
-  /* const handleSaveClick = async () => {
-    const updatedUser = { fname, lname };
-
-    try {
-      const response = await fetch(`https://movie-radar-2.onrender.com/profile/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedUser),
-      });
-
-
-      if (!response.ok) {
-        throw new Error("failed to update user name");
-      }
-
-      const updatedUserData = await response.json();
-      setUser(updatedUserData);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("error updating profile:", error);
-    }
-  }; */
 
   return (
     <div>
@@ -313,6 +287,20 @@ const Profile = () => {
           {watchlist.length > 3 && (
             <Button className="mt-3" onClick={() => navigate("/watchlist")}>
               See all Movies in Watchlist
+            </Button>
+          )}
+        </div>
+        <div className="playlists mb-4">
+          <h2>Your Playlists</h2>
+          {user.playLists &&
+            user.playLists
+              .slice(0, 3)
+              .map((playlist) => (
+                <PlayListsCard key={playlist._id} list={playlist} />
+              ))}
+          {user.playLists && user.playLists.length > 3 && (
+            <Button className="mt-3" onClick={() => navigate("/watchlist")}>
+              View All Playlists
             </Button>
           )}
         </div>

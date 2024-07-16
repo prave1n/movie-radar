@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import MovieCard from "./MovieCard";
 import NavBar from "./NavBar";
-import { Button } from "react-bootstrap";
+import {
+  Button,
+  Typography,
+  Box,
+  Container,
+  CircularProgress,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import GenreSelectorPopup from "./GenreSelectorPopup";
@@ -15,7 +21,7 @@ function MyHome() {
 
   const fetchMovies = useCallback(() => {
     setIsLoading(true);
-    fetch(`https://movie-radar-2.onrender.com/myhome?userId=${userId}`)
+    fetch(`http://localhost:8080/myhome?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setMoviesByGenre(data);
@@ -28,7 +34,7 @@ function MyHome() {
   }, [userId]);
 
   const fetchUserDetails = useCallback(() => {
-    fetch(`https://movie-radar-2.onrender.com/get-preferred-genres?userId=${userId}`)
+    fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.preferredGenres.length === 0) {
@@ -46,7 +52,7 @@ function MyHome() {
   }, [fetchMovies, fetchUserDetails]);
 
   const handleSaveGenres = (selectedGenres) => {
-    fetch("https://movie-radar-2.onrender.com/update-preferred-genres", {
+    fetch("http://localhost:8080/update-preferred-genres", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -70,115 +76,60 @@ function MyHome() {
   };
 
   return (
-    <div>
+    <Box>
       <NavBar />
-      <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
-        Recommended Movies
-      </h1>
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
-        <Link to="/home">
-          <Button>View All Movies</Button>
-        </Link>
-      </div>
-      {isLoading ? (
-        <div style={{ textAlign: "center", margin: "20px 0" }}>Loading...</div>
-      ) : (
-        moviesByGenre.map((genreSection) => (
-          <div key={genreSection.genre} style={{ margin: "20px 0" }}>
-            <h2>{genreSection.genre}</h2>
-            <div className="scroll-container">
-              {genreSection.movies.map((movie) => (
-                <div key={movie._id}>
-                  <MovieCard
-                    movie={movie}
-                    title={movie.title}
-                    overview={movie.overview}
-                    picture={movie.picture}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      )}
+      <Container maxWidth="lg">
+        <Typography
+          variant="h2"
+          align="center"
+          gutterBottom
+          sx={{ mt: 6, mb: 4 }}
+        >
+          Recommended Movies
+        </Typography>
+        <Box textAlign="center" mb={4}>
+          <Button
+            component={Link}
+            to="/home"
+            variant="contained"
+            color="primary"
+          >
+            View All Movies
+          </Button>
+        </Box>
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" my={4}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          moviesByGenre.map((genreSection) => (
+            <Box key={genreSection.genre} my={4}>
+              <Typography variant="h4" gutterBottom>
+                {genreSection.genre}
+              </Typography>
+              <Box className="scroll-container">
+                {genreSection.movies.map((movie) => (
+                  <Box key={movie._id} mx={1}>
+                    <MovieCard
+                      movie={movie}
+                      title={movie.title}
+                      overview={movie.overview}
+                      picture={movie.picture}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ))
+        )}
+      </Container>
       <GenreSelectorPopup
         show={showGenrePopup}
         onHide={() => setShowGenrePopup(false)}
         onSave={handleSaveGenres}
       />
-    </div>
+    </Box>
   );
 }
 
 export default MyHome;
-
-/* import React, { useEffect, useState, useCallback } from "react";
-import MovieCard from "./MovieCard";
-import NavBar from "./NavBar";
-import { Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import "./styles/MyHome.css";
-
-function MyHome() {
-  const [moviesByGenre, setMoviesByGenre] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const userId = useSelector((state) => state.user.userid);
-
-  const fetchMovies = useCallback(() => {
-    setIsLoading(true);
-    const user = userId;
-    fetch(`https://movie-radar-2.onrender.com/myhome?userId=${user}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMoviesByGenre(data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching movies:", error);
-        setIsLoading(false);
-      });
-  }, [userId]);
-
-  useEffect(() => {
-    fetchMovies();
-  }, [fetchMovies]);
-
-  return (
-    <div>
-      <NavBar />
-      <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
-        Recommended Movies
-      </h1>
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
-        <Link to="/home">
-          <Button>View All Movies</Button>
-        </Link>
-      </div>
-      {isLoading ? (
-        <div style={{ textAlign: "center", margin: "20px 0" }}>Loading...</div>
-      ) : (
-        moviesByGenre.map((genreSection) => (
-          <div key={genreSection.genre} style={{ margin: "20px 0" }}>
-            <h2>{genreSection.genre}</h2>
-            <div className="scroll-container">
-              {genreSection.movies.map((movie) => (
-                <div key={movie._id}>
-                  <MovieCard
-                    movie={movie}
-                    title={movie.title}
-                    overview={movie.overview}
-                    picture={movie.picture}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
-
-export default MyHome;
- */

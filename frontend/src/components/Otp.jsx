@@ -10,13 +10,13 @@ function Otp() {
   const [psw, setPsw] = useState("");
   const [cfmpsw, setCfmpsw] = useState("");
   const [correctOtp, setcorrectOtp] = useState(true);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const id = useParams().id;
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/checkOtp", {
+      fetch("http://localhost:8080/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -47,7 +47,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("https://movie-radar-2.onrender.com/changepsw", {
+        fetch("http://localhost:8080/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -63,7 +63,7 @@ function Otp() {
           })
           .then((res) => {
             alert(res.message);
-            navigate("/ ")
+            navigate("/ ");
           });
       } catch (err) {
         console.log(err);
@@ -106,7 +106,6 @@ function Otp() {
       </div>
       <div style={{ display: correctOtp ? "none" : "" }}>
         <div className="formparent">
-          
           <div className="sendemailform">
             <h4>Passsword Reset</h4>
             <Form>

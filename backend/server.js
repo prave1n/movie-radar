@@ -315,65 +315,109 @@ app.get('/get-preferred-genres', async (req, res) => {
     }
 });
 
-//updated /movie to handle filter by multiple genres and multiple year intervals with pagination
+//updated /movie to handle filters and sorting
 app.get('/movie', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
     const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
     const search = req.query.search || '';
+    const sort = req.query.sort || 'default';
   
     let filter = {};
     let andConditions = [];
+    let sortOptions = {};
   
     if (genres.length > 0) {
-      filter.genre_ids = { $in: genres };
+        filter.genre_ids = { $in: genres };
     }
   
     if (yearRanges.length > 0) {
         const yearFilter = {
             $or: yearRanges.map(range => ({
-              release_date: {
-                $gte: `${range.start}-01-01`,
-                $lte: `${range.end}-12-31`
-              }
+                release_date: {
+                    $gte: `${range.start}-01-01`,
+                    $lte: `${range.end}-12-31`
+                }
             }))
-          };
-          andConditions.push(yearFilter);
+        };
+        andConditions.push(yearFilter);
     }
   
     if (search) {
         const searchFilter = {
             $or: [
-              { title: { $regex: search, $options: 'i' } },
-              { overview: { $regex: search, $options: 'i' } }
+                { title: { $regex: search, $options: 'i' } },
+                { overview: { $regex: search, $options: 'i' } }
             ]
-          };
-          andConditions.push(searchFilter);
+        };
+        andConditions.push(searchFilter);
     }
-
+  
+    const today = new Date().toISOString().split('T')[0];
+  
+    switch(sort) {
+        case 'most_recent':
+            sortOptions = { release_date: -1 };
+            andConditions.push({ 
+                release_date: { 
+                    $lte: today, 
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        case 'least_recent':
+            sortOptions = { release_date: 1 };
+            andConditions.push({ 
+                release_date: { 
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        case 'upcoming':
+            sortOptions = { release_date: 1 };
+            andConditions.push({ 
+                release_date: { 
+                    $gt: today,
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        default:
+            break;
+    }
+  
     if (andConditions.length > 0) {
         filter.$and = andConditions;
     }
   
     try {
-      const totalMovies = await Movie.countDocuments(filter);
-      const movies = await Movie.find(filter)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean();
+        const totalMovies = await Movie.countDocuments(filter);
+        let query = Movie.find(filter);
+      
+        if (Object.keys(sortOptions).length > 0) {
+            query = query.sort(sortOptions);
+        }
+      
+        const movies = await query
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
   
-      const hasMore = page * limit < totalMovies;
+        const hasMore = page * limit < totalMovies;
   
-      res.json({
-        movies,
-        hasMore,
-        totalPages: Math.ceil(totalMovies / limit)
-      });
+        res.json({
+            movies,
+            hasMore,
+            totalPages: Math.ceil(totalMovies / limit)
+        });
     } catch (error) {
-      res.status(500).send(error.message);
+        res.status(500).send(error.message);
     }
-});
+  });
 
 
 app.post('/addmovie', async (req,res) => {
@@ -767,12 +811,12 @@ app.post("/getMovieList", async (req,res) => {
     res.send({movieList:movieDets})
 })
 
-// app.post("/getPlayLists", async (req,res) => {
-//     await User.findById(req.body.id)
-//     .then((user) => {
-//         res.send({playlist:user.playLists})
-//     })
-// })
+app.post("/getPlayLists", async (req,res) => {
+    await User.findById(req.body.id)
+    .then((user) => {
+        res.send({playlist:user.playLists})
+    })
+})
 
 // Delete PlayList
 app.post("/delPlayList", async (req,res) => {

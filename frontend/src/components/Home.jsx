@@ -1,10 +1,25 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import MovieCard from "./MovieCard";
-//import WatchList from "./WatchList";
 import SearchBar from "./SearchBar";
-import { Form } from "react-bootstrap";
 import NavBar from "./NavBar";
 import Pagination from "./Pagination";
+import {
+  Container,
+  Typography,
+  Box,
+  FormControl,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Select,
+  MenuItem,
+  InputLabel,
+  Grid,
+  Paper,
+  Divider,
+  Chip,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const genres = [
   { id: 28, name: "Action" },
@@ -37,6 +52,17 @@ const yearRanges = [
   { id: 6, name: "2020 and later", start: 2020, end: 9999 },
 ];
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#dc004e",
+    },
+  },
+});
+
 function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
@@ -45,6 +71,7 @@ function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortOption, setSortOption] = useState("default");
 
   const updateSearch = (name) => {
     setSearch(name);
@@ -82,6 +109,11 @@ function Home() {
     scrollToContentStart();
   };
 
+  const handleSortChange = (event) => {
+    setSortOption(event.target.value);
+    resetState();
+  };
+
   const resetState = () => {
     setPage(1);
     //setMovies([]);
@@ -92,8 +124,12 @@ function Home() {
     if (isLoading) return;
 
     setIsLoading(true);
-    let url = `https://movie-radar-2.onrender.com/movie?page=${page}&limit=20`;
+    let url = `http://localhost:8080/movie?page=${page}&limit=20`;
     const params = new URLSearchParams();
+
+    if (sortOption !== "default") {
+      params.append("sort", sortOption);
+    }
 
     if (selectedGenres.length > 0) {
       params.append("genres", selectedGenres.join(","));
@@ -130,103 +166,145 @@ function Home() {
         console.error("Error fetching movies:", error);
         setIsLoading(false);
       });
-  }, [isLoading, selectedGenres, selectedYearRanges, search, page]);
+  }, [isLoading, selectedGenres, selectedYearRanges, search, page, sortOption]);
 
   useEffect(() => {
     fetchMovies();
   }, [fetchMovies]);
 
   return (
-    <div>
-      <div>
-        <NavBar />
-      </div>
-      <h1 style={{ marginTop: "50px", textAlign: "center", fontSize: "48px" }}>
-        Movie List
-      </h1>
-      <span style={{ display: "block", textAlign: "center", fontSize: "14px" }}>
-        (Credits: Movie data taken from themoviedb)
-      </span>
-      <div
-        ref={contentStartRef}
-        className="search-genre-container"
-        style={{ margin: "20px auto" }}
-      >
-        <SearchBar setSearch={updateSearch} />
-        <div className="genre-filter-container">
-          <Form.Label
-            htmlFor="genre-select"
-            style={{
-              fontSize: "16px",
-              fontWeight: "bold",
-              marginRight: "10px",
-            }}
-          >
-            Filter by Genres:
-          </Form.Label>
-          <div>
-            {genres.map((genre) => (
-              <Form.Check
-                key={genre.id}
-                type="checkbox"
-                id={`genre-${genre.id}`}
-                label={genre.name}
-                checked={selectedGenres.includes(genre.id.toString())}
-                onChange={() => handleGenreChange(genre.id.toString())}
-                inline
-              />
+    <ThemeProvider theme={theme}>
+      <NavBar />
+      <Container maxWidth="xl">
+        <Box my={4} textAlign="center">
+          <Typography variant="h2" component="h1" gutterBottom>
+            Movie List
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary">
+            (Credits: Movie data taken from themoviedb)
+          </Typography>
+        </Box>
+
+        <Paper elevation={3}>
+          <Box p={3} ref={contentStartRef}>
+            <SearchBar setSearch={updateSearch} />
+
+            <Box mt={3}>
+              <Typography variant="h6" gutterBottom>
+                Filter by Genres
+              </Typography>
+              <FormGroup row>
+                {genres.map((genre) => (
+                  <FormControlLabel
+                    key={genre.id}
+                    control={
+                      <Checkbox
+                        checked={selectedGenres.includes(genre.id.toString())}
+                        onChange={() => handleGenreChange(genre.id.toString())}
+                        name={genre.name}
+                      />
+                    }
+                    label={genre.name}
+                  />
+                ))}
+              </FormGroup>
+            </Box>
+
+            <Box mt={3}>
+              <Typography variant="h6" gutterBottom>
+                Filter by Release Years
+              </Typography>
+              <FormGroup row>
+                {yearRanges.map((range) => (
+                  <FormControlLabel
+                    key={range.id}
+                    control={
+                      <Checkbox
+                        checked={selectedYearRanges.includes(
+                          range.id.toString()
+                        )}
+                        onChange={() =>
+                          handleYearRangeChange(range.id.toString())
+                        }
+                        name={range.name}
+                      />
+                    }
+                    label={range.name}
+                  />
+                ))}
+              </FormGroup>
+            </Box>
+
+            <Box mt={3}>
+              <FormControl fullWidth>
+                <InputLabel id="sort-label">Sort by Release Date</InputLabel>
+                <Select
+                  labelId="sort-label"
+                  value={sortOption}
+                  onChange={handleSortChange}
+                  label="Sort by Release Date"
+                >
+                  <MenuItem value="default">Default</MenuItem>
+                  <MenuItem value="most_recent">Most Recent</MenuItem>
+                  <MenuItem value="least_recent">Least Recent</MenuItem>
+                  <MenuItem value="upcoming">Upcoming</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+        </Paper>
+
+        <Box my={4}>
+          <Typography variant="h5" gutterBottom>
+            Movies
+          </Typography>
+          <Divider />
+          <Box mt={2} mb={2}>
+            {selectedGenres.length > 0 && (
+              <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
+                {selectedGenres.map((genreId) => (
+                  <Chip
+                    key={genreId}
+                    label={
+                      genres.find((g) => g.id.toString() === genreId)?.name
+                    }
+                    onDelete={() => handleGenreChange(genreId)}
+                    color="primary"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          <Grid container spacing={3} justifyContent="center">
+            {movies.map((movie) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={movie._id}>
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  sx={{ height: "100%" }}
+                >
+                  <MovieCard
+                    movie={movie}
+                    title={movie.title}
+                    overview={movie.overview}
+                    picture={movie.picture}
+                  />
+                </Box>
+              </Grid>
             ))}
-          </div>
-        </div>
-        <div className="year-filter-container">
-          <Form.Label
-            style={{
-              fontSize: "16px",
-              fontWeight: "bold",
-              marginRight: "10px",
-            }}
-          >
-            Filter by Release Years:
-          </Form.Label>
-          <div>
-            {yearRanges.map((range) => (
-              <Form.Check
-                key={range.id}
-                type="checkbox"
-                id={`year-${range.id}`}
-                label={range.name}
-                checked={selectedYearRanges.includes(range.id.toString())}
-                onChange={() => handleYearRangeChange(range.id.toString())}
-                inline
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div style={{ marginTop: "20px" }}>
-        <div className="d-flex flex-wrap">
-          {movies.map((movie) => (
-            <div key={movie._id}>
-              <MovieCard
-                movie={movie}
-                title={movie.title}
-                overview={movie.overview}
-                picture={movie.picture}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      <div
-        style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}
-      >
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </div>
-    </div>
+          </Grid>
+        </Box>
+
+        <Box display="flex" justifyContent="center" my={4}>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }
 

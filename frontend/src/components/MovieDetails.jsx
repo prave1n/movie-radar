@@ -20,12 +20,12 @@ function MovieDetails() {
 
   useEffect(() => {
     //fetch movie details
-    fetch(`https://movie-radar-2.onrender.com/movie/${id}`)
+    fetch(`http://localhost:8080/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data));
 
     //fetch reviews
-    fetch(`https://movie-radar-2.onrender.com/reviews/${id}`)
+    fetch(`http://localhost:8080/reviews/${id}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedReviews = data.sort((a, b) => {
@@ -43,7 +43,7 @@ function MovieDetails() {
       });
 
     //fetch avg rating
-    fetch(`https://movie-radar-2.onrender.com/movie/${id}/average-rating`)
+    fetch(`http://localhost:8080/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
         if (data.averageRating === null) {
@@ -67,16 +67,13 @@ function MovieDetails() {
       reviewText,
     };
     try {
-      const response = await fetch(
-        `https://movie-radar-2.onrender.com/review`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`http://localhost:8080/review`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to add review");
@@ -94,12 +91,9 @@ function MovieDetails() {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/${reviewId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -114,7 +108,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -145,7 +139,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -170,58 +164,6 @@ function MovieDetails() {
       console.error("Error removing upvote from review:", error);
     }
   };
-
-  /* const handleUpvote = async (reviewId) => {
-    const payload = { userId: email };
-
-    await fetch(`https://movie-radar-2.onrender.com/review/upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to upvote review:", updatedReview);
-        }
-      })
-      .catch((error) => console.error("Error upvoting review:", error));
-  };
-
-  const handleRemoveUpvote = async (reviewId) => {
-    const payload = { userId: email };
-
-    await fetch(`https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to remove upvote from review:", updatedReview);
-        }
-      })
-      .catch((error) =>
-        console.error("Error removing upvote from review:", error)
-      );
-  }; */
 
   return (
     <div>

@@ -1,9 +1,8 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import "./styles/WatchList.css";
-import { useDispatch } from "react-redux";
 import { removemovie } from "../store/userSlice";
 
 function WatchList() {
@@ -16,7 +15,7 @@ function WatchList() {
     // Do fetch req
 
     try {
-      await fetch("https://movie-radar-2.onrender.com/deleteMovie", {
+      await fetch("http://localhost:8080/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
