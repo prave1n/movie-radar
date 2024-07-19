@@ -895,6 +895,92 @@ app.post("/getActivityList", async (req,res) => {
     }
 })
 
+//FRIENDS PROFILE PAGE
+
+app.get('/user/reviews/byusername/:username', async (req, res) => {
+    const { username } = req.params;
+    //console.log(`Fetching reviews for username: ${username}`);
+    
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      //console.log(`User found: ${user._id}`);
+  
+      const reviews = await Review.find({ user: user._id })
+        .populate('movie', 'title')
+        .sort({ createdAt: -1 });
+      //console.log(`Reviews found: ${reviews.length}`);
+  
+      res.json(reviews);
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+
+app.get('/user/playlists/:username', async (req, res) => {
+    try {
+      const user = await User.findOne({ username: req.params.username })
+        .populate({
+          path: 'playLists.movies',
+          model: 'Movie',
+          select: 'title overview picture'
+        });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const publicPlaylists = user.playLists.filter(playlist => playlist.public === 'true');
+      res.json(publicPlaylists);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+/* app.get('/user/playlists/:username', async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const publicPlaylists = user.playLists.filter(playlist => playlist.public === 'true');
+  
+      res.json(publicPlaylists);
+    } catch (error) {
+      console.error('Error fetching user playlists:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+}); */
+
+app.get('/user/:username', async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const userDetails = {
+        username: user.username,
+        fname: user.fname,
+        lname: user.lname,
+        pfp: user.pfp,
+      };
+  
+      res.json(userDetails);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 app.listen(port,()=>{
     console.log(`Server connected to port ${port} successfully`)

@@ -12,7 +12,13 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import moment from "moment";
 
-const UserReviewCard = ({ review, onUpvote, onRemoveUpvote, onDelete }) => {
+const UserReviewCard = ({
+  review,
+  onUpvote,
+  onRemoveUpvote,
+  onDelete,
+  canDelete,
+}) => {
   const handleDeleteClick = () => {
     onDelete(review._id);
   };
@@ -61,16 +67,18 @@ const UserReviewCard = ({ review, onUpvote, onRemoveUpvote, onDelete }) => {
             </Button>
           </Box>
           <Box>
-            <Button
-              startIcon={<DeleteIcon />}
-              variant="contained"
-              color="error"
-              onClick={handleDeleteClick}
-              size="small"
-              sx={{ mr: 1 }}
-            >
-              Delete
-            </Button>
+            {canDelete && (
+              <Button
+                startIcon={<DeleteIcon />}
+                variant="contained"
+                color="error"
+                onClick={handleDeleteClick}
+                size="small"
+                sx={{ mr: 1 }}
+              >
+                Delete
+              </Button>
+            )}
             <Chip label={`${review.upvotes} Upvotes`} variant="outlined" />
           </Box>
         </Box>
