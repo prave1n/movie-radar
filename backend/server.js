@@ -329,7 +329,7 @@ app.get('/movie', async (req, res) => {
     let sortOptions = {};
   
     if (genres.length > 0) {
-        filter.genre_ids = { $in: genres };
+        filter.genre_ids = { $all: genres };
     }
   
     if (yearRanges.length > 0) {

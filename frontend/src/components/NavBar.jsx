@@ -21,14 +21,14 @@ function NavBar() {
         <Typography
           variant="h6"
           component={Link}
-          to="/home"
+          to="/myhome"
           sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
         >
           MovieRadar
         </Typography>
         <Box>
-          <Button color="inherit" component={Link} to="/myhome">
-            My Home
+          <Button color="inherit" component={Link} to="/home">
+            Browse
           </Button>
           <Button color="inherit" component={Link} to="/profile">
             Profile

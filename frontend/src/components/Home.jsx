@@ -3,6 +3,7 @@ import MovieCard from "./MovieCard";
 import SearchBar from "./SearchBar";
 import NavBar from "./NavBar";
 import Pagination from "./Pagination";
+import Footer from "./Footer";
 import {
   Container,
   Typography,
@@ -17,9 +18,12 @@ import {
   Grid,
   Paper,
   Divider,
-  Chip,
+  IconButton,
+  Collapse,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const genres = [
   { id: 28, name: "Action" },
@@ -72,6 +76,9 @@ function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sortOption, setSortOption] = useState("default");
+  const [openGenres, setOpenGenres] = useState(false);
+  const [openYearRanges, setOpenYearRanges] = useState(false);
+  const [openSort, setOpenSort] = useState(false);
 
   const updateSearch = (name) => {
     setSearch(name);
@@ -124,7 +131,7 @@ function Home() {
     if (isLoading) return;
 
     setIsLoading(true);
-    let url = `http://localhost:8080/movie?page=${page}&limit=20`;
+    let url = `http://localhost:8080/movie?page=${page}&limit=30`;
     const params = new URLSearchParams();
 
     if (sortOption !== "default") {
@@ -175,135 +182,151 @@ function Home() {
   return (
     <ThemeProvider theme={theme}>
       <NavBar />
+      <br />
       <Container maxWidth="xl">
-        <Box my={4} textAlign="center">
-          <Typography variant="h2" component="h1" gutterBottom>
-            Movie List
-          </Typography>
-          <Typography variant="subtitle1" color="textSecondary">
-            (Credits: Movie data taken from themoviedb)
-          </Typography>
-        </Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={2.5}>
+            <Paper elevation={3}>
+              <Box p={3}>
+                <SearchBar setSearch={updateSearch} />
 
-        <Paper elevation={3}>
-          <Box p={3} ref={contentStartRef}>
-            <SearchBar setSearch={updateSearch} />
-
-            <Box mt={3}>
-              <Typography variant="h6" gutterBottom>
-                Filter by Genres
-              </Typography>
-              <FormGroup row>
-                {genres.map((genre) => (
-                  <FormControlLabel
-                    key={genre.id}
-                    control={
-                      <Checkbox
-                        checked={selectedGenres.includes(genre.id.toString())}
-                        onChange={() => handleGenreChange(genre.id.toString())}
-                        name={genre.name}
-                      />
-                    }
-                    label={genre.name}
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-
-            <Box mt={3}>
-              <Typography variant="h6" gutterBottom>
-                Filter by Release Years
-              </Typography>
-              <FormGroup row>
-                {yearRanges.map((range) => (
-                  <FormControlLabel
-                    key={range.id}
-                    control={
-                      <Checkbox
-                        checked={selectedYearRanges.includes(
-                          range.id.toString()
-                        )}
-                        onChange={() =>
-                          handleYearRangeChange(range.id.toString())
-                        }
-                        name={range.name}
-                      />
-                    }
-                    label={range.name}
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-
-            <Box mt={3}>
-              <FormControl fullWidth>
-                <InputLabel id="sort-label">Sort by Release Date</InputLabel>
-                <Select
-                  labelId="sort-label"
-                  value={sortOption}
-                  onChange={handleSortChange}
-                  label="Sort by Release Date"
-                >
-                  <MenuItem value="default">Default</MenuItem>
-                  <MenuItem value="most_recent">Most Recent</MenuItem>
-                  <MenuItem value="least_recent">Least Recent</MenuItem>
-                  <MenuItem value="upcoming">Upcoming</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Box>
-        </Paper>
-
-        <Box my={4}>
-          <Typography variant="h5" gutterBottom>
-            Movies
-          </Typography>
-          <Divider />
-          <Box mt={2} mb={2}>
-            {selectedGenres.length > 0 && (
-              <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
-                {selectedGenres.map((genreId) => (
-                  <Chip
-                    key={genreId}
-                    label={
-                      genres.find((g) => g.id.toString() === genreId)?.name
-                    }
-                    onDelete={() => handleGenreChange(genreId)}
-                    color="primary"
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-            )}
-          </Box>
-          <Grid container spacing={3} justifyContent="center">
-            {movies.map((movie) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={movie._id}>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  sx={{ height: "100%" }}
-                >
-                  <MovieCard
-                    movie={movie}
-                    title={movie.title}
-                    overview={movie.overview}
-                    picture={movie.picture}
-                  />
+                <Box mt={3}>
+                  <Typography variant="h7" gutterBottom>
+                    <Box display="flex" alignItems="center">
+                      <span>Filter by Genres</span>
+                      <IconButton
+                        onClick={() => setOpenGenres(!openGenres)}
+                        aria-label="toggle genres filter"
+                      >
+                        {openGenres ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </IconButton>
+                    </Box>
+                  </Typography>
+                  <Collapse in={openGenres}>
+                    <FormGroup>
+                      {genres.map((genre) => (
+                        <FormControlLabel
+                          key={genre.id}
+                          control={
+                            <Checkbox
+                              checked={selectedGenres.includes(
+                                genre.id.toString()
+                              )}
+                              onChange={() =>
+                                handleGenreChange(genre.id.toString())
+                              }
+                              name={genre.name}
+                            />
+                          }
+                          label={genre.name}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Collapse>
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
 
-        <Box display="flex" justifyContent="center" my={4}>
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </Box>
+                <Box mt={3}>
+                  <Typography variant="h7" gutterBottom>
+                    <Box display="flex" alignItems="center">
+                      <span>Filter by Release Years</span>
+                      <IconButton
+                        onClick={() => setOpenYearRanges(!openYearRanges)}
+                        aria-label="toggle release year filter"
+                      >
+                        {openYearRanges ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
+                      </IconButton>
+                    </Box>
+                  </Typography>
+                  <Collapse in={openYearRanges}>
+                    <FormGroup>
+                      {yearRanges.map((range) => (
+                        <FormControlLabel
+                          key={range.id}
+                          control={
+                            <Checkbox
+                              checked={selectedYearRanges.includes(
+                                range.id.toString()
+                              )}
+                              onChange={() =>
+                                handleYearRangeChange(range.id.toString())
+                              }
+                              name={range.name}
+                            />
+                          }
+                          label={range.name}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Collapse>
+                </Box>
+
+                <Box mt={3}>
+                  <Typography variant="h7" gutterBottom>
+                    <Box display="flex" alignItems="center">
+                      <span>Sort by Release Date</span>
+                      <IconButton
+                        onClick={() => setOpenSort(!openSort)}
+                        aria-label="toggle sort options"
+                      >
+                        {openSort ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </IconButton>
+                    </Box>
+                  </Typography>
+                  <Collapse in={openSort}>
+                    <FormControl fullWidth>
+                      <InputLabel id="sort-label">
+                        Sort by Release Date
+                      </InputLabel>
+                      <Select
+                        labelId="sort-label"
+                        value={sortOption}
+                        onChange={handleSortChange}
+                        label="Sort by Release Date"
+                      >
+                        <MenuItem value="default">Default</MenuItem>
+                        <MenuItem value="most_recent">Most Recent</MenuItem>
+                        <MenuItem value="least_recent">Least Recent</MenuItem>
+                        <MenuItem value="upcoming">Upcoming</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Collapse>
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={9}>
+            <Box mb={2}>
+              <Typography variant="h5" gutterBottom>
+                Movies
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                (Credits: Movie data taken from themoviedb)
+              </Typography>
+              <Divider />
+            </Box>
+            <Grid container spacing={2}>
+              {movies.map((movie) => (
+                <Grid item xs={6} sm={4} md={3} lg={2} key={movie._id}>
+                  <MovieCard movie={movie} />
+                </Grid>
+              ))}
+            </Grid>
+            <Box display="flex" justifyContent="center" my={4}>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </Box>
+          </Grid>
+        </Grid>
       </Container>
+      <Footer />
     </ThemeProvider>
   );
 }

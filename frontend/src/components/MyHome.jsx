@@ -109,7 +109,7 @@ function MyHome() {
               </Typography>
               <Box className="scroll-container">
                 {genreSection.movies.map((movie) => (
-                  <Box key={movie._id} mx={1}>
+                  <Box key={movie._id} mx={1} sx={{ flex: "0 0 auto" }}>
                     <MovieCard
                       movie={movie}
                       title={movie.title}

@@ -13,7 +13,7 @@ function SearchBar({ setSearch }) {
         id="search"
         placeholder="Type to search ..."
         onChange={(e) => handleSearch(e.target.value)}
-        style={{ height: "50px", width: "600px", marginTop: "70px" }}
+        style={{ height: "50px", width: "235px", marginTop: "70px" }}
       />
     </div>
   );

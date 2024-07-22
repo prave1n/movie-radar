@@ -12,6 +12,7 @@ import { updatePlayLists } from "../store/userSlice";
 import Chip from "@mui/material/Chip";
 import SecurityIcon from "@mui/icons-material/Security";
 import PublicIcon from "@mui/icons-material/Public";
+import "./styles/PlayListsCard.css";
 
 function PlayListsCard({ list }) {
   const [movies, setMovies] = useState([]);

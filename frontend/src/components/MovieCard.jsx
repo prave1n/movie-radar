@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { updatePlayLists } from "../store/userSlice";
 import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { Button, CardActionArea, CardActions } from "@mui/material";
+import { CardActionArea } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { addmovie } from "../store/userSlice";
 import { Link } from "react-router-dom";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import CardHeader from "@mui/material/CardHeader";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AddIcon from "@mui/icons-material/Add";
 import Divider from "@mui/material/Divider";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Snackbar from "@mui/material/Snackbar";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function MovieCard({ movie }) {
   const id = useSelector((state) => state.user.userid);
@@ -71,6 +71,24 @@ function MovieCard({ movie }) {
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
+
+  const [averageRating, setAverageRating] = useState(null);
+
+  useEffect(() => {
+    const fetchAverageRating = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/movie/${movie.dbid}/average-rating`
+        );
+        const data = await response.json();
+        setAverageRating(data.averageRating);
+      } catch (error) {
+        console.error("Error fetching average rating:", error);
+      }
+    };
+
+    fetchAverageRating();
+  }, [movie.dbid]);
 
   const addMovieHandler = async (e) => {
     let mov = [...watchlist, movie];
@@ -139,7 +157,7 @@ function MovieCard({ movie }) {
     }
   };
   return (
-    <Card sx={{ maxWidth: 345, minWidth: 345, m: 1 }}>
+    <Card sx={{ maxWidth: 200, position: "relative" }}>
       <Snackbar
         open={movieAdd.show}
         autoHideDuration={6000}
@@ -155,21 +173,90 @@ function MovieCard({ movie }) {
         </Alert>
       </Snackbar>
 
-      <CardHeader
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon
-              aria-label="more"
-              id="long-button"
-              aria-controls={open ? "long-menu" : undefined}
-              aria-expanded={open ? "true" : undefined}
-              aria-haspopup="true"
-              onClick={handleClick}
+      <CardActionArea>
+        <Link
+          to={`/movie/${movie.dbid}`}
+          style={{ color: "white", textDecoration: "none" }}
+        >
+          <CardMedia
+            component="img"
+            image={movie.picture}
+            alt="Image Not Found"
+            sx={{ height: 300 }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              top: 5,
+              left: 5,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              backgroundColor: "rgba(0,0,0,0.7)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress
+              variant="determinate"
+              value={averageRating !== null ? averageRating * 20 : 0}
+              size={40}
+              thickness={4}
+              sx={{
+                color: "green",
+                position: "absolute",
+              }}
             />
-          </IconButton>
-        }
-        title={movie.title}
-      />
+            <Typography
+              variant="caption"
+              component="div"
+              color="white"
+              sx={{ fontWeight: "bold" }}
+            >
+              {averageRating !== null
+                ? `${Math.round(averageRating * 20)}%`
+                : "NR"}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: "8px",
+              backgroundColor: "rgba(0,0,0,0.7)",
+            }}
+          >
+            <Typography variant="body2" color="white">
+              {movie.title}
+            </Typography>
+          </Box>
+        </Link>
+      </CardActionArea>
+
+      <IconButton
+        aria-label="more"
+        id="long-button"
+        aria-controls={open ? "long-menu" : undefined}
+        aria-expanded={open ? "true" : undefined}
+        aria-haspopup="true"
+        onClick={handleClick}
+        sx={{
+          position: "absolute",
+          top: 5,
+          right: 5,
+          color: "white",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          "&:hover": {
+            backgroundColor: "rgba(0,0,0,0.7)",
+          },
+        }}
+      >
+        <MoreVertIcon />
+      </IconButton>
+
       <Menu
         id="long-menu"
         MenuListProps={{
@@ -191,19 +278,15 @@ function MovieCard({ movie }) {
           </Typography>
         </MenuItem>
         <Divider sx={{ bgcolor: "text.primary" }} />
-
         <MenuItem key="watchlist" onClick={jumpToPlay}>
           <Typography component="h1" variant="body1" sx={{ fontSize: "15px" }}>
             View My PlayLists
           </Typography>
         </MenuItem>
-
-        <Divider x={{ bgcolor: "text" }} />
-
+        <Divider sx={{ bgcolor: "text" }} />
         <MenuItem key="watchlist" onClick={handleClose} disabled={true}>
           Select a PlayList to add the movie <ArrowDownwardIcon />
         </MenuItem>
-
         {playLists.map((option) => (
           <MenuItem
             key={option.name}
@@ -213,34 +296,6 @@ function MovieCard({ movie }) {
           </MenuItem>
         ))}
       </Menu>
-      <CardActionArea>
-        <Link
-          to={`/movie/${movie.dbid}`}
-          style={{ color: "white", textDecoration: "none" }}
-        >
-          <CardMedia
-            component="img"
-            image={movie.picture}
-            alt="Image Not Found"
-          />
-          <CardContent>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              style={{ height: "12rem", overflowY: "scroll" }}
-            >
-              {movie.overview}
-            </Typography>
-          </CardContent>
-        </Link>
-      </CardActionArea>
-      <CardActions
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <Button variant="contained" color="success" onClick={addMovieHandler}>
-          Add to watchlist
-        </Button>
-      </CardActions>
     </Card>
   );
 }
