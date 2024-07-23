@@ -1,21 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import "./styles/WatchList.css";
 import { removemovie } from "../store/userSlice";
+import { Link } from "react-router-dom";
+import Card from "@mui/material/Card";
+import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
+import { CardActionArea } from "@mui/material";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 
 function WatchList() {
   const watchlist = useSelector((state) => state.user.watchlist);
   const id = useSelector((state) => state.user.userid);
-
   const dispatch = useDispatch();
+  const [showAll, setShowAll] = useState(false);
+
   const deleteHandler = async (e, movie) => {
     e.preventDefault();
-    // Do fetch req
-
     try {
-      await fetch("http://localhost:8080/deleteMovie", {
+      const response = await fetch("http://localhost:8080/deleteMovie", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -25,70 +32,115 @@ function WatchList() {
           id: id,
           movie: watchlist.filter((x) => x._id !== movie._id),
         }),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          console.log(res.message);
-
-          dispatch(removemovie(watchlist.filter((x) => x._id !== movie._id)));
-          console.log(watchlist);
-        });
+      });
+      const data = await response.json();
+      console.log(data.message);
+      dispatch(removemovie(watchlist.filter((x) => x._id !== movie._id)));
     } catch (err) {
       console.log(err);
     }
   };
+
+  const toggleShowAll = () => {
+    setShowAll(!showAll);
+  };
+
+  const displayedMovies = showAll ? watchlist : watchlist.slice(0, 5);
+
   return (
-    <div>
-      <h1 style={{ marginTop: "40px" }}>Your WatchList</h1>
-      <div
-        class="d-flex scroll"
-        style={{ marginTop: "10px", width: "1500px", overflowX: "scroll" }}
+    <Container maxWidth="xl" sx={{ mt: 5, mb: 5 }}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{ mb: 3, fontWeight: "bold" }}
       >
-        {" "}
+        Your WatchList
+      </Typography>
+      <Grid container spacing={2}>
         {watchlist.length === 0 ? (
-          <div
-            style={{
-              width: "1500px",
-              height: "300px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Search and Add Movies
-          </div>
-        ) : (
-          <></>
-        )}
-        {watchlist.map((movie) => {
-          return (
-            <Card
-              key={movie._id}
-              border="secondary"
-              style={{
-                maxWidth: "18rem",
-                minWidth: "18rem",
-                margin: "5px",
-                border: "2px solid black",
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                height: 300,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <Card.Img variant="top" src={movie.picture} />
-              <Card.Body>
-                <Card.Title>{movie.name}</Card.Title>
-                <Button
-                  variant="danger"
+              <Typography variant="h6">Search and Add Movies</Typography>
+            </Box>
+          </Grid>
+        ) : (
+          displayedMovies.map((movie) => (
+            <Grid item xs={12} sm={6} md={2.4} key={movie._id}>
+              <Card
+                sx={{
+                  position: "relative",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <CardActionArea component={Link} to={`/movie/${movie.dbid}`}>
+                  <CardMedia
+                    component="img"
+                    image={movie.picture}
+                    alt={movie.title}
+                    sx={{
+                      width: "100%",
+                      height: "auto",
+                      aspectRatio: "2 / 3",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: "8px",
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                    }}
+                  >
+                    <Typography variant="body2" color="white">
+                      {movie.title}
+                    </Typography>
+                  </Box>
+                </CardActionArea>
+                <IconButton
+                  aria-label="delete"
                   onClick={(e) => deleteHandler(e, movie)}
+                  sx={{
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    color: "white",
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    "&:hover": {
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                    },
+                  }}
                 >
-                  Delete from watchlist
-                </Button>
-              </Card.Body>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+                  <DeleteIcon />
+                </IconButton>
+              </Card>
+            </Grid>
+          ))
+        )}
+      </Grid>
+      {watchlist.length > 5 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Button
+            onClick={toggleShowAll}
+            variant="outlined"
+            sx={{ textTransform: "none" }}
+          >
+            {showAll ? "Show Less" : "See All"}
+          </Button>
+        </Box>
+      )}
+    </Container>
   );
 }
 

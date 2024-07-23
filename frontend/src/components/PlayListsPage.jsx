@@ -1,92 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import NavBar from "./NavBar";
 import WatchList from "./WatchList";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import PlayListsCard from "./PlayListsCard";
+import { updatePlayLists } from "../store/userSlice";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
 import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
-import { useState } from "react";
-import TextField from "@mui/material/TextField";
+import AddIcon from "@mui/icons-material/Add";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { updatePlayLists } from "../store/userSlice";
-import PlayListsCard from "./PlayListsCard";
-// import { useEffect } from 'react';
+import TextField from "@mui/material/TextField";
 
 function PlayListsPage() {
-  const defaultTheme = createTheme();
   const dispatch = useDispatch();
   const playLists = useSelector((state) => state.user.playLists);
   const id = useSelector((state) => state.user.userid);
-
-  // useEffect(() => {
-  //     try {
-  //       fetch("http://localhost:8080/getPlayLists", {
-  //         method: "POST",
-  //         headers: {
-  //           "Access-Control-Allow-Origin": true,
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           id: id
-  //         }),
-  //       })
-  //       .then((res) => {
-  //         return res.json();
-  //       })
-  //       .then((res) => {
-  //         setPlayList(res.playlist)
-  //       })
-  //     } catch (err) {
-  //       console.log(err)
-  //     } // eslint-disable-next-line
-  //   },[])
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDesc] = useState("");
 
-  const handleClickOpen = (e) => {
-    e.preventDefault();
-    setOpen(true);
-  };
-
-  const handleClose = (e) => {
-    e.preventDefault();
-    setOpen(false);
-  };
+  const handleClickOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const createHandler = async (e) => {
     e.preventDefault();
     try {
-      await fetch("http://localhost:8080/createPlaylist", {
+      const response = await fetch("http://localhost:8080/createPlaylist", {
         method: "POST",
         headers: {
-          "Access-Control-Allow-Origin": true,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: id,
-          name: name,
-          description: description,
+          id,
+          name,
+          description,
         }),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          dispatch(updatePlayLists(res.playLists));
-          setOpen(false);
-        });
+      });
+      const data = await response.json();
+      dispatch(updatePlayLists(data.playLists));
+      setOpen(false);
     } catch (err) {
       console.log(err);
     }
@@ -96,83 +54,73 @@ function PlayListsPage() {
     <div>
       <NavBar />
       <WatchList />
-      <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="s">
-          <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 8,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "40px",
-            }}
+      <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
+            Your Playlists
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleClickOpen}
+            sx={{ textTransform: "none" }}
           >
-            <Typography
-              component="h1"
-              variant="h3"
-              sx={{ borderBottom: "3px solid black" }}
-            >
-              Your PlayLists{" "}
-              <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
-              <Button
-                component="label"
-                role={undefined}
-                variant="contained"
-                color="success"
-                tabIndex={-1}
-                onClick={handleClickOpen}
-                startIcon={<CloudUploadIcon />}
-              >
-                Create PlayList
-              </Button>
-            </Typography>
+            Create Playlist
+          </Button>
+        </Box>
 
-            <Dialog open={open} onClose={handleClose}>
-              <DialogTitle sx={{ width: "500px" }}>Create PlayList</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Enter the name and description of your playlist
-                </DialogContentText>
-                <TextField
-                  autoFocus
-                  required
-                  margin="dense"
-                  id="name"
-                  name="name"
-                  label="Name"
-                  type="name"
-                  fullWidth
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <TextField
-                  autoFocus
-                  required
-                  margin="dense"
-                  id="desc"
-                  name="desc"
-                  label="Description"
-                  type="desc"
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  onChange={(e) => setDesc(e.target.value)}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button type="submit" onClick={createHandler}>
-                  Create PlayList{" "}
-                </Button>
-              </DialogActions>
-            </Dialog>
+        {playLists.map((list) => (
+          <PlayListsCard key={list._id} list={list} />
+        ))}
 
-            {playLists.map((list) => {
-              return <PlayListsCard list={list} />;
-            })}
-          </Box>
-        </Container>
-      </ThemeProvider>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle sx={{ fontWeight: "bold" }}>Create Playlist</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Enter the name and description of your playlist
+            </DialogContentText>
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="name"
+              label="Name"
+              type="text"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <TextField
+              required
+              margin="dense"
+              id="description"
+              label="Description"
+              type="text"
+              fullWidth
+              multiline
+              rows={3}
+              value={description}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} sx={{ textTransform: "none" }}>
+              Cancel
+            </Button>
+            <Button onClick={createHandler} sx={{ textTransform: "none" }}>
+              Create Playlist
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
     </div>
   );
 }
