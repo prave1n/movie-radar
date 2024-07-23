@@ -28,9 +28,10 @@ def safe_convert_genre_ids(x):
     return []
 
 
-def get_user_ratings(user_id, reviews_df, movies_df):
-    user_reviews = reviews_df[reviews_df['user'] == user_id]
-    user_ratings = pd.merge(user_reviews, movies_df, left_on='movie', right_on='_id')
+def get_user_ratings(user_id):
+    user_reviews = list(db.reviews.find({'user': user_id}))
+    user_movies = list(db.movies.find({'_id': {'$in': [review['movie'] for review in user_reviews]}}))
+    user_ratings = pd.DataFrame(user_reviews).merge(pd.DataFrame(user_movies), left_on='movie', right_on='_id')
     return user_ratings[['dbid', 'rating', 'title', 'genre_ids']]
 
 
@@ -40,90 +41,58 @@ def clean_user_preferred_genres(user_preferred_genres):
     return []
 
 
-def get_user_recommendations(user_id, cosine_sim, movies_df, reviews_df, user_movie_ratings, users_df):
-    user = users_df[users_df['_id'] == user_id]
-    if user.empty:
-        return pd.DataFrame()
+def get_user_recommendations(user_id):
+    user = db.users.find_one({'_id': user_id})
+    if not user:
+        return []
 
-    user_preferred_genres = user['preferredGenres'].iloc[0]
-    user_preferred_genres = clean_user_preferred_genres(user_preferred_genres)
+    user_preferred_genres = clean_user_preferred_genres(user.get('preferredGenres', []))
+    user_ratings = get_user_ratings(user_id)
 
-    user_ratings = get_user_ratings(user_id, reviews_df, movies_df)
+    # Process movies in chunks
+    chunk_size = 1000
+    all_recommendations = []
 
-    movie_indices = movies_df.index
-    movie_ratings = user_ratings.set_index('dbid').reindex(movie_indices, fill_value=0)['rating'].values
+    for chunk in db.movies.find().batch_size(chunk_size):
+        chunk_df = pd.DataFrame(list(chunk))
 
-    content_scores = np.dot(cosine_sim, movie_ratings)
+        if chunk_df.empty:
+            continue
 
-    movies_df['content_score'] = content_scores
+        chunk_df['genre_ids'] = chunk_df['genre_ids'].apply(safe_convert_genre_ids)
+        chunk_df['genres_str'] = chunk_df['genre_ids'].apply(lambda x: ' '.join(map(str, x)))
+        chunk_df['content'] = chunk_df['genres_str'] + ' ' + chunk_df['overview'].fillna('')
 
-    if str(user_id) in user_movie_ratings.columns and not user_movie_ratings[str(user_id)].isna().all():
-        similar_users = user_movie_ratings.corrwith(user_movie_ratings[str(user_id)])
-        similar_users_df = pd.DataFrame(similar_users, columns=['correlation'])
-        similar_users_df.dropna(inplace=True)
-        similar_users_df = similar_users_df.sort_values('correlation', ascending=False)
-    else:
-        similar_users_df = pd.DataFrame(index=user_movie_ratings.index, columns=['correlation']).fillna(0)
+        tfidf = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = tfidf.fit_transform(chunk_df['content'])
+        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
-    recommended_movies = movies_df.copy()
+        chunk_ratings = user_ratings.set_index('dbid').reindex(chunk_df['dbid'], fill_value=0)['rating'].values
+        content_scores = np.dot(cosine_sim, chunk_ratings)
 
-    user_genre_ids = [genre['id'] for genre in user_preferred_genres]
+        chunk_df['content_score'] = content_scores
 
-    def calculate_genre_score(movie_genres, user_genres):
-        movie_genres = set(movie_genres)
-        user_genres = set(user_genres)
-        intersection = len(movie_genres & user_genres)
-        union = len(movie_genres | user_genres)
-        return intersection / union if union > 0 else 0
+        user_genre_ids = [genre['id'] for genre in user_preferred_genres]
 
-    recommended_movies['genre_score'] = recommended_movies['genre_ids'].apply(
-        lambda x: calculate_genre_score(x, user_genre_ids)
-    )
+        def calculate_genre_score(movie_genres, user_genres):
+            movie_genres = set(movie_genres)
+            user_genres = set(user_genres)
+            intersection = len(movie_genres & user_genres)
+            union = len(movie_genres | user_genres)
+            return intersection / union if union > 0 else 0
 
-    recommended_movies['cf_score'] = recommended_movies['dbid'].apply(
-        lambda x: similar_users_df['correlation'].get(x, 0)
-    )
+        chunk_df['genre_score'] = chunk_df['genre_ids'].apply(
+            lambda x: calculate_genre_score(x, user_genre_ids)
+        )
 
-    recommended_movies['final_score'] = (
-                                                recommended_movies['cf_score'] +
-                                                recommended_movies['genre_score'] +
-                                                recommended_movies['content_score']) / 3
+        chunk_df['final_score'] = (chunk_df['genre_score'] + chunk_df['content_score']) / 2
 
-    recommended_movies = recommended_movies.sort_values('final_score', ascending=False)
+        all_recommendations.extend(chunk_df[['dbid', 'title', 'final_score']].to_dict('records'))
 
-    return recommended_movies[['dbid', 'title', 'final_score']].head(10)
+    all_recommendations.sort(key=lambda x: x['final_score'], reverse=True)
+    return all_recommendations[:10]
 
 
 def prepare_data():
-    # Fetch data from MongoDB
-    movies_cursor = db.movies.find({})
-    reviews_cursor = db.reviews.find({})
-    users_cursor = db.users.find({})
-
-    # Convert to DataFrames
-    movies_df = pd.DataFrame(list(movies_cursor))
-    reviews_df = pd.DataFrame(list(reviews_cursor))
-    users_df = pd.DataFrame(list(users_cursor))
-
-    # Convert ObjectId to string for easier handling
-    movies_df['_id'] = movies_df['_id'].astype(str)
-    reviews_df['_id'] = reviews_df['_id'].astype(str)
-    reviews_df['user'] = reviews_df['user'].astype(str)
-    reviews_df['movie'] = reviews_df['movie'].astype(str)
-    users_df['_id'] = users_df['_id'].astype(str)
-
-    # Ensure genre_ids is a list
-    movies_df['genre_ids'] = movies_df['genre_ids'].apply(safe_convert_genre_ids)
-
-    movies_df['genres_str'] = movies_df['genre_ids'].apply(lambda x: ' '.join(map(str, x)))
-    movies_df['content'] = movies_df['genres_str'] + ' ' + movies_df['overview'].fillna('')
-
-    tfidf = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = tfidf.fit_transform(movies_df['content'])
-    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-
-    movie_reviews = pd.merge(reviews_df, movies_df, left_on='movie', right_on='_id')
-    user_movie_ratings = movie_reviews.pivot_table(index='dbid', columns='user', values='rating')
-    user_movie_ratings = user_movie_ratings.fillna(0)
-
-    return movies_df, reviews_df, users_df, cosine_sim, user_movie_ratings
+    # This function is now a no-op, as we're processing data on-demand
+    pass
