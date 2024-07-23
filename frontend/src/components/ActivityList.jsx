@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
-import NavBar from "./NavBar";
 import Card from "react-bootstrap/Card";
 import { useState } from "react";
 
@@ -35,7 +34,6 @@ function ActivityList() {
 
   return (
     <div>
-      <NavBar />
       <div
         style={{
           display: "flex",

@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import Button from "react-bootstrap/Button";
+import Button from "@mui/material/Button";
 import emailjs from "@emailjs/browser";
 
 function ResendVerfication() {
@@ -46,11 +46,16 @@ function ResendVerfication() {
   };
 
   return (
-    <div>
-      <Button type="submit" onClick={submitHandler}>
-        Resend Code
-      </Button>
-    </div>
+    <Button
+    type="submit"
+    fullWidth
+    variant="contained"
+    color="error"
+    sx={{ mt: 0, mb: 2 }}
+    onClick={submitHandler}
+  >
+    Resend OTP
+  </Button>
   );
 }
 

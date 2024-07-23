@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import MovieCard from "./MovieCard";
-import SearchBar from "./SearchBar";
+import MovieSearchBar from "./MovieSearchBar";
 import NavBar from "./NavBar";
 import Pagination from "./Pagination";
 import Footer from "./Footer";
@@ -188,7 +188,7 @@ function Home() {
           <Grid item xs={12} md={2.5}>
             <Paper elevation={3}>
               <Box p={3}>
-                <SearchBar setSearch={updateSearch} />
+                <MovieSearchBar setSearch={updateSearch} />
 
                 <Box mt={3}>
                   <Typography variant="h7" gutterBottom>

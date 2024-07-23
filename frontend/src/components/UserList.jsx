@@ -65,28 +65,30 @@ function FriendsList() {
       }}
     >
       <h1>Users</h1>
-      <div
-        style={{
-          border: "1px solid black",
-          height: "650px",
-          overflowY: "scroll",
-          borderRadius: "20px",
-          width: "20vw",
-          overflowX: "hidden",
+      <SearchBar setSearch={updateSearch} />
+      <div  style={{
+          alignItems: "center",
+          justifyContent:"space-evenly",
+          display: "flex",
+          flexWrap:"wrap",
+          maxWidth: "1700px"
         }}
       >
-        <SearchBar setSearch={updateSearch} />
+        
         {userList
           .filter((x) =>
             (x.fname + " " + x.lname)
+              .toLowerCase()
+              .includes(search.toLowerCase()) || 
+              (x.username)
               .toLowerCase()
               .includes(search.toLowerCase())
           )
           .map((user) => {
             return (
-              <div key={user._id} style={{ width: "20vw" }}>
+              
                 <UserCard user={user} pending={pending} />
-              </div>
+              
             );
           })}
       </div>

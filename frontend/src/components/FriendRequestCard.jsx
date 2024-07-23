@@ -1,15 +1,20 @@
 import React from "react";
-import Card from "react-bootstrap/Card";
 import { useState } from "react";
 import { useEffect } from "react";
-import Button from "react-bootstrap/Button";
 import { addFriend } from "../store/userSlice";
 import { useDispatch } from "react-redux";
+import { Typography, Avatar, Box} from "@mui/material";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
 
 function FriendRequestCard({ from, createdAt, id }) {
   const dispatch = useDispatch();
-  const [fname, setfname] = useState("sss");
-  const [lname, setLname] = useState("sss");
+  const [fname, setfname] = useState("");
+  const [lname, setLname] = useState("");
+  const [username, setUsername] = useState("");
+  const[pfp, setPfp] = useState("")
   const [hide, setHide] = useState(false);
   useEffect(() => {
     try {
@@ -29,7 +34,8 @@ function FriendRequestCard({ from, createdAt, id }) {
         .then((res) => {
           setfname(res.user.fname);
           setLname(res.user.lname);
-          console.log(res);
+          setUsername(res.user.username);
+          setPfp(res.user.pfp)
         });
     } catch (err) {
       console.log(err);
@@ -91,6 +97,41 @@ function FriendRequestCard({ from, createdAt, id }) {
   return (
     <div style={{ display: hide ? "none" : "" }}>
       <div style={{ margin: "20px" }}>
+      <Card sx={{ maxWidth: 475, minWidth: 475, padding: 1.5}}>
+        <CardContent>
+        <Box display="flex" alignItems="center" my={3}>
+          <Avatar
+            src={pfp}
+            alt={username}
+            sx={{ width: 100, height: 100, mr: 3 }}
+          />
+          <Box>
+            <Typography variant="h4">{username}</Typography>
+            <Typography variant="subtitle1">{`${fname} ${lname}`}</Typography>
+          </Box>
+        </Box>
+        </CardContent>
+        <CardActions sx={{ justifyContent: 'center' }}>
+            <Button sx={{ mt: 3, mb: 2 }} variant="contained" onClick={acceptRequestHandler}>
+              Accept
+            </Button>
+           
+            <Button variant="contained" sx={{ mt: 3, mb: 2 }} color="error" onClick={deleteRequestHandler}>
+              Deny 
+            </Button>
+            
+        </CardActions>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default FriendRequestCard;
+
+/* 
+  <div style={{ display: hide ? "none" : "" }}>
+      <div style={{ margin: "20px" }}>
         <Card style={{ width: "18rem" }}>
           <Card.Body>
             <Card.Title>
@@ -109,7 +150,4 @@ function FriendRequestCard({ from, createdAt, id }) {
         </Card>
       </div>
     </div>
-  );
-}
-
-export default FriendRequestCard;
+*/

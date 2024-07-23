@@ -1,17 +1,21 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { removeFriend } from "../store/userSlice";
 import { Link } from "react-router-dom";
+import { Typography, Avatar, Box} from "@mui/material";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
 
 function FriendCard({ userId }) {
   const dispatch = useDispatch();
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
   const [username, setUsername] = useState("");
+  const[pfp, setPfp] = useState("")
   const [hide, setHide] = useState(false);
   const thisId = useSelector((state) => state.user.userid);
 
@@ -34,6 +38,7 @@ function FriendCard({ userId }) {
           setFname(res.user.fname);
           setLname(res.user.lname);
           setUsername(res.user.username);
+          setPfp(res.user.pfp)
         });
     } catch (err) {
       console.log(err);
@@ -71,7 +76,44 @@ function FriendCard({ userId }) {
   return (
     <div style={{ display: hide ? "none" : "" }}>
       <div style={{ margin: "20px" }}>
-        <Card style={{ width: "18rem" }}>
+      <Card sx={{ maxWidth: 475, minWidth: 475, padding: 1.5}}>
+        <CardContent>
+        <Box display="flex" alignItems="center" my={3}>
+          <Avatar
+            src={pfp}
+            alt={username}
+            sx={{ width: 100, height: 100, mr: 3 }}
+          />
+          <Box>
+            <Typography variant="h4">{username}</Typography>
+            <Typography variant="subtitle1">{`${fname} ${lname}`}</Typography>
+          </Box>
+        </Box>
+        </CardContent>
+        <CardActions sx={{ justifyContent: 'center' }}>
+            <Button sx={{ mt: 3, mb: 2 }} variant="contained" color="error" onClick={deleteFriendHandler}>
+              Remove Friend
+            </Button>
+            <Link
+                to={`/user/${username}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+            <Button variant="contained" sx={{ mt: 3, mb: 2 }}>
+              View Profile
+            </Button>
+            </Link>
+        </CardActions>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default FriendCard;
+
+
+/* 
+ <Card style={{ width: "18rem" }}>
           <Card.Body>
             <Card.Title>
               <Link
@@ -91,9 +133,4 @@ function FriendCard({ userId }) {
             </Button>
           </div>
         </Card>
-      </div>
-    </div>
-  );
-}
-
-export default FriendCard;
+*/
