@@ -11,20 +11,21 @@ from bson import ObjectId
 client = MongoClient(os.environ.get('MONGODB_URI',
                                     'mongodb+srv://linkesvarun:JUF076PvImPU5eQt@clustertest.chekyvj.mongodb.net/sample_tester?tlsAllowInvalidCertificates=true'))
 db = client['sample_tester']
+print(f"Connected to database: {db.name}")
 
 
 def safe_convert_genre_ids(x):
     if isinstance(x, list):
-        return x
-    if pd.isna(x):
+        return [int(id['id']) if isinstance(id, dict) else int(id) for id in x if str(id).isdigit() or (isinstance(id, dict) and str(id.get('id', '')).isdigit())]
+    if pd.isna(x) or x is None:
         return []
     if isinstance(x, (int, float)):
         return [int(x)]
     if isinstance(x, str):
         try:
-            return json.loads(x)
+            return [int(id) for id in json.loads(x) if str(id).isdigit()]
         except json.JSONDecodeError:
-            return [x]
+            return [int(x)] if x.isdigit() else []
     return []
 
 
@@ -32,6 +33,7 @@ def get_user_ratings(user_id):
     user_reviews = list(db.reviews.find({'user': user_id}))
     user_movies = list(db.movies.find({'_id': {'$in': [review['movie'] for review in user_reviews]}}))
     user_ratings = pd.DataFrame(user_reviews).merge(pd.DataFrame(user_movies), left_on='movie', right_on='_id')
+    print(f"User ratings count: {len(user_ratings)}")
     return user_ratings[['dbid', 'rating', 'title', 'genre_ids']]
 
 
@@ -40,24 +42,61 @@ def clean_user_preferred_genres(user_preferred_genres):
         return [genre for genre in user_preferred_genres if isinstance(genre, dict) and 'id' in genre]
     return []
 
+def calculate_genre_score(movie_genres, user_genres):
+    try:
+        movie_genres = set(movie_genres)
+        user_genres = set(user_genres)
+        intersection = len(movie_genres & user_genres)
+        union = len(movie_genres | user_genres)
+        return intersection / union if union > 0 else 0
+    except Exception as e:
+        print(f"Error calculating genre score: {e}")
+        print(f"movie_genres: {movie_genres}")
+        print(f"user_genres: {user_genres}")
+        return 0
+
 
 def get_user_recommendations(user_id):
     user = db.users.find_one({'_id': user_id})
     if not user:
+        print(f"User not found: {user_id}")
         return []
 
+    print(f"User found: {user_id}")
     user_preferred_genres = clean_user_preferred_genres(user.get('preferredGenres', []))
     user_ratings = get_user_ratings(user_id)
+    print(f"User ratings count: {len(user_ratings)}")
 
-    # Process movies in chunks
     chunk_size = 1000
     all_recommendations = []
 
-    for chunk in db.movies.find().batch_size(chunk_size):
-        chunk_df = pd.DataFrame(list(chunk))
+    total_movies = db.movies.count_documents({})
+    print(f"Total movies in database: {total_movies}")
+
+    for i in range(0, total_movies, chunk_size):
+        movie_chunk = list(db.movies.find().skip(i).limit(chunk_size))
+
+        if i == 0 and movie_chunk:
+            print("Sample of raw MongoDB data:")
+            print(json.dumps(movie_chunk[0], default=str, indent=2))
+
+        chunk_df = pd.DataFrame(movie_chunk)
+        print(f"Processing chunk {i // chunk_size + 1} with {len(chunk_df)} movies")
 
         if chunk_df.empty:
+            print("Warning: Empty chunk encountered. Skipping.")
             continue
+
+        print(f"DataFrame columns: {chunk_df.columns.tolist()}")
+
+        if 'genre_ids' not in chunk_df.columns:
+            print("Warning: 'genre_ids' column not found. Attempting to use 'genres' instead.")
+            if 'genres' in chunk_df.columns:
+                chunk_df['genre_ids'] = chunk_df['genres'].apply(
+                    lambda x: [genre['id'] for genre in x] if isinstance(x, list) else [])
+            else:
+                print("Error: Neither 'genre_ids' nor 'genres' column found. Skipping this chunk.")
+                continue
 
         chunk_df['genre_ids'] = chunk_df['genre_ids'].apply(safe_convert_genre_ids)
         chunk_df['genres_str'] = chunk_df['genre_ids'].apply(lambda x: ' '.join(map(str, x)))
@@ -69,27 +108,19 @@ def get_user_recommendations(user_id):
 
         chunk_ratings = user_ratings.set_index('dbid').reindex(chunk_df['dbid'], fill_value=0)['rating'].values
         content_scores = np.dot(cosine_sim, chunk_ratings)
-
         chunk_df['content_score'] = content_scores
 
         user_genre_ids = [genre['id'] for genre in user_preferred_genres]
-
-        def calculate_genre_score(movie_genres, user_genres):
-            movie_genres = set(movie_genres)
-            user_genres = set(user_genres)
-            intersection = len(movie_genres & user_genres)
-            union = len(movie_genres | user_genres)
-            return intersection / union if union > 0 else 0
 
         chunk_df['genre_score'] = chunk_df['genre_ids'].apply(
             lambda x: calculate_genre_score(x, user_genre_ids)
         )
 
         chunk_df['final_score'] = (chunk_df['genre_score'] + chunk_df['content_score']) / 2
-
         all_recommendations.extend(chunk_df[['dbid', 'title', 'final_score']].to_dict('records'))
 
     all_recommendations.sort(key=lambda x: x['final_score'], reverse=True)
+    print(f"Generated {len(all_recommendations)} recommendations")
     return all_recommendations[:10]
 
 
