@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from recommendation_model import get_user_recommendations
 from bson import ObjectId
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/recommend', methods=['POST'])
 def recommend():

@@ -67,8 +67,8 @@ def get_user_recommendations(user_id):
     user_ratings = get_user_ratings(user_id)
     print(f"User ratings count: {len(user_ratings)}")
 
-    chunk_size = 1000
-    all_recommendations = []
+    chunk_size = 100
+    top_recommendations = []
 
     total_movies = db.movies.count_documents({})
     print(f"Total movies in database: {total_movies}")
@@ -84,19 +84,7 @@ def get_user_recommendations(user_id):
         print(f"Processing chunk {i // chunk_size + 1} with {len(chunk_df)} movies")
 
         if chunk_df.empty:
-            print("Warning: Empty chunk encountered. Skipping.")
             continue
-
-        print(f"DataFrame columns: {chunk_df.columns.tolist()}")
-
-        if 'genre_ids' not in chunk_df.columns:
-            print("Warning: 'genre_ids' column not found. Attempting to use 'genres' instead.")
-            if 'genres' in chunk_df.columns:
-                chunk_df['genre_ids'] = chunk_df['genres'].apply(
-                    lambda x: [genre['id'] for genre in x] if isinstance(x, list) else [])
-            else:
-                print("Error: Neither 'genre_ids' nor 'genres' column found. Skipping this chunk.")
-                continue
 
         chunk_df['genre_ids'] = chunk_df['genre_ids'].apply(safe_convert_genre_ids)
         chunk_df['genres_str'] = chunk_df['genre_ids'].apply(lambda x: ' '.join(map(str, x)))
@@ -117,11 +105,14 @@ def get_user_recommendations(user_id):
         )
 
         chunk_df['final_score'] = (chunk_df['genre_score'] + chunk_df['content_score']) / 2
-        all_recommendations.extend(chunk_df[['dbid', 'title', 'final_score']].to_dict('records'))
+        chunk_recommendations = chunk_df[['dbid', 'title', 'final_score']].to_dict('records')
 
-    all_recommendations.sort(key=lambda x: x['final_score'], reverse=True)
-    print(f"Generated {len(all_recommendations)} recommendations")
-    return all_recommendations[:10]
+        top_recommendations.extend(chunk_recommendations)
+        top_recommendations.sort(key=lambda x: x['final_score'], reverse=True)
+        top_recommendations = top_recommendations[:10]  # Keep only top 10
+
+    print(f"Generated {len(top_recommendations)} recommendations")
+    return top_recommendations
 
 
 def prepare_data():
