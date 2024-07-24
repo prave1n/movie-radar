@@ -67,7 +67,7 @@ def get_user_recommendations(user_id):
     user_ratings = get_user_ratings(user_id)
     print(f"User ratings count: {len(user_ratings)}")
 
-    chunk_size = 100
+    chunk_size = 50
     top_recommendations = []
 
     total_movies = db.movies.count_documents({})
