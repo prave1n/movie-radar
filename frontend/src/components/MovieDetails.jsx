@@ -6,13 +6,19 @@ import Form from "react-bootstrap/Form";
 import ReviewCard from "./ReviewCard";
 import NavBar from "./NavBar";
 import "./styles/MovieDetails.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faStar as solidStar,
+  faStarHalfAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 
 function MovieDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState({});
   const [reviews, setReviews] = useState([]);
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(0.0);
   const [reviewText, setReviewText] = useState("");
   const [averageRating, setAverageRating] = useState(null);
   const email = useSelector((state) => state.user.email);
@@ -67,16 +73,13 @@ function MovieDetails() {
       reviewText,
     };
     try {
-      const response = await fetch(
-        `http://localhost:8080/review`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`http://localhost:8080/review`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to add review");
@@ -94,12 +97,9 @@ function MovieDetails() {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/review/${reviewId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
@@ -171,57 +171,50 @@ function MovieDetails() {
     }
   };
 
-  /* const handleUpvote = async (reviewId) => {
-    const payload = { userId: email };
-
-    await fetch(`http://localhost:8080/review/upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to upvote review:", updatedReview);
-        }
-      })
-      .catch((error) => console.error("Error upvoting review:", error));
+  const handleStarClick = (value) => {
+    console.log("Star clicked with value:", value);
+    if (value >= 0.5 && value <= 5) {
+      setRating(value);
+    }
   };
 
-  const handleRemoveUpvote = async (reviewId) => {
-    const payload = { userId: email };
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const isFullStar = rating >= i;
+      const isHalfStar = rating >= i - 0.5 && rating < i;
 
-    await fetch(`http://localhost:8080/review/remove-upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to remove upvote from review:", updatedReview);
-        }
-      })
-      .catch((error) =>
-        console.error("Error removing upvote from review:", error)
-      );
-  }; */
+      if (isFullStar) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={solidStar}
+            onClick={() => handleStarClick(i)}
+            style={{ cursor: "pointer", color: "gold" }}
+          />
+        );
+      } else if (isHalfStar) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStarHalfAlt}
+            onClick={() => handleStarClick(i - 0.5)}
+            style={{ cursor: "pointer", color: "gold" }}
+          />
+        );
+      } else {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={regularStar}
+            onClick={() => handleStarClick(i)}
+            style={{ cursor: "pointer", color: "gold" }}
+          />
+        );
+      }
+    }
+    return stars;
+  };
 
   return (
     <div>
@@ -245,14 +238,7 @@ function MovieDetails() {
         <Form onSubmit={handleReviewSubmit} className="review-form">
           <Form.Group>
             <Form.Label htmlFor="rating">Rating</Form.Label>
-            <Form.Control
-              id="rating"
-              type="number"
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              min="1"
-              max="5"
-            />
+            <div id="rating">{renderStars()}</div>
           </Form.Group>
           <Form.Group>
             <Form.Label htmlFor="review">Review</Form.Label>
@@ -269,18 +255,24 @@ function MovieDetails() {
         </Form>
 
         <h2 className="review-section">Reviews</h2>
-        {reviews.map((review) => (
-          <div key={review._id} className="review-card-container">
-            <ReviewCard
-              key={review._id}
-              review={review}
-              onUpvote={handleUpvote}
-              onRemoveUpvote={handleRemoveUpvote}
-              onDelete={() => handleDeleteReview(review._id)}
-              canDelete={review.user._id === userId}
-            />
-          </div>
-        ))}
+        {reviews.length === 0 ? (
+          <p>
+            No reviews yet. If you have watched this movie, please add a review!
+          </p>
+        ) : (
+          reviews.map((review) => (
+            <div key={review._id} className="review-card-container">
+              <ReviewCard
+                key={review._id}
+                review={review}
+                onUpvote={handleUpvote}
+                onRemoveUpvote={handleRemoveUpvote}
+                onDelete={() => handleDeleteReview(review._id)}
+                canDelete={review.user._id === userId}
+              />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

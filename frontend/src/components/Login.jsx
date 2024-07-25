@@ -1,20 +1,19 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Link from '@mui/material/Link';
 import { useDispatch } from "react-redux";
 import { newuser } from "../store/userSlice";
 import "./styles/Login.css";
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import LocalMoviesRoundedIcon from '@mui/icons-material/LocalMoviesRounded';
-
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
+import Paper from "@mui/material/Paper";
+import Link from "@mui/material/Link";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -25,7 +24,7 @@ export default function Login() {
   const [psw, setPsw] = useState("");
 
   const submitHandler = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       await fetch("http://localhost:8080/login", {
         method: "POST",
@@ -48,7 +47,7 @@ export default function Login() {
             dispatch(newuser(res.user));
             console.log(res.token);
             localStorage.setItem("token", res.token);
-            navigate(`/home`);
+            navigate(`/myhome`);
           }
         });
     } catch (err) {
@@ -57,78 +56,98 @@ export default function Login() {
   };
 
   return (
-    <div className="mainformbody">
-      <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="sm">
+    <ThemeProvider theme={defaultTheme}>
+      <Grid container component="main" sx={{ height: "100vh" }}>
         <CssBaseline />
-      <Box
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
           sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: "40px",
-          }}
-         
-        >
-          <Typography component="h1" variant="h3">
-            Movie Radar  <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px"}}/>
-          </Typography>
-
-        <Box component="form" noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          placeholder="Enter Email"
-          label="Email Address"
-          name="email"
-          autoFocus
-          onChange={(e) => {
-            setEmail(e.target.value);
+            backgroundImage:
+              'url("https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149146012.jpg?t=st=1721701937~exp=1721705537~hmac=5dd9bbda451d84f6a3392b952937515e0c6a3ef359c231df1a60d87fd705db2f&w=1380")',
+            backgroundColor: (t) =>
+              t.palette.mode === "light"
+                ? t.palette.grey[50]
+                : t.palette.grey[900],
+            backgroundSize: "cover",
+            backgroundPosition: "left",
+            position: "relative",
           }}
         />
-        
-        
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          type="password"
-          name="password"
-          label="Password"
-          id="password"
-          onChange={(e) => {
-            setPsw(e.target.value);
-          }}
-        />
-        
-        <Button type="submit" 
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={submitHandler}>
-          Login
-        </Button>
 
-        <Grid container>
-              <Grid item xs>
-                <Link href="/signup" variant="body2">
-                  Forgot password?
-                </Link>
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <Box
+            sx={{
+              my: 8,
+              mx: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "40px",
+            }}
+          >
+            <Typography component="h1" variant="h3">
+              Movie Radar{" "}
+              <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
+            </Typography>
+
+            <Box component="form" noValidate sx={{ mt: 1 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                placeholder="Enter Email"
+                label="Email Address"
+                name="email"
+                autoFocus
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
+              />
+
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                type="password"
+                name="password"
+                label="Password"
+                id="password"
+                onChange={(e) => {
+                  setPsw(e.target.value);
+                }}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                onClick={submitHandler}
+              >
+                Login
+              </Button>
+
+              <Grid container>
+                <Grid item xs>
+                  <Link href="/reset" variant="body2">
+                    Forgot password?
+                  </Link>
+                </Grid>
+
+                <Grid item>
+                  <Link href="/signup" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link href="/reset" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-        </Box>
-        </Box>
-        </Container>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     </ThemeProvider>
-    </div>
-    
   );
 }

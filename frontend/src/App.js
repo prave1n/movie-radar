@@ -18,6 +18,8 @@ import { clearuser } from './store/userSlice';
 import { useSelector } from 'react-redux';
 import Verify from './components/Verify';
 import PlayListsPage from './components/PlayListsPage';
+import ActivityList from './components/ActivityList';
+import FriendsProfilePage from './components/FriendsProfilePage'
 
 function App() { 
   const loggedIn = useSelector((state) => state.user.authorized);
@@ -85,6 +87,10 @@ function App() {
           <Route path="/verify/:id" element={ <Verify/>} />
 
           <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
+
+          <Route exact path = '/activityList' element={!loggedIn ? <Login/> : <ActivityList/>} />
+
+          <Route path="/user/:username" element={!loggedIn ? <Login/> : <FriendsProfilePage />} />
 
           <Route exact path = '*' element={<p>PAGE NOT FOUND</p>}/>
 

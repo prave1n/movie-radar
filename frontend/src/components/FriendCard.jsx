@@ -1,15 +1,21 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { removeFriend } from "../store/userSlice";
+import { Link } from "react-router-dom";
+import { Typography, Avatar, Box} from "@mui/material";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
 
 function FriendCard({ userId }) {
   const dispatch = useDispatch();
-  const [fname, setfname] = useState("");
+  const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
+  const [username, setUsername] = useState("");
+  const[pfp, setPfp] = useState("")
   const [hide, setHide] = useState(false);
   const thisId = useSelector((state) => state.user.userid);
 
@@ -29,15 +35,17 @@ function FriendCard({ userId }) {
           return res.json();
         })
         .then((res) => {
-          setfname(res.fname);
+          setFname(res.user.fname);
           setLname(res.user.lname);
-          console.log(res.fname);
+          setUsername(res.user.username);
+          setPfp(res.user.pfp)
         });
     } catch (err) {
       console.log(err);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const deleteFriendHandler = (e) => {
     e.preventDefault();
     try {
@@ -64,20 +72,37 @@ function FriendCard({ userId }) {
       console.log(err);
     }
   };
+
   return (
     <div style={{ display: hide ? "none" : "" }}>
       <div style={{ margin: "20px" }}>
-        <Card style={{ width: "18rem" }}>
-          <Card.Body>
-            <Card.Title>
-              {fname} {lname}
-            </Card.Title>
-          </Card.Body>
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
-            <Button variant="outline-danger" onClick={deleteFriendHandler}>
+      <Card sx={{ maxWidth: 475, minWidth: 475, padding: 1.5}}>
+        <CardContent>
+        <Box display="flex" alignItems="center" my={3}>
+          <Avatar
+            src={pfp}
+            alt={username}
+            sx={{ width: 100, height: 100, mr: 3 }}
+          />
+          <Box>
+            <Typography variant="h4">{username}</Typography>
+            <Typography variant="subtitle1">{`${fname} ${lname}`}</Typography>
+          </Box>
+        </Box>
+        </CardContent>
+        <CardActions sx={{ justifyContent: 'center' }}>
+            <Button sx={{ mt: 3, mb: 2 }} variant="contained" color="error" onClick={deleteFriendHandler}>
               Remove Friend
             </Button>
-          </div>
+            <Link
+                to={`/user/${username}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+            <Button variant="contained" sx={{ mt: 3, mb: 2 }}>
+              View Profile
+            </Button>
+            </Link>
+        </CardActions>
         </Card>
       </div>
     </div>
@@ -85,3 +110,27 @@ function FriendCard({ userId }) {
 }
 
 export default FriendCard;
+
+
+/* 
+ <Card style={{ width: "18rem" }}>
+          <Card.Body>
+            <Card.Title>
+              <Link
+                to={`/user/${username}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {username}
+              </Link>
+            </Card.Title>
+            <Card.Text>
+              {fname} {lname}
+            </Card.Text>
+          </Card.Body>
+          <div style={{ display: "flex", justifyContent: "space-around" }}>
+            <Button variant="outline-danger" onClick={deleteFriendHandler}>
+              Remove Friend
+            </Button>
+          </div>
+        </Card>
+*/

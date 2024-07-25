@@ -1,7 +1,5 @@
 import React from "react";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearuser } from "../store/userSlice";
@@ -16,38 +14,43 @@ function NavBar() {
     localStorage.removeItem("token");
     navigate("/");
   };
+
   return (
-    <div>
-      <Navbar bg="dark" variant="dark">
-        <Container>
-          <Navbar.Brand as={Link} to="/home">
-            MovieRadar
-          </Navbar.Brand>
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/myhome">
-              My Home
-            </Nav.Link>
-            <Nav.Link as={Link} to="/profile">
-              Profile
-            </Nav.Link>
-            <Nav.Link as={Link} to="/watchlist">
-              Playlists
-            </Nav.Link>
-            <Nav.Link as={Link} to="/user/reviews">
-              Reviews
-            </Nav.Link>
-            <Nav.Link as={Link} to="/friends">
-              Friends List
-            </Nav.Link>
-          </Nav>
-        </Container>
-        <div>
-          <button onClick={logoutHandler} className="btn btn-outline-light">
+    <AppBar position="static" sx={{ backgroundColor: "#013220" }}>
+      <Toolbar>
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/myhome"
+          sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
+        >
+          MovieRadar
+        </Typography>
+        <Box>
+          <Button color="inherit" component={Link} to="/home">
+            Browse
+          </Button>
+          <Button color="inherit" component={Link} to="/profile">
+            Profile
+          </Button>
+          <Button color="inherit" component={Link} to="/watchlist">
+            Playlists
+          </Button>
+          <Button color="inherit" component={Link} to="/user/reviews">
+            Reviews
+          </Button>
+          <Button color="inherit" component={Link} to="/friends">
+            Friends List
+          </Button>
+          <Button color="inherit" component={Link} to="/activityList">
+            Activity List
+          </Button>
+          <Button color="inherit" onClick={logoutHandler}>
             Log Out
-          </button>
-        </div>
-      </Navbar>
-    </div>
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
 

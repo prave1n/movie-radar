@@ -1,5 +1,5 @@
 import React from "react";
-import Form from "react-bootstrap/Form";
+import TextField from "@mui/material/TextField";
 
 function SearchBar({ setSearch }) {
   const handleSearch = (val) => {
@@ -7,13 +7,14 @@ function SearchBar({ setSearch }) {
   };
   return (
     <div>
-      <Form.Control
-        className="searchBar"
+      <TextField
+        fullWidth
         type="text"
         id="search"
         placeholder="Type to search ..."
+        label="Search for users"
         onChange={(e) => handleSearch(e.target.value)}
-        style={{ height: "50px", width: "600px", marginTop: "70px" }}
+        style={{ height: "50px", width: "1000px", marginTop: "20px", marginBottom: "20px" }}
       />
     </div>
   );

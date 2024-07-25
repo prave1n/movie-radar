@@ -93,27 +93,70 @@ app.post('/resend', async (req,res) => {
     })
 })
 
-app.post('/login',(req,res)=>{
-    User.findOne({email:req.body.email})
-    .then((user)=>{
-        if(!user){
-            res.send({login:false,message:"Invalid email"})
-        } else if (!user.verified){
-            res.send({login:false,message:"Your email account still has not been verified"})
-        } else {
-            bcrypt.compare(req.body.password,user.password,function (err,result){
-                if(result == true){
-                    const token = jwt.sign({id:user._id, username:user.email,type:"user"}, jsonwebtoken, {expiresIn: "2h"})
-                    res.cookie("token", token, {maxAge: 2 * 60 * 60 * 1000, httpOnly: true}) 
-                    res.send({login:true,user:user, token:token})
-                }
-                else{
-                    res.send({login:false,message:"Invalid password"})
-                }
-            })
+// updated login with recco movie fetch in background
+app.post('/login', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.send({ login: false, message: "Invalid email" });
         }
-    })
-})
+        if (!user.verified) {
+            return res.send({ login: false, message: "Your email account still has not been verified" });
+        }
+        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+
+        if (!isPasswordValid) {
+            return res.send({ login: false, message: "Invalid password" });
+        }
+
+        const token = jwt.sign({ id: user._id, username: user.email, type: "user" }, jsonwebtoken, { expiresIn: "2h" });
+        res.cookie("token", token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true });
+        res.send({ login: true, user: user, token: token });
+
+        setImmediate(async () => {
+            try {
+                if (user.preferredGenres.length > 0 || user.reviews.length > 0) {
+                    console.log(`[${new Date().toISOString()}] Fetching recommendations for user:`);
+                    const response = await fetch('https://movie-reccomendation-model.onrender.com/recommend', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: user._id }),
+                    });
+      
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch recommendations');
+                    }
+      
+                    const recommendations = await response.json();
+                    console.log(`[${new Date().toISOString()}] Recommendations fetched for user:`);
+      
+                    const moviePromises = recommendations.map(async (rec) => {
+                        const movie = await Movie.findOne({ dbid: rec.dbid });
+                        return { movie: movie._id, title: movie.title, score: rec.score };
+                    });
+      
+                    const recommendedMovies = await Promise.all(moviePromises);
+      
+                    await User.findOneAndUpdate(
+                        { _id: user._id },
+                        { $set: { recommendedMovies } },
+                        { new: true }
+                    );
+                    console.log(`[${new Date().toISOString()}] Recommendations saved for user:`);
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+            }
+        });  
+    } catch (error) {
+        console.error('Error logging in:', error);
+        res.status(500).send({ login: false, message: 'Internal server error' });
+    }
+});
+      
 
 app.post('/sendemail', async (req,res)=>{
     await User.findOne({email:req.body.email})
@@ -233,34 +276,70 @@ const genres = [
   ];
   
 app.get('/myhome', async (req, res) => {
-      const userId = req.query.userId;
-  
-      if (!userId) {
-          return res.status(400).send('User ID is required');
-      }
-  
-      try {
-          const user = await User.findById(userId);
-  
-          if (!user) {
-              return res.status(404).send('User not found');
-          }
-  
-          const preferredGenres = user.preferredGenres.length > 0 ? user.preferredGenres : genres.sort(() => 0.5 - Math.random()).slice(0, 3);
-  
-          let moviesByGenre = [];
-          for (const genre of preferredGenres) {
-              const movies = await Movie.find({ genre_ids: genre.id }).limit(15).lean();
-              moviesByGenre.push({ genre: genre.name, movies });
-          }
-  
-          res.json(moviesByGenre);
-      } catch (error) {
-          console.error("Error fetching movies:", error);
-          res.status(500).send(error.message);
-      }
+    const userId = req.query.userId;
+
+    if (!userId) {
+        return res.status(400).send('User ID is required');
+    }
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const preferredGenres = user.preferredGenres.length > 0 ? user.preferredGenres : genres.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+        let moviesByGenre = [];
+        for (const genre of preferredGenres) {
+            const movies = await Movie.find({ genre_ids: genre.id }).limit(15).lean();
+            moviesByGenre.push({ genre: genre.name, movies });
+        }
+
+        res.json(moviesByGenre);
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        res.status(500).send(error.message);
+    }
 });
 
+app.get('/recommended-movies', async (req, res) => {
+    const userId = req.query.userId;
+
+    if (!userId) {
+        return res.status(400).send('User ID is required');
+    }
+    
+    try {
+        const user = await User.findById(userId).populate('recommendedMovies.movie').lean();
+    
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const userReviews = await Review.find({ user: userId }).select('movie').lean();
+        const reviewedMovieIds = userReviews.map(review => review.movie.toString());
+
+        const recommendedMovies = user.recommendedMovies
+            .filter(rec => !reviewedMovieIds.includes(rec.movie._id.toString()))
+            .slice(0, 10)
+            .map(rec => ({
+                _id: rec.movie._id,
+                dbid: rec.movie.dbid,
+                title: rec.title,
+                overview: rec.movie.overview,
+                picture: rec.movie.picture,
+                score: rec.score
+            }));
+
+        res.json(recommendedMovies);
+
+    } catch (error) {
+        console.error("Error fetching user details:", error);
+        res.status(500).send(error.message);
+    }
+})
 
 app.get('/get-preferred-genres', async (req, res) => {
     const userId = req.query.userId;
@@ -315,73 +394,132 @@ app.get('/get-preferred-genres', async (req, res) => {
     }
 });
 
-//updated /movie to handle filter by multiple genres and multiple year intervals with pagination
+//updated /movie to handle filters and sorting
 app.get('/movie', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const genres = req.query.genres ? req.query.genres.split(',').map(Number) : [];
     const yearRanges = req.query.yearRanges ? JSON.parse(req.query.yearRanges) : [];
     const search = req.query.search || '';
+    const sort = req.query.sort || 'default';
   
     let filter = {};
     let andConditions = [];
+    let sortOptions = {};
   
     if (genres.length > 0) {
-      filter.genre_ids = { $in: genres };
+        filter.genre_ids = { $all: genres };
     }
   
     if (yearRanges.length > 0) {
         const yearFilter = {
             $or: yearRanges.map(range => ({
-              release_date: {
-                $gte: `${range.start}-01-01`,
-                $lte: `${range.end}-12-31`
-              }
+                release_date: {
+                    $gte: `${range.start}-01-01`,
+                    $lte: `${range.end}-12-31`
+                }
             }))
-          };
-          andConditions.push(yearFilter);
+        };
+        andConditions.push(yearFilter);
     }
   
     if (search) {
         const searchFilter = {
             $or: [
-              { title: { $regex: search, $options: 'i' } },
-              { overview: { $regex: search, $options: 'i' } }
+                { title: { $regex: search, $options: 'i' } },
             ]
-          };
-          andConditions.push(searchFilter);
+        };
+        andConditions.push(searchFilter);
     }
-
+  
+    const today = new Date().toISOString().split('T')[0];
+  
+    switch(sort) {
+        case 'most_recent':
+            sortOptions = { release_date: -1 };
+            andConditions.push({ 
+                release_date: { 
+                    $lte: today, 
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        case 'least_recent':
+            sortOptions = { release_date: 1 };
+            andConditions.push({ 
+                release_date: { 
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        case 'upcoming':
+            sortOptions = { release_date: 1 };
+            andConditions.push({ 
+                release_date: { 
+                    $gt: today,
+                    $ne: null,
+                    $ne: ""
+                } 
+            });
+            break;
+        default:
+            break;
+    }
+  
     if (andConditions.length > 0) {
         filter.$and = andConditions;
     }
   
     try {
-      const totalMovies = await Movie.countDocuments(filter);
-      const movies = await Movie.find(filter)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean();
+        const totalMovies = await Movie.countDocuments(filter);
+        let query = Movie.find(filter);
+      
+        if (Object.keys(sortOptions).length > 0) {
+            query = query.sort(sortOptions);
+        }
+      
+        const movies = await query
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
   
-      const hasMore = page * limit < totalMovies;
+        const hasMore = page * limit < totalMovies;
   
-      res.json({
-        movies,
-        hasMore,
-        totalPages: Math.ceil(totalMovies / limit)
-      });
+        res.json({
+            movies,
+            hasMore,
+            totalPages: Math.ceil(totalMovies / limit)
+        });
     } catch (error) {
-      res.status(500).send(error.message);
+        res.status(500).send(error.message);
     }
-});
+  });
 
 
 app.post('/addmovie', async (req,res) => {
-    // console.log(req)
-    await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
-    .then(()=>{
-        res.send({message:"Movie added successfully"})
-    })
+    
+    try {
+        const user = await User.findByIdAndUpdate({_id:req.body.id},{favouriteMovies: req.body.movie})
+
+            if(user.activityList.length >= 15) {
+                let newList = [... user.activityList]
+                newList.shift()
+                newList.push(`${user.username} has added ${req.body.movie[req.body.movie.length - 1].title} to their Watchlist`)
+                await User.findByIdAndUpdate(user._id,{activityList:newList})
+                res.send({message:"Movie added successfully"})
+              } else {
+                let newList = [... user.activityList]
+                newList.push(`${user.username} has added ${req.body.movie[req.body.movie.length - 1].title} to their Watchlist`)
+                await User.findByIdAndUpdate(user._id,{activityList:newList})
+                res.send({message:"Movie added successfully"})
+              }
+
+    }
+    catch (err) {
+        res.status(500).send({message:"Error"})
+    }
 })
 
 app.post('/deleteMovie', async (req,res) => {
@@ -417,6 +555,18 @@ app.post('/review', async (req, res) => {
       });
   
       await newReview.save();
+
+      // Adding to the ActivityList
+      if(existingUser.activityList.length >= 15) {
+        let newList = [... existingUser.activityList]
+        newList.shift()
+        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+        await User.findOneAndUpdate({email:user},{activityList:newList})
+      } else {
+        let newList = [... existingUser.activityList]
+        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+        await User.findOneAndUpdate({email:user},{activityList:newList})
+      }
 
       res.status(201).json(newReview);
     } catch (error) {
@@ -695,7 +845,7 @@ app.get("/pendingReq/:id", async (req,res) => {
     const id = req.params.id
     await FriendRequest.find({sender: id})
     .then((reqs) => {
-        console.log(reqs)
+        // console.log(reqs)
         res.send({reqs: reqs})
     })
 })
@@ -739,12 +889,12 @@ app.post("/getMovieList", async (req,res) => {
     res.send({movieList:movieDets})
 })
 
-// app.post("/getPlayLists", async (req,res) => {
-//     await User.findById(req.body.id)
-//     .then((user) => {
-//         res.send({playlist:user.playLists})
-//     })
-// })
+app.post("/getPlayLists", async (req,res) => {
+    await User.findById(req.body.id)
+    .then((user) => {
+        res.send({playlist:user.playLists})
+    })
+})
 
 // Delete PlayList
 app.post("/delPlayList", async (req,res) => {
@@ -797,6 +947,166 @@ app.post("/changePrivacy", async (req,res) => {
     })
 
 })
+
+app.post("/getActivityList", async (req,res) => {
+    try {
+        const friendList = req.body.friendList
+        let arr = []
+        for(let friend of friendList) {
+            const user = await User.findById(friend)
+            arr.push(user.activityList)
+        }
+        
+        let finalList = []
+         for(let i = 14; i >= 0; i --) {
+            for(let list of arr) {
+                if(list[i] !== null && list[i] !== undefined) {
+                    finalList.push(list[i])
+                } 
+            }
+        }
+
+        res.send({list:finalList})
+    }
+    catch (err) {
+        res.send(err)
+    }
+})
+
+//FRIENDS PROFILE PAGE
+
+app.get('/user/reviews/byusername/:username', async (req, res) => {
+    const { username } = req.params;
+    //console.log(`Fetching reviews for username: ${username}`);
+    
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      //console.log(`User found: ${user._id}`);
+  
+      const reviews = await Review.find({ user: user._id })
+        .populate('movie', 'title')
+        .sort({ createdAt: -1 });
+      //console.log(`Reviews found: ${reviews.length}`);
+  
+      res.json(reviews);
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+
+app.get('/user/playlists/:username', async (req, res) => {
+    try {
+      const user = await User.findOne({ username: req.params.username })
+        .populate({
+          path: 'playLists.movies',
+          model: 'Movie',
+          select: 'title overview picture'
+        });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const publicPlaylists = user.playLists.filter(playlist => playlist.public === 'true');
+      res.json(publicPlaylists);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+/* app.get('/user/playlists/:username', async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const publicPlaylists = user.playLists.filter(playlist => playlist.public === 'true');
+  
+      res.json(publicPlaylists);
+    } catch (error) {
+      console.error('Error fetching user playlists:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+}); */
+
+app.get('/user/:username', async (req, res) => {
+    const { username } = req.params;
+  
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const userDetails = {
+        username: user.username,
+        fname: user.fname,
+        lname: user.lname,
+        pfp: user.pfp,
+      };
+  
+      res.json(userDetails);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/api/recommendations', async (req, res) => {
+    const { userId } = req.body;
+  
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+  
+    try {
+      const response = await fetch('https://movie-reccomendation-model.onrender.com/recommend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch recommendations');
+      }
+  
+      const recommendations = await response.json();
+  
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      user.recommendedMovies = [];
+
+      for (const rec of recommendations) {
+        const movie = await Movie.findById(rec.dbid);
+        if (movie) {
+          user.recommendedMovies.push({
+            movie: movie._id,
+            title: rec.title,
+            score: rec.score
+          });
+        }
+      }
+
+      await user.save();
+  
+      res.json({ message: 'Recommendations updated successfully', recommendedMovies: user.recommendedMovies });
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      res.status(500).json({ error: 'Failed to fetch recommendations' });
+    }
+});
 
 
 app.listen(port,()=>{

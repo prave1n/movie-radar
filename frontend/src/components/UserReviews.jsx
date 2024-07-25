@@ -151,12 +151,9 @@ const UserReviews = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/review/${reviewId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }

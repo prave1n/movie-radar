@@ -10,6 +10,7 @@ import NavBar from "./NavBar";
 import "./styles/Profile.css";
 import Form from "react-bootstrap/Form";
 import GenreSelectorPopup from "./GenreSelectorPopup";
+import PlayListsCard from "./PlayListsCard";
 
 const Profile = () => {
   const [user, setUser] = useState({});
@@ -28,7 +29,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     fetch(`http://localhost:8080/get-preferred-genres?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => setPreferredGenres(data.preferredGenres))
@@ -156,7 +156,6 @@ const Profile = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-
       const response = await fetch(`http://localhost:8080/review/${reviewId}`, {
         method: "DELETE",
       });
@@ -199,31 +198,6 @@ const Profile = () => {
       setError(error.message);
     }
   };
-
-  /* const handleSaveClick = async () => {
-    const updatedUser = { fname, lname };
-
-    try {
-      const response = await fetch(`http://localhost:8080/profile/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedUser),
-      });
-
-
-      if (!response.ok) {
-        throw new Error("failed to update user name");
-      }
-
-      const updatedUserData = await response.json();
-      setUser(updatedUserData);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("error updating profile:", error);
-    }
-  }; */
 
   return (
     <div>
@@ -313,6 +287,20 @@ const Profile = () => {
           {watchlist.length > 3 && (
             <Button className="mt-3" onClick={() => navigate("/watchlist")}>
               See all Movies in Watchlist
+            </Button>
+          )}
+        </div>
+        <div className="playlists mb-4">
+          <h2>Your Playlists</h2>
+          {user.playLists &&
+            user.playLists
+              .slice(0, 3)
+              .map((playlist) => (
+                <PlayListsCard key={playlist._id} list={playlist} />
+              ))}
+          {user.playLists && user.playLists.length > 3 && (
+            <Button className="mt-3" onClick={() => navigate("/watchlist")}>
+              View All Playlists
             </Button>
           )}
         </div>
