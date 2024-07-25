@@ -109,7 +109,7 @@ def get_user_recommendations(user_id):
 
         top_recommendations.extend(chunk_recommendations)
         top_recommendations.sort(key=lambda x: x['final_score'], reverse=True)
-        top_recommendations = top_recommendations[:10]  # Keep only top 10
+        top_recommendations = top_recommendations[:100]  # Keep only top 10
 
     print(f"Generated {len(top_recommendations)} recommendations")
     return top_recommendations
