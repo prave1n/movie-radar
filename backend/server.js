@@ -318,6 +318,10 @@ app.get('/recommended-movies', async (req, res) => {
             return res.status(404).send('User not found');
         }
 
+        if (user.recommendedMovies.length == 0) {
+            return res.status(500).send('No recommended movies for this user');
+        }
+
         const userReviews = await Review.find({ user: userId }).select('movie').lean();
         const reviewedMovieIds = userReviews.map(review => review.movie.toString());
 
@@ -366,7 +370,7 @@ app.get('/get-preferred-genres', async (req, res) => {
   
 
 
-  app.post('/update-preferred-genres', async (req, res) => {
+app.post('/update-preferred-genres', async (req, res) => {
     const { userId, preferredGenres } = req.body;
 
     if (!userId || !preferredGenres || preferredGenres.length !== 3) {
@@ -388,6 +392,44 @@ app.get('/get-preferred-genres', async (req, res) => {
         await user.save();
 
         res.send('Preferred genres updated successfully');
+
+        setImmediate(async () => {
+            try {
+                if (user.preferredGenres.length > 0 || user.reviews.length > 0) {
+                    console.log(`[${new Date().toISOString()}] Fetching recommendations for user:`);
+                    const response = await fetch('https://movie-reccomendation-model.onrender.com/recommend', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: user._id }),
+                    });
+      
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch recommendations');
+                    }
+      
+                    const recommendations = await response.json();
+                    console.log(`[${new Date().toISOString()}] Recommendations fetched for user:`);
+      
+                    const moviePromises = recommendations.map(async (rec) => {
+                        const movie = await Movie.findOne({ dbid: rec.dbid });
+                        return { movie: movie._id, title: movie.title, score: rec.score };
+                    });
+      
+                    const recommendedMovies = await Promise.all(moviePromises);
+      
+                    await User.findOneAndUpdate(
+                        { _id: user._id },
+                        { $set: { recommendedMovies } },
+                        { new: true }
+                    );
+                    console.log(`[${new Date().toISOString()}] Recommendations saved for user:`);
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+            }
+        });  
     } catch (error) {
         console.error("Error updating preferred genres:", error);
         res.status(500).send(error.message);
@@ -540,35 +582,73 @@ app.post('/review', async (req, res) => {
     const { user, movie, rating, reviewText } = req.body;
     
     try {
-      const existingUser = await User.findOne({email:user});
-      const existingMovie = await Movie.findOne({dbid:movie});
+        const existingUser = await User.findOne({email:user});
+        const existingMovie = await Movie.findOne({dbid:movie});
   
-      if (!existingUser || !existingMovie) {
-        return res.status(404).json({ message: 'User or Movie not found' });
-      }
+        if (!existingUser || !existingMovie) {
+            return res.status(404).json({ message: 'User or Movie not found' });
+        }
 
-      const newReview = new Review({
-        user: existingUser,
-        movie: existingMovie,
-        rating: parseInt(rating),
-        reviewText: reviewText,
-      });
+        const newReview = new Review({
+            user: existingUser,
+            movie: existingMovie,
+            rating: parseInt(rating),
+            reviewText: reviewText,
+        });
   
-      await newReview.save();
+        await newReview.save();
 
-      // Adding to the ActivityList
-      if(existingUser.activityList.length >= 15) {
-        let newList = [... existingUser.activityList]
-        newList.shift()
-        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
-        await User.findOneAndUpdate({email:user},{activityList:newList})
-      } else {
-        let newList = [... existingUser.activityList]
-        newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
-        await User.findOneAndUpdate({email:user},{activityList:newList})
-      }
+        // Adding to the ActivityList
+        if(existingUser.activityList.length >= 15) {
+            let newList = [... existingUser.activityList]
+            newList.shift()
+            newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+            await User.findOneAndUpdate({email:user},{activityList:newList})
+        } else {
+            let newList = [... existingUser.activityList]
+            newList.push(`${existingUser.username} has reviewed ${existingMovie.title} with a rating of ${rating}/5`)
+            await User.findOneAndUpdate({email:user},{activityList:newList})
+        }
 
-      res.status(201).json(newReview);
+        res.status(201).json(newReview);
+
+        setImmediate(async () => {
+            try {
+                if (existingUser.preferredGenres.length > 0 || existingUser.reviews.length > 0) {
+                    console.log(`[${new Date().toISOString()}] Fetching recommendations for user:`);
+                    const response = await fetch('https://movie-reccomendation-model.onrender.com/recommend', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: existingUser._id }),
+                    });
+  
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch recommendations');
+                    }
+  
+                    const recommendations = await response.json();
+                    console.log(`[${new Date().toISOString()}] Recommendations fetched for user:`);
+  
+                    const moviePromises = recommendations.map(async (rec) => {
+                        const movie = await Movie.findOne({ dbid: rec.dbid });
+                        return { movie: movie._id, title: movie.title, score: rec.score };
+                    });
+  
+                    const recommendedMovies = await Promise.all(moviePromises);
+  
+                    await User.findOneAndUpdate(
+                        { _id: existingUser._id },
+                        { $set: { recommendedMovies } },
+                        { new: true }
+                    );
+                    console.log(`[${new Date().toISOString()}] Recommendations saved for user:`);
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+            }
+        }); 
     } catch (error) {
       console.error('Error creating review:', error);
       res.status(500).json({ message: 'Internal Server Error' });
