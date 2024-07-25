@@ -15,6 +15,7 @@ import "./styles/MyHome.css";
 
 function MyHome() {
   const [moviesByGenre, setMoviesByGenre] = useState([]);
+  const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showGenrePopup, setShowGenrePopup] = useState(false);
   const userId = useSelector((state) => state.user.userid);
@@ -30,6 +31,17 @@ function MyHome() {
       .catch((error) => {
         console.error("Error fetching movies:", error);
         setIsLoading(false);
+      });
+  }, [userId]);
+
+  const fetchRecommendedMovies = useCallback(() => {
+    fetch(`http://localhost:8080/recommended-movies?userId=${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setRecommendedMovies(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching recommended movies:", error);
       });
   }, [userId]);
 
@@ -49,7 +61,8 @@ function MyHome() {
   useEffect(() => {
     fetchMovies();
     fetchUserDetails();
-  }, [fetchMovies, fetchUserDetails]);
+    fetchRecommendedMovies();
+  }, [fetchMovies, fetchUserDetails, fetchRecommendedMovies]);
 
   const handleSaveGenres = (selectedGenres) => {
     fetch("http://localhost:8080/update-preferred-genres", {
@@ -97,6 +110,35 @@ function MyHome() {
             View All Movies
           </Button>
         </Box>
+        {recommendedMovies.length > 0 ? (
+          <Box my={4}>
+            <Typography variant="h4" gutterBottom>
+              Top Picks for You
+            </Typography>
+            <Box className="scroll-container">
+              {recommendedMovies.map((movie) => (
+                <Box key={movie._id} mx={1} sx={{ flex: "0 0 auto" }}>
+                  <MovieCard
+                    movie={movie}
+                    title={movie.title}
+                    overview={movie.overview}
+                    picture={movie.picture}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        ) : (
+          <Box my={4}>
+            <Typography variant="h4" gutterBottom>
+              Recommended Movies
+            </Typography>
+            <Typography variant="body1">
+              Set your preferred genres or leave reviews on movies you have
+              watched to see our recommended movies that we think you will like!
+            </Typography>
+          </Box>
+        )}
         {isLoading ? (
           <Box display="flex" justifyContent="center" my={4}>
             <CircularProgress />

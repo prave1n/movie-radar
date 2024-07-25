@@ -24,5 +24,8 @@ const movieSchema = new mongoose.Schema({
         ref: 'Review' 
     }]
 })
+
+movieSchema.index({ dbid: 1 });
+
 const Movie = mongoose.model("Movie",movieSchema);
 export default Movie; 
