@@ -27,7 +27,7 @@ const ReviewCard = ({
     <Card variant="outlined" sx={{ mb: 2 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Reviewed by: {review.user.fname || "Anonymous"}
+          Reviewed by: {review.user.username || "Anonymous"}
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
           Rating:{" "}
