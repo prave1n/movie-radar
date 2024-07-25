@@ -266,9 +266,10 @@ function MovieCard({ movie }) {
         open={open}
         onClose={handleClose}
         sx={{
-          '& .MuiPaper-root': {
-            backgroundColor: "rgba(0,0,0,0.9)", // Change the background color here
-          },}}
+          "& .MuiPaper-root": {
+            backgroundColor: "rgba(0,0,0,0.9)",
+          },
+        }}
         PaperProps={{
           style: {
             maxHeight: 200,
@@ -277,23 +278,36 @@ function MovieCard({ movie }) {
         }}
       >
         <MenuItem key="watchlist" onClick={addMovieHandler}>
-          <Typography component="h1" variant="body1" sx={{ fontSize: "15px", color:"white" }}>
+          <Typography
+            component="h1"
+            variant="body1"
+            sx={{ fontSize: "15px", color: "white" }}
+          >
             <AddIcon sx={{ fontSize: "20px" }} /> Add to Watchlist
           </Typography>
         </MenuItem>
         <Divider sx={{ bgcolor: "text.primary" }} />
         <MenuItem key="watchlist" onClick={jumpToPlay}>
-          <Typography component="h1" variant="body1" sx={{ fontSize: "15px", color:"white" }}>
+          <Typography
+            component="h1"
+            variant="body1"
+            sx={{ fontSize: "15px", color: "white" }}
+          >
             View My PlayLists
           </Typography>
         </MenuItem>
         <Divider sx={{ bgcolor: "text" }} />
-        <MenuItem key="watchlist" onClick={handleClose} disabled={true} sx={{ fontSize: "15px", color:"white" }}>
+        <MenuItem
+          key="watchlist"
+          onClick={handleClose}
+          disabled={true}
+          sx={{ fontSize: "15px", color: "white" }}
+        >
           Select a PlayList to add the movie <ArrowDownwardIcon />
         </MenuItem>
         {playLists.map((option) => (
           <MenuItem
-          sx={{ fontSize: "15px", color:"white" }}
+            sx={{ fontSize: "15px", color: "white" }}
             key={option.name}
             onClick={(e) => addToPlayList(e, option._id)}
           >

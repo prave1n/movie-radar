@@ -7,6 +7,12 @@ const playListSchema = new mongoose.Schema({
     movies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
   });
 
+const recommendedMovieSchema = new mongoose.Schema({
+    movie: { type: mongoose.Schema.Types.ObjectId, ref: 'Movie' },
+    title: { type: String },
+    score: { type: Number }
+});
+
 const userSchema = new mongoose.Schema({
     fname:{
         type:String,
@@ -79,8 +85,9 @@ const userSchema = new mongoose.Schema({
           message: 'You can select up to 3 preferred genres only.'
         },
         default: []
-    }
-
+    },
+    
+    recommendedMovies: [recommendedMovieSchema]
 })
 const User = mongoose.model("User", userSchema);
 export default User;

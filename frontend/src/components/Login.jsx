@@ -12,9 +12,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
-import Paper from '@mui/material/Paper';
+import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
-
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -48,7 +47,7 @@ export default function Login() {
             dispatch(newuser(res.user));
             console.log(res.token);
             localStorage.setItem("token", res.token);
-            navigate(`/home`);
+            navigate(`/myhome`);
           }
         });
     } catch (err) {
@@ -57,26 +56,27 @@ export default function Login() {
   };
 
   return (
-   
-      <ThemeProvider theme={defaultTheme}>
-        <Grid container component="main" sx={{ height: '100vh' }}>
-          <CssBaseline />
-          <Grid
-            item
-            xs={false}
-            sm={4}
-            md={7}
-            sx={{
+    <ThemeProvider theme={defaultTheme}>
+      <Grid container component="main" sx={{ height: "100vh" }}>
+        <CssBaseline />
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
             backgroundImage:
               'url("https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149146012.jpg?t=st=1721701937~exp=1721705537~hmac=5dd9bbda451d84f6a3392b952937515e0c6a3ef359c231df1a60d87fd705db2f&w=1380")',
-              backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-              backgroundSize: 'cover',
-              backgroundPosition: 'left',
-              position:"relative"
+            backgroundColor: (t) =>
+              t.palette.mode === "light"
+                ? t.palette.grey[50]
+                : t.palette.grey[900],
+            backgroundSize: "cover",
+            backgroundPosition: "left",
+            position: "relative",
           }}
         />
-       
+
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
@@ -89,7 +89,7 @@ export default function Login() {
             }}
           >
             <Typography component="h1" variant="h3">
-              Movie Radar {" "}
+              Movie Radar{" "}
               <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
             </Typography>
 
@@ -146,9 +146,8 @@ export default function Login() {
               </Grid>
             </Box>
           </Box>
-          </Grid>
         </Grid>
-      </ThemeProvider>
-   
+      </Grid>
+    </ThemeProvider>
   );
 }
