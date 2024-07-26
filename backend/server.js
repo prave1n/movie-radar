@@ -592,7 +592,7 @@ app.post('/review', async (req, res) => {
         const newReview = new Review({
             user: existingUser,
             movie: existingMovie,
-            rating: parseInt(rating),
+            rating: parseFloat(rating),
             reviewText: reviewText,
         });
   

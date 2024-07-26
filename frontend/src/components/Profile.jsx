@@ -1,16 +1,63 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Alert } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import ListGroup from "react-bootstrap/ListGroup";
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Grid,
+  Paper,
+  TextField,
+  List,
+  ListItem,
+  Chip,
+  Alert,
+  IconButton,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import MovieIcon from "@mui/icons-material/Movie";
+import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+
 import UserReviewCard from "./UserReviewCard";
 import MovieCard from "./MovieCard";
 import NavBar from "./NavBar";
-import "./styles/Profile.css";
-import Form from "react-bootstrap/Form";
 import GenreSelectorPopup from "./GenreSelectorPopup";
 import PlayListsCard from "./PlayListsCard";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#E50914",
+    },
+    secondary: {
+      main: "#F5F5F1",
+    },
+    background: {
+      default: "#141414",
+      paper: "#1F1F1F",
+    },
+    text: {
+      primary: "#FFFFFF",
+      secondary: "#B3B3B3",
+    },
+  },
+  typography: {
+    fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+        },
+      },
+    },
+  },
+});
 
 const Profile = () => {
   const [user, setUser] = useState({});
@@ -200,133 +247,199 @@ const Profile = () => {
   };
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       <NavBar />
-      <div className="profile-container">
-        <h1 className="mb-4">Profile</h1>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <div className="personal-info mb-4">
-          {isEditing ? (
-            <div>
-              <Form.Group controlId="formUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group controlId="formFname">
-                <Form.Label>First Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={fname}
-                  onChange={(e) => setFname(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group controlId="formLname">
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={lname}
-                  onChange={(e) => setLname(e.target.value)}
-                />
-              </Form.Group>
-              <Button
-                variant="primary"
-                onClick={handleSaveClick}
-                className="mt-2"
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h3" gutterBottom>
+          Profile
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={2}
               >
-                Save
+                <Typography variant="h5">Personal Info</Typography>
+                {!isEditing ? (
+                  <IconButton onClick={handleEditClick} color="primary">
+                    <EditIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton onClick={handleSaveClick} color="primary">
+                    <SaveIcon />
+                  </IconButton>
+                )}
+              </Box>
+              {isEditing ? (
+                <>
+                  <TextField
+                    fullWidth
+                    label="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    value={fname}
+                    onChange={(e) => setFname(e.target.value)}
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    value={lname}
+                    onChange={(e) => setLname(e.target.value)}
+                    margin="normal"
+                  />
+                </>
+              ) : (
+                <>
+                  <Typography>
+                    <strong>Username:</strong> {user.username}
+                  </Typography>
+                  <Typography>
+                    <strong>First Name:</strong> {user.fname}
+                  </Typography>
+                  <Typography>
+                    <strong>Last Name:</strong> {user.lname}
+                  </Typography>
+                  <Typography>
+                    <strong>Email:</strong> {user.email}
+                  </Typography>
+                </>
+              )}
+            </Paper>
+
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                Preferred Genres
+              </Typography>
+              <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
+                {preferredGenres.map((genre) => (
+                  <Chip key={genre.id} label={genre.name} color="primary" />
+                ))}
+              </Box>
+              <Button
+                variant="outlined"
+                onClick={handleOpenGenrePopup}
+                startIcon={<EditIcon />}
+              >
+                Edit Preferred Genres
               </Button>
-            </div>
-          ) : (
-            <div>
-              <p>
-                <strong>Username:</strong> {user.username}
-              </p>
-              <p>
-                <strong>First Name:</strong> {user.fname}
-              </p>
-              <p>
-                <strong>Last Name:</strong> {user.lname}
-              </p>
-              <p>
-                <strong>Email:</strong> {user.email}
-              </p>
-              <Button variant="secondary" onClick={handleEditClick}>
-                Edit
-              </Button>
-            </div>
-          )}
-          <div className="preferred-genres mb-4">
-            <h2>Preferred Genres</h2>
-            <ul>
-              {preferredGenres.map((genre) => (
-                <li key={genre.id}>{genre.name}</li>
-              ))}
-            </ul>
-            <Button variant="primary" onClick={handleOpenGenrePopup}>
-              Edit Preferred Genres
-            </Button>
-          </div>
-          <GenreSelectorPopup
-            show={showGenrePopup}
-            onHide={() => setShowGenrePopup(false)}
-            onSave={handleSaveGenres}
-            initialGenres={preferredGenres}
-          />
-        </div>
-        <div className="watchlist mb-4">
-          <h2>Your Watchlist</h2>
-          <div className="d-flex flex-wrap">
-            {watchlist.slice(0, 5).map((movie) => (
-              <MovieCard key={movie._id} movie={movie} />
-            ))}
-          </div>
-          {watchlist.length > 5 && (
-            <Button className="mt-3" onClick={() => navigate("/watchlist")}>
-              See all Movies in Watchlist
-            </Button>
-          )}
-        </div>
-        <div className="playlists mb-4">
-          <h2>Your Playlists</h2>
-          {user.playLists &&
-            user.playLists
-              .slice(0, 3)
-              .map((playlist) => (
-                <PlayListsCard key={playlist._id} list={playlist} />
-              ))}
-          {user.playLists && user.playLists.length > 3 && (
-            <Button className="mt-3" onClick={() => navigate("/watchlist")}>
-              View All Playlists
-            </Button>
-          )}
-        </div>
-        <div className="reviews mb-4">
-          <h2>Your Reviews</h2>
-          <ListGroup>
-            {reviews.map((review) => (
-              <ListGroup.Item key={review._id} className="mb-3">
-                <UserReviewCard
-                  key={review._id}
-                  review={review}
-                  onUpvote={handleUpvote}
-                  onRemoveUpvote={handleRemoveUpvote}
-                  onDelete={() => handleDeleteReview(review._id)}
-                />
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-          {reviews.length > 3 && (
-            <Button className="mt-3" onClick={() => navigate("/user-reviews")}>
-              View All Reviews
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                <MovieIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                Your Watchlist
+              </Typography>
+              <Grid container spacing={2}>
+                {watchlist.slice(0, 4).map((movie) => (
+                  <Grid item xs={6} sm={4} md={3} key={movie._id}>
+                    <MovieCard movie={movie} />
+                  </Grid>
+                ))}
+              </Grid>
+              {watchlist.length > 4 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/watchlist")}
+                  sx={{ mt: 2 }}
+                >
+                  See all Movies in Watchlist
+                </Button>
+              )}
+            </Paper>
+
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                <PlaylistPlayIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                Your Playlists
+              </Typography>
+              <List>
+                {user.playLists &&
+                  user.playLists.slice(0, 3).map((playlist) => (
+                    <ListItem key={playlist._id}>
+                      <PlayListsCard list={playlist} />
+                    </ListItem>
+                  ))}
+              </List>
+              {user.playLists && user.playLists.length > 3 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/watchlist")}
+                  sx={{ mt: 2 }}
+                >
+                  View All Playlists
+                </Button>
+              )}
+            </Paper>
+
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                <RateReviewIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                Your Reviews
+              </Typography>
+              <List sx={{ width: "100%" }}>
+                {reviews.map((review) => (
+                  <ListItem key={review._id} sx={{ px: 0, py: 2 }}>
+                    <Paper
+                      elevation={2}
+                      sx={{
+                        width: "100%",
+                        p: 2,
+                        backgroundColor: "background.paper",
+                        "&:hover": { backgroundColor: "action.hover" },
+                      }}
+                    >
+                      <UserReviewCard
+                        review={review}
+                        onUpvote={handleUpvote}
+                        onRemoveUpvote={handleRemoveUpvote}
+                        canDelete={true}
+                        onDelete={() => handleDeleteReview(review._id)}
+                      />
+                    </Paper>
+                  </ListItem>
+                ))}
+              </List>
+              {reviews.length > 3 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/user-reviews")}
+                  sx={{ mt: 2 }}
+                >
+                  View All Reviews
+                </Button>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+
+      <GenreSelectorPopup
+        show={showGenrePopup}
+        onHide={() => setShowGenrePopup(false)}
+        onSave={handleSaveGenres}
+        initialGenres={preferredGenres}
+      />
+    </ThemeProvider>
   );
 };
 

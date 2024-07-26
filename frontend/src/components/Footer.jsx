@@ -79,21 +79,7 @@ function Footer() {
           &copy; {new Date().getFullYear()} MovieRadar. All rights reserved.
         </Typography>
         <Typography variant="body2" align="center">
-          <Link
-            href="/about-us"
-            color="inherit"
-            sx={{ textDecoration: "none" }}
-          >
-            About Us
-          </Link>{" "}
-          |{" "}
-          <Link
-            href="/terms-of-service"
-            color="inherit"
-            sx={{ textDecoration: "none" }}
-          >
-            Terms of Service
-          </Link>
+          (Credits: Movie data taken from themoviedb)
         </Typography>
       </Container>
     </Box>
