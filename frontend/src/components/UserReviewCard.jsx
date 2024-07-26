@@ -8,7 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import moment from "moment";
 
@@ -18,7 +18,16 @@ const UserReviewCard = ({
   onRemoveUpvote,
   onDelete,
   canDelete,
+  userid,
 }) => {
+  const handleUpvoteClick = () => {
+    if (review.isUpvoted) {
+      onRemoveUpvote(review._id);
+    } else {
+      onUpvote(review._id);
+    }
+  };
+
   const handleDeleteClick = () => {
     onDelete(review._id);
   };
@@ -47,23 +56,15 @@ const UserReviewCard = ({
         >
           <Box>
             <Button
-              startIcon={<ThumbUpIcon />}
+              startIcon={
+                review.isUpvoted ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />
+              }
               variant="outlined"
               color="primary"
-              onClick={() => onUpvote(review._id)}
+              onClick={handleUpvoteClick}
               size="small"
             >
-              Upvote
-            </Button>
-            <Button
-              startIcon={<ThumbDownIcon />}
-              variant="outlined"
-              color="secondary"
-              onClick={() => onRemoveUpvote(review._id)}
-              size="small"
-              sx={{ ml: 1 }}
-            >
-              Remove Upvote
+              {review.isUpvoted ? "Upvoted" : "Upvote"}
             </Button>
           </Box>
           <Box>

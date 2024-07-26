@@ -277,7 +277,7 @@ function MovieCard({ movie }) {
           },
         }}
       >
-        <MenuItem key="watchlist" onClick={addMovieHandler}>
+        <MenuItem key="add-to-watchlist" onClick={addMovieHandler}>
           <Typography
             component="h1"
             variant="body1"
@@ -287,7 +287,7 @@ function MovieCard({ movie }) {
           </Typography>
         </MenuItem>
         <Divider sx={{ bgcolor: "text.primary" }} />
-        <MenuItem key="watchlist" onClick={jumpToPlay}>
+        <MenuItem key="view-watchlist" onClick={jumpToPlay}>
           <Typography
             component="h1"
             variant="body1"
@@ -298,7 +298,7 @@ function MovieCard({ movie }) {
         </MenuItem>
         <Divider sx={{ bgcolor: "text" }} />
         <MenuItem
-          key="watchlist"
+          key="close-menu"
           onClick={handleClose}
           disabled={true}
           sx={{ fontSize: "15px", color: "white" }}

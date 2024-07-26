@@ -49,7 +49,7 @@ const Profile = () => {
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
-    fetch(`http://localhost:8080/user/reviews/${email}`)
+    fetch(`http://localhost:8080/user/reviews/${email}?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched reviews data:", data);
@@ -114,7 +114,7 @@ const Profile = () => {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes + 1 }
+            ? { ...review, upvotes: review.upvotes + 1, isUpvoted: true }
             : review
         )
       );
@@ -145,7 +145,7 @@ const Profile = () => {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes - 1 }
+            ? { ...review, upvotes: review.upvotes - 1, isUpvoted: false }
             : review
         )
       );
@@ -280,11 +280,11 @@ const Profile = () => {
         <div className="watchlist mb-4">
           <h2>Your Watchlist</h2>
           <div className="d-flex flex-wrap">
-            {watchlist.slice(0, 3).map((movie) => (
+            {watchlist.slice(0, 5).map((movie) => (
               <MovieCard key={movie._id} movie={movie} />
             ))}
           </div>
-          {watchlist.length > 3 && (
+          {watchlist.length > 5 && (
             <Button className="mt-3" onClick={() => navigate("/watchlist")}>
               See all Movies in Watchlist
             </Button>

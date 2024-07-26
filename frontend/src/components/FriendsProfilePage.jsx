@@ -12,7 +12,7 @@ function UserProfilePage() {
   const [playlists, setPlaylists] = useState([]);
   const { username } = useParams();
   const userId = useSelector((state) => state.user.userid);
-  //const userEmail = useSelector((state) => state.user.email);
+  const userEmail = useSelector((state) => state.user.email);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -27,7 +27,7 @@ function UserProfilePage() {
         setUser(userData);
 
         const reviewsResponse = await fetch(
-          `http://localhost:8080/user/reviews/byusername/${username}`
+          `http://localhost:8080/user/reviews/byusername/${username}?currentUserId=${userId}`
         );
         if (reviewsResponse.status === 404) {
           // User found but has no reviews
@@ -53,7 +53,67 @@ function UserProfilePage() {
     };
 
     fetchUserData();
-  }, [username]);
+  }, [username, userId]);
+
+  const handleUpvote = async (reviewId) => {
+    const payload = { userId: userEmail };
+    try {
+      const response = await fetch(
+        `http://localhost:8080/review/upvote/${reviewId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upvote review");
+      }
+
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? { ...review, upvotes: review.upvotes + 1, isUpvoted: true }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Error upvoting review:", error);
+    }
+  };
+
+  const handleRemoveUpvote = async (reviewId) => {
+    const payload = { userId: userEmail };
+    try {
+      const response = await fetch(
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to remove upvote from review");
+      }
+
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? { ...review, upvotes: review.upvotes - 1, isUpvoted: false }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Error removing upvote from review:", error);
+    }
+  };
 
   if (!user) {
     return <Typography>Loading...</Typography>;
@@ -85,8 +145,8 @@ function UserProfilePage() {
             <UserReviewCard
               key={review._id}
               review={review}
-              onUpvote={() => {}}
-              onRemoveUpvote={() => {}}
+              onUpvote={handleUpvote}
+              onRemoveUpvote={handleRemoveUpvote}
               onDelete={() => {}}
               canDelete={review.user._id === userId}
               currentUserId={userId}

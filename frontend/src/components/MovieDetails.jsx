@@ -31,7 +31,7 @@ function MovieDetails() {
       .then((data) => setMovie(data));
 
     //fetch reviews
-    fetch(`http://localhost:8080/reviews/${id}`)
+    fetch(`http://localhost:8080/reviews/${id}?userId=${userId}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedReviews = data.sort((a, b) => {
@@ -62,7 +62,7 @@ function MovieDetails() {
         console.error("Error fetching average rating:", error);
         setAverageRating("-/5");
       });
-  }, [id, email]);
+  }, [id, email, userId]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -111,6 +111,8 @@ function MovieDetails() {
 
   const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
+    //console.log("Upvoting review:", reviewId);
+    //console.log(payload);
 
     try {
       const response = await fetch(
@@ -125,13 +127,17 @@ function MovieDetails() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to upvote review");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upvote review");
       }
+
+      //const data = await response.json();
+      //console.log("Upvote response:", data);
 
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes + 1 }
+            ? { ...review, upvotes: review.upvotes + 1, isUpvoted: true }
             : review
         )
       );
@@ -162,7 +168,7 @@ function MovieDetails() {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes - 1 }
+            ? { ...review, upvotes: review.upvotes - 1, isUpvoted: false }
             : review
         )
       );

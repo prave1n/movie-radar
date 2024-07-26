@@ -658,11 +658,17 @@ app.post('/review', async (req, res) => {
 app.get('/reviews/:movieId', async (req, res) => {
     try {
         const movie = req.params.movieId;
+        const userId = req.query.userId;
         const nowmovie = await Movie.findOne({dbid:movie}); 
         const reviews = await Review.find({ movie: nowmovie })
-                                    .populate('user', 'fname')
+                                    .populate('user')
                                     .sort({ upvotes: -1, createdAt: -1 });
-        res.send(reviews);
+        const reviewsWithUpvoteStatus = reviews.map(review => ({
+            ...review.toObject(),
+            isUpvoted: review.upvotedBy.includes(userId)
+        }));
+                                    
+        res.send(reviewsWithUpvoteStatus);
     } catch (error) {
         console.error('Error fetching reviews:', error);
         res.status(500).send({ message: "Server error" });
@@ -812,6 +818,7 @@ app.get('/watchlist/:userId', async (req, res) => {
 
 app.get('/user/reviews/:email', async (req, res) => {
     const { email } = req.params;
+    const userId = req.query.userId;
     //console.log(`user email: ${email}`);
 
     try {
@@ -821,9 +828,12 @@ app.get('/user/reviews/:email', async (req, res) => {
         }
         const reviews = await Review.find({ user: user._id }).populate('movie', 'title');
 
-        //console.log('id: ${user._id}');
-
-        res.json(reviews);
+        const reviewsWithUpvoteStatus = reviews.map(review => ({
+            ...review.toObject(),
+            isUpvoted: review.upvotedBy.includes(userId)
+        }));
+                                    
+        res.send(reviewsWithUpvoteStatus);
     } catch (error) {
         console.error('Error fetching user reviews:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -1057,6 +1067,7 @@ app.post("/getActivityList", async (req,res) => {
 
 app.get('/user/reviews/byusername/:username', async (req, res) => {
     const { username } = req.params;
+    const currentUserId = req.query.currentUserId;
     //console.log(`Fetching reviews for username: ${username}`);
     
     try {
@@ -1066,12 +1077,16 @@ app.get('/user/reviews/byusername/:username', async (req, res) => {
       }
       //console.log(`User found: ${user._id}`);
   
-      const reviews = await Review.find({ user: user._id })
-        .populate('movie', 'title')
-        .sort({ createdAt: -1 });
-      //console.log(`Reviews found: ${reviews.length}`);
-  
-      res.json(reviews);
+        const reviews = await Review.find({ user: user._id })
+            .populate('movie', 'title')
+            .sort({ createdAt: -1 });
+      
+        const reviewsWithUpvoteStatus = reviews.map(review => ({
+            ...review.toObject(),
+            isUpvoted: review.upvotedBy.includes(currentUserId)
+        }));
+      
+        res.json(reviewsWithUpvoteStatus);
     } catch (error) {
       console.error('Error fetching user reviews:', error);
       res.status(500).json({ message: 'Internal Server Error' });
