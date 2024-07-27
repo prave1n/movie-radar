@@ -80,16 +80,7 @@ function MovieDetails() {
   const fetchReviews = useCallback(() => {
     fetch(`http://localhost:8080/reviews/${id}?userId=${userId}`)
       .then((response) => response.json())
-      .then((data) => {
-        const sortedReviews = data.sort((a, b) => {
-          if (b.upvotes !== a.upvotes) {
-            return b.upvotes - a.upvotes;
-          } else {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          }
-        });
-        setReviews(sortedReviews);
-      })
+      .then((data) => setReviews(data))
       .catch((error) => {
         console.error("Error fetching reviews:", error);
         setReviews([]);
@@ -100,10 +91,10 @@ function MovieDetails() {
     fetch(`http://localhost:8080/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
-        if (data.averageRating === null) {
-          setAverageRating("-/5");
-        } else {
+        if (data.averageRating != null) {
           setAverageRating(data.averageRating.toFixed(2) + "/5");
+        } else {
+          setAverageRating("-/5");
         }
       })
       .catch((error) => {
