@@ -101,7 +101,7 @@ const Profile = () => {
       .then((data) => {
         console.log("Fetched reviews data:", data);
         if (Array.isArray(data)) {
-          setReviews(data.slice(0, 3));
+          setReviews(data);
         } else {
           console.error("Expected an array of reviews, received:", data);
         }
@@ -396,7 +396,7 @@ const Profile = () => {
                 Your Reviews
               </Typography>
               <List sx={{ width: "100%" }}>
-                {reviews.map((review) => (
+                {reviews.slice(0, 3).map((review) => (
                   <ListItem key={review._id} sx={{ px: 0, py: 2 }}>
                     <Paper
                       elevation={2}

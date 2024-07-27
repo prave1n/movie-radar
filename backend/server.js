@@ -826,7 +826,7 @@ app.get('/user/reviews/:email', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const reviews = await Review.find({ user: user._id }).populate('movie', 'title');
+        const reviews = await Review.find({ user: user._id }).populate('movie', 'title').sort({ createdAt: -1 });
 
         const reviewsWithUpvoteStatus = reviews.map(review => ({
             ...review.toObject(),

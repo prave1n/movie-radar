@@ -10,5 +10,7 @@ const reviewSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+reviewSchema.index({ user: 1, createdAt: -1 });
+
 const Review = mongoose.model("Review", reviewSchema);
 export default Review;
