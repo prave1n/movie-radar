@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
+import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
 import { Link } from "react-router-dom";
 import Chip from "@mui/material/Chip";
-import SecurityIcon from "@mui/icons-material/Security";
 import PublicIcon from "@mui/icons-material/Public";
+import SecurityIcon from "@mui/icons-material/Security";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 
 function PublicPlayListsCard({ list }) {
   const [movies, setMovies] = useState([]);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     try {
@@ -32,72 +36,89 @@ function PublicPlayListsCard({ list }) {
     }
   }, [list.movies]);
 
-  return (
-    <div>
-      <CardHeader
-        title={
-          <div>
-            {list.name}{" "}
-            <Chip
-              variant="filled"
-              color="primary"
-              label={list.public ? "Public" : "Private"}
-              icon={list.public ? <PublicIcon /> : <SecurityIcon />}
-            />
-          </div>
-        }
-        subheader={list.description}
-      />
+  const toggleShowAll = () => {
+    setShowAll(!showAll);
+  };
 
-      <div
-        className="d-flex scroll"
-        style={{ marginTop: "10px", width: "1500px", overflowX: "scroll" }}
+  const displayedMovies = showAll ? movies : movies.slice(0, 5);
+
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
       >
-        {list.movies.length === 0 ? (
-          <div
-            style={{
-              width: "1500px",
-              height: "300px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            PlayList is Empty
-          </div>
+        <Typography variant="h5" component="h2" sx={{ fontWeight: "bold" }}>
+          {list.name}{" "}
+          <Chip
+            variant="filled"
+            color="primary"
+            label={list.public ? "Public" : "Private"}
+            icon={list.public ? <PublicIcon /> : <SecurityIcon />}
+            size="small"
+          />
+        </Typography>
+      </Box>
+      <Typography variant="body1" sx={{ mb: 2, fontStyle: "italic" }}>
+        {list.description}
+      </Typography>
+      <Grid container spacing={2}>
+        {displayedMovies.length === 0 ? (
+          <Grid item xs={12}>
+            <Typography variant="body1">Playlist is Empty</Typography>
+          </Grid>
         ) : (
-          movies.map((movie) => (
-            <Card
-              key={movie._id}
-              sx={{
-                maxWidth: 345,
-                minWidth: 345,
-                m: 1,
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <CardHeader
-                title={movie.title}
-                titleTypographyProps={{ variant: "h6" }}
-              />
-              <CardActionArea>
-                <Link
-                  to={`/movie/${movie.dbid}`}
-                  style={{ color: "white", textDecoration: "none" }}
-                >
+          displayedMovies.map((movie) => (
+            <Grid item xs={12} sm={6} md={2.4} key={movie._id}>
+              <Card sx={{ position: "relative", height: "100%" }}>
+                <CardActionArea component={Link} to={`/movie/${movie.dbid}`}>
                   <CardMedia
                     component="img"
                     image={movie.picture}
-                    alt="Image Not Found"
+                    alt={movie.title}
+                    sx={{
+                      width: "100%",
+                      height: "auto",
+                      aspectRatio: "2 / 3",
+                      objectFit: "cover",
+                    }}
                   />
-                </Link>
-              </CardActionArea>
-            </Card>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: "8px",
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                    }}
+                  >
+                    <Typography variant="body2" color="white">
+                      {movie.title}
+                    </Typography>
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
           ))
         )}
-      </div>
-    </div>
+      </Grid>
+      {movies.length > 5 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Button
+            onClick={toggleShowAll}
+            variant="outlined"
+            sx={{ textTransform: "none" }}
+          >
+            {showAll ? "Show Less" : "See All"}
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
 }
 

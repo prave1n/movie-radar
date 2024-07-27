@@ -1,17 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  TextField,
+  Paper,
+  Grid,
+  Rating,
+  Divider,
+  List,
+  ListItem,
+  Alert,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import StarIcon from "@mui/icons-material/Star";
 import ReviewCard from "./ReviewCard";
 import NavBar from "./NavBar";
-import "./styles/MovieDetails.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faStar as solidStar,
-  faStarHalfAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#032541",
+    },
+    secondary: {
+      main: "#01b4e4",
+    },
+    background: {
+      default: "#f5f5f5",
+      paper: "#ffffff",
+    },
+    text: {
+      primary: "#333333",
+      secondary: "#666666",
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 20,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+  },
+});
 
 function MovieDetails() {
   const { id } = useParams();
@@ -24,14 +70,15 @@ function MovieDetails() {
   const email = useSelector((state) => state.user.email);
   const userId = useSelector((state) => state.user.userid);
 
-  useEffect(() => {
-    //fetch movie details
+  const fetchMovieDetails = useCallback(() => {
     fetch(`http://localhost:8080/movie/${id}`)
       .then((res) => res.json())
-      .then((data) => setMovie(data));
+      .then((data) => setMovie(data))
+      .catch((error) => console.error("Error fetching movie details:", error));
+  }, [id]);
 
-    //fetch reviews
-    fetch(`http://localhost:8080/reviews/${id}`)
+  const fetchReviews = useCallback(() => {
+    fetch(`http://localhost:8080/reviews/${id}?userId=${userId}`)
       .then((response) => response.json())
       .then((data) => {
         const sortedReviews = data.sort((a, b) => {
@@ -47,8 +94,9 @@ function MovieDetails() {
         console.error("Error fetching reviews:", error);
         setReviews([]);
       });
+  }, [id, userId]);
 
-    //fetch avg rating
+  const fetchAverageRating = useCallback(() => {
     fetch(`http://localhost:8080/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
@@ -62,7 +110,13 @@ function MovieDetails() {
         console.error("Error fetching average rating:", error);
         setAverageRating("-/5");
       });
-  }, [id, email]);
+  }, [id]);
+
+  useEffect(() => {
+    fetchMovieDetails();
+    fetchReviews();
+    fetchAverageRating();
+  }, [fetchMovieDetails, fetchReviews, fetchAverageRating]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -90,6 +144,7 @@ function MovieDetails() {
       setReviews([newReview, ...reviews]);
       setRating(0);
       setReviewText("");
+      fetchAverageRating();
     } catch (error) {
       console.error("Error adding review:", error);
     }
@@ -104,6 +159,7 @@ function MovieDetails() {
         throw new Error("Failed to delete review");
       }
       setReviews(reviews.filter((review) => review._id !== reviewId));
+      fetchAverageRating();
     } catch (error) {
       console.error("Error deleting review:", error);
     }
@@ -111,6 +167,8 @@ function MovieDetails() {
 
   const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
+    //console.log("Upvoting review:", reviewId);
+    //console.log(payload);
 
     try {
       const response = await fetch(
@@ -125,13 +183,17 @@ function MovieDetails() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to upvote review");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upvote review");
       }
+
+      //const data = await response.json();
+      //console.log("Upvote response:", data);
 
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes + 1 }
+            ? { ...review, upvotes: review.upvotes + 1, isUpvoted: true }
             : review
         )
       );
@@ -162,7 +224,7 @@ function MovieDetails() {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes - 1 }
+            ? { ...review, upvotes: review.upvotes - 1, isUpvoted: false }
             : review
         )
       );
@@ -171,7 +233,7 @@ function MovieDetails() {
     }
   };
 
-  const handleStarClick = (value) => {
+  /* const handleStarClick = (value) => {
     console.log("Star clicked with value:", value);
     if (value >= 0.5 && value <= 5) {
       setRating(value);
@@ -214,67 +276,111 @@ function MovieDetails() {
       }
     }
     return stars;
-  };
+  }; */
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       <NavBar />
-      <div className="movie-details-container">
-        <Button onClick={() => navigate(-1)} className="mb-3">
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ mb: 3 }}
+        >
           Back
         </Button>
 
-        <div className="movie-header">
-          <img src={movie.picture} alt={movie.title} className="movie-image" />
-          <div className="movie-info">
-            <h1 className="movie-title">{movie.title}</h1>
-            <p className="movie-overview">{movie.overview}</p>
-            <p>Release Date: {movie.release_date}</p>
-            <p className="movie-rating">Average Rating: {averageRating}</p>
-          </div>
-        </div>
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <img
+                src={movie.picture}
+                alt={movie.title}
+                style={{ width: "100%", borderRadius: 8 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <Typography variant="h3" gutterBottom>
+                {movie.title}
+              </Typography>
+              <Typography variant="body1" paragraph>
+                {movie.overview}
+              </Typography>
+              <Typography variant="subtitle1">
+                Release Date: {movie.release_date}
+              </Typography>
+              <Box display="flex" alignItems="center" mt={2}>
+                <StarIcon color="secondary" />
+                <Typography variant="h6" ml={1}>
+                  Average Rating: {averageRating}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
 
-        <h2>Add a Review</h2>
-        <Form onSubmit={handleReviewSubmit} className="review-form">
-          <Form.Group>
-            <Form.Label htmlFor="rating">Rating</Form.Label>
-            <div id="rating">{renderStars()}</div>
-          </Form.Group>
-          <Form.Group>
-            <Form.Label htmlFor="review">Review</Form.Label>
-            <Form.Control
-              id="review"
-              as="textarea"
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Add a Review
+          </Typography>
+          <form onSubmit={handleReviewSubmit}>
+            <Box mb={2}>
+              <Typography component="legend">Your Rating</Typography>
+              <Rating
+                name="rating"
+                value={rating}
+                precision={0.5}
+                onChange={(event, newValue) => {
+                  setRating(newValue);
+                }}
+              />
+            </Box>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              label="Your Review"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
+              sx={{ mb: 2 }}
             />
-          </Form.Group>
-          <Button type="submit" className="mt-3">
-            Submit
-          </Button>
-        </Form>
+            <Button type="submit" variant="contained" color="primary">
+              Submit Review
+            </Button>
+          </form>
+        </Paper>
 
-        <h2 className="review-section">Reviews</h2>
-        {reviews.length === 0 ? (
-          <p>
-            No reviews yet. If you have watched this movie, please add a review!
-          </p>
-        ) : (
-          reviews.map((review) => (
-            <div key={review._id} className="review-card-container">
-              <ReviewCard
-                key={review._id}
-                review={review}
-                onUpvote={handleUpvote}
-                onRemoveUpvote={handleRemoveUpvote}
-                onDelete={() => handleDeleteReview(review._id)}
-                canDelete={review.user._id === userId}
-              />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            Reviews
+          </Typography>
+          {reviews.length === 0 ? (
+            <Alert severity="info">
+              No reviews yet. If you have watched this movie, please add a
+              review!
+            </Alert>
+          ) : (
+            <List>
+              {reviews.map((review) => (
+                <ListItem key={review._id} disablePadding>
+                  <Box width="100%" mb={2}>
+                    <ReviewCard
+                      review={review}
+                      onUpvote={handleUpvote}
+                      onRemoveUpvote={handleRemoveUpvote}
+                      onDelete={() => handleDeleteReview(review._id)}
+                      canDelete={review.user._id === userId}
+                    />
+                    <Divider sx={{ mt: 2 }} />
+                  </Box>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Paper>
+      </Container>
+    </ThemeProvider>
   );
 }
 

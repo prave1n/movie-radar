@@ -302,10 +302,7 @@ function Home() {
           <Grid item xs={12} md={9}>
             <Box mb={2}>
               <Typography variant="h5" gutterBottom>
-                Movies
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                (Credits: Movie data taken from themoviedb)
+                Browse Movies
               </Typography>
               <Divider />
             </Box>

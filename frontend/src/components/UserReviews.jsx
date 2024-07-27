@@ -16,7 +16,7 @@ const UserReviews = () => {
     const fetchUserReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/user/reviews/${email}`
+          `http://localhost:8080/user/reviews/${email}?userId=${userId}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -33,7 +33,7 @@ const UserReviews = () => {
     if (email) {
       fetchUserReviews();
     }
-  }, [email]);
+  }, [email, userId]);
 
   const handleUpvote = async (reviewId) => {
     const payload = { userId: email };
@@ -51,13 +51,14 @@ const UserReviews = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to upvote review");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upvote review");
       }
 
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes + 1 }
+            ? { ...review, upvotes: review.upvotes + 1, isUpvoted: true }
             : review
         )
       );
@@ -82,13 +83,16 @@ const UserReviews = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to remove upvote from review");
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to remove upvote from review"
+        );
       }
 
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, upvotes: review.upvotes - 1 }
+            ? { ...review, upvotes: review.upvotes - 1, isUpvoted: false }
             : review
         )
       );
@@ -96,58 +100,6 @@ const UserReviews = () => {
       console.error("Error removing upvote from review:", error);
     }
   };
-
-  /* const handleUpvote = async (reviewId) => {
-    const payload = { userId: email };
-
-    await fetch(`http://localhost:8080/review/upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to upvote review:", updatedReview);
-        }
-      })
-      .catch((error) => console.error("Error upvoting review:", error));
-  };
-
-  const handleRemoveUpvote = async (reviewId) => {
-    const payload = { userId: email };
-
-    await fetch(`http://localhost:8080/review/remove-upvote/${reviewId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((updatedReview) => {
-        if (updatedReview._id) {
-          setReviews(
-            reviews.map((review) =>
-              review._id === updatedReview._id ? updatedReview : review
-            )
-          );
-        } else {
-          console.error("Failed to remove upvote from review:", updatedReview);
-        }
-      })
-      .catch((error) =>
-        console.error("Error removing upvote from review:", error)
-      );
-  }; */
 
   const handleDeleteReview = async (reviewId) => {
     try {
@@ -181,7 +133,7 @@ const UserReviews = () => {
                   onUpvote={handleUpvote}
                   onRemoveUpvote={handleRemoveUpvote}
                   onDelete={() => handleDeleteReview(review._id)}
-                  canDelete={review.user._id === userId}
+                  canDelete={true}
                   userid={review.user._Id}
                 />
               </Col>
