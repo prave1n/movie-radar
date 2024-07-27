@@ -51,6 +51,7 @@ function GenreSelectorPopup({ show, onHide, onSave, initialGenres }) {
             <Form.Check
               key={genre.id}
               type="checkbox"
+              id={`genre-${genre.id}`}
               label={genre.name}
               onChange={() => handleCheckboxChange(genre)}
               checked={selectedGenres.includes(genre)}

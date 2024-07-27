@@ -7,30 +7,35 @@ import { useState } from "react";
 function ActivityList() {
   const friendList = useSelector((state) => state.user.friendList);
   const [list, setList] = useState([]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    try {
-      fetch(`http://localhost:8080/getActivityList`, {
-        method: "POST",
-        headers: {
-          "Access-Control-Allow-Origin": true,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          friendList: friendList,
-        }),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          setList(res.list);
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/getActivityList`, {
+          method: "POST",
+          headers: {
+            "Access-Control-Allow-Origin": true,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            friendList: friendList,
+          }),
         });
-    } catch (err) {
-      console.log(err);
+        const result = await response.json();
+        setList(result.list);
+      } catch (err) {
+        console.log(err);
+        setError(true);
+      }
+    };
+
+    if (friendList.length > 0) {
+      fetchData();
+    } else {
+      setError(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [friendList]);
 
   return (
     <div>
@@ -44,20 +49,24 @@ function ActivityList() {
           margin: "20px",
         }}
       >
-        {list.map((str) => {
-          return (
+        {error || friendList.length === 0 || list.length === 0 ? (
+          <p>No recent activities found</p>
+        ) : (
+          list.map((str, index) => (
             <Card
+              key={index}
               bg={"dark"}
               style={{ width: "75rem" }}
               text={"white"}
               className="mb-2"
+              role="article"
             >
               <Card.Body>
                 <Card.Text>{str}</Card.Text>
               </Card.Body>
             </Card>
-          );
-        })}
+          ))
+        )}
       </div>
     </div>
   );

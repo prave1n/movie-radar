@@ -167,6 +167,73 @@ describe('UserReviews Component', () => {
     });
   });
 
+  test('handles error when upvoting review fails', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    const mockReviews = [
+      { _id: '1', content: 'Great movie!', movie: { title: 'Movie 1' }, rating: 4, user: { _id: '123' }, upvotes: 0 }
+    ];
+  
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockReviews
+    });
+  
+    render(
+      <Provider store={store}>
+        <UserReviews />
+      </Provider>
+    );
+  
+    await waitFor(() => {
+      expect(screen.getByText('Movie 1')).toBeInTheDocument();
+    });
+  
+    fetch.mockRejectedValueOnce(new Error('Failed to upvote'));
+  
+    fireEvent.click(screen.getByText('Upvote'));
+  
+    await waitFor(() => {
+      expect(consoleError).toHaveBeenCalledWith('Error upvoting review:', expect.any(Error));
+    });
+  
+    consoleError.mockRestore();
+  });
+  
+  test('handles error when removing upvote fails', async () => {
+
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    const mockReviews = [
+      { _id: '1', content: 'Great movie!', movie: { title: 'Movie 1' }, rating: 4, user: { _id: '123' }, upvotes: 1 }
+    ];
+  
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockReviews
+    });
+  
+    render(
+      <Provider store={store}>
+        <UserReviews />
+      </Provider>
+    );
+  
+    await waitFor(() => {
+      expect(screen.getByText('Movie 1')).toBeInTheDocument();
+    });
+
+    fetch.mockRejectedValueOnce(new Error('Failed to remove upvote'));
+  
+    fireEvent.click(screen.getByText('Remove Upvote'));
+  
+    await waitFor(() => {
+      expect(consoleError).toHaveBeenCalledWith('Error removing upvote from review:', expect.any(Error));
+    });
+
+    consoleError.mockRestore();
+  });    
+
   test('handles delete review action', async () => {
     const mockReviews = [
       { _id: '1', content: 'Great movie!', movie: { title: 'Movie 1' }, rating: 4, user: { _id: '123' }, upvotes: 0 }
@@ -200,4 +267,59 @@ describe('UserReviews Component', () => {
       );
     });
   });
+
+  test('handles error when deleting review fails', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    const mockReviews = [
+      { _id: '1', content: 'Great movie!', movie: { title: 'Movie 1' }, rating: 4, user: { _id: '123' }, upvotes: 0 }
+    ];
+  
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockReviews
+    });
+  
+    render(
+      <Provider store={store}>
+        <UserReviews />
+      </Provider>
+    );
+  
+    await waitFor(() => {
+      expect(screen.getByText('Movie 1')).toBeInTheDocument();
+    });
+  
+    fetch.mockRejectedValueOnce(new Error('Failed to delete review'));
+  
+    fireEvent.click(screen.getByText('Delete'));
+  
+    await waitFor(() => {
+      expect(consoleError).toHaveBeenCalledWith('Error deleting review:', expect.any(Error));
+    });
+  
+    // Clean up mock
+    consoleError.mockRestore();
+  });
+  
+
+  test('does not fetch reviews if email is not available in state', async () => {
+    store = mockStore({
+      user: {
+        email: '',
+        userid: '123'
+      }
+    });
+  
+    render(
+      <Provider store={store}>
+        <UserReviews />
+      </Provider>
+    );
+  
+    await waitFor(() => {
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+  
 });

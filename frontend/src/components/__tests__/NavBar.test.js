@@ -33,7 +33,7 @@ describe("NavBar Component", () => {
   test("renders Navbar with links", () => {
     expect(screen.getByText(/MovieRadar/i)).toBeInTheDocument();
     expect(screen.getByText(/Profile/i)).toBeInTheDocument();
-    expect(screen.getByText(/Watchlist/i)).toBeInTheDocument();
+    expect(screen.getByText(/Playlist/i)).toBeInTheDocument();
     expect(screen.getByText(/Reviews/i)).toBeInTheDocument();
     expect(screen.getByText(/Friends List/i)).toBeInTheDocument();
   });

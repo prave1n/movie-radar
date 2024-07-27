@@ -14,7 +14,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
+//import TextField from "@mui/material/TextField";
+//import Input from "@mui/material/Input";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import OutlinedInput from "@mui/material/OutlinedInput";
 
 function PlayListsPage() {
   const dispatch = useDispatch();
@@ -87,36 +91,35 @@ function PlayListsPage() {
             <DialogContentText>
               Enter the name and description of your playlist
             </DialogContentText>
-            <TextField
-              autoFocus
-              required
-              margin="dense"
-              id="name"
-              label="Name"
-              type="text"
-              fullWidth
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <TextField
-              required
-              margin="dense"
-              id="description"
-              label="Description"
-              type="text"
-              fullWidth
-              multiline
-              rows={3}
-              value={description}
-              onChange={(e) => setDesc(e.target.value)}
-            />
+            <FormControl fullWidth margin="dense">
+              <InputLabel htmlFor="name">Name</InputLabel>
+              <OutlinedInput
+                id="name"
+                placeholder="Enter playlist name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                label="Name"
+              />
+            </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel htmlFor="description">Description</InputLabel>
+              <OutlinedInput
+                id="description"
+                placeholder="Enter playlist description"
+                multiline
+                rows={3}
+                value={description}
+                onChange={(e) => setDesc(e.target.value)}
+                label="Description"
+              />
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} sx={{ textTransform: "none" }}>
               Cancel
             </Button>
             <Button onClick={createHandler} sx={{ textTransform: "none" }}>
-              Create Playlist
+              Create New Playlist
             </Button>
           </DialogActions>
         </Dialog>

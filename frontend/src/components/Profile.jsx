@@ -270,11 +270,19 @@ const Profile = () => {
               >
                 <Typography variant="h5">Personal Info</Typography>
                 {!isEditing ? (
-                  <IconButton onClick={handleEditClick} color="primary">
+                  <IconButton
+                    onClick={handleEditClick}
+                    color="primary"
+                    aria-label="Edit"
+                  >
                     <EditIcon />
                   </IconButton>
                 ) : (
-                  <IconButton onClick={handleSaveClick} color="primary">
+                  <IconButton
+                    onClick={handleSaveClick}
+                    color="primary"
+                    aria-label="Save"
+                  >
                     <SaveIcon />
                   </IconButton>
                 )}
