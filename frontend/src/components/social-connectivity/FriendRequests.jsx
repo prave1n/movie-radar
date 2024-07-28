@@ -12,7 +12,7 @@ function FriendRequests() {
 
   useEffect(() => {
     try {
-      fetch(`http://localhost:8080/fReq/get/${thisId}`, {
+      fetch(`https://movie-radar-1.onrender.com/fReq/get/${thisId}`, {
         method: "GET",
         headers: {
           "Access-Control-Allow-Origin": true,

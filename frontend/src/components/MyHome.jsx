@@ -23,7 +23,7 @@ function MyHome() {
 
   const fetchMovies = useCallback(() => {
     setIsLoading(true);
-    fetch(`http://localhost:8080/myhome?userId=${userId}`)
+    fetch(`https://movie-radar-1.onrender.com/myhome?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setMoviesByGenre(data);
@@ -37,7 +37,7 @@ function MyHome() {
 
   const fetchRecommendedMovies = useCallback(() => {
     fetch(
-      `http://localhost:8080/recommended-movies?userId=${userId}`
+      `https://movie-radar-1.onrender.com/recommended-movies?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -50,7 +50,7 @@ function MyHome() {
 
   const fetchUserDetails = useCallback(() => {
     fetch(
-      `http://localhost:8080/get-preferred-genres?userId=${userId}`
+      `https://movie-radar-1.onrender.com/get-preferred-genres?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -70,7 +70,7 @@ function MyHome() {
   }, [fetchMovies, fetchUserDetails, fetchRecommendedMovies]);
 
   const handleSaveGenres = (selectedGenres) => {
-    fetch("http://localhost:8080/update-preferred-genres", {
+    fetch("https://movie-radar-1.onrender.com/update-preferred-genres", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

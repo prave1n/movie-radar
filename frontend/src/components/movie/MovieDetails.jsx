@@ -73,14 +73,14 @@ function MovieDetails() {
   const userId = useSelector((state) => state.user.userid);
 
   const fetchMovieDetails = useCallback(() => {
-    fetch(`http://localhost:8080/movie/${id}`)
+    fetch(`https://movie-radar-1.onrender.com/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data))
       .catch((error) => console.error("Error fetching movie details:", error));
   }, [id]);
 
   const fetchReviews = useCallback(() => {
-    fetch(`http://localhost:8080/reviews/${id}?userId=${userId}`)
+    fetch(`https://movie-radar-1.onrender.com/reviews/${id}?userId=${userId}`)
       .then((response) => response.json())
       .then((data) => setReviews(data))
       .catch((error) => {
@@ -90,7 +90,7 @@ function MovieDetails() {
   }, [id, userId]);
 
   const fetchAverageRating = useCallback(() => {
-    fetch(`http://localhost:8080/movie/${id}/average-rating`)
+    fetch(`https://movie-radar-1.onrender.com/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
         if (data.averageRating != null) {
@@ -130,7 +130,7 @@ function MovieDetails() {
     };
     try {
       const response = await fetch(
-        `http://localhost:8080/review`,
+        `https://movie-radar-1.onrender.com/review`,
         {
           method: "POST",
           headers: {
@@ -158,7 +158,7 @@ function MovieDetails() {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/review/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -180,7 +180,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -215,7 +215,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {

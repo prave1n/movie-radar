@@ -37,7 +37,7 @@ function PlayListsPage() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:8080/createPlaylist",
+        "https://movie-radar-1.onrender.com/createPlaylist",
         {
           method: "POST",
           headers: {

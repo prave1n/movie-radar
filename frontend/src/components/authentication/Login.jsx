@@ -30,7 +30,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch("http://localhost:8080/login", {
+      await fetch("https://movie-radar-1.onrender.com/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

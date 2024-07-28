@@ -17,7 +17,7 @@ const UserReviews = () => {
     const fetchUserReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/user/reviews/${email}?userId=${userId}`
+          `https://movie-radar-1.onrender.com/user/reviews/${email}?userId=${userId}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -41,7 +41,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -73,7 +73,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -105,7 +105,7 @@ const UserReviews = () => {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/review/${reviewId}`,
+        `https://movie-radar-1.onrender.com/review/${reviewId}`,
         {
           method: "DELETE",
         }

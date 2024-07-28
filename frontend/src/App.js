@@ -29,7 +29,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("http://localhost:8080/auth", {
+      fetch("https://movie-radar-1.onrender.com/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -44,6 +44,7 @@ function App() {
       })
       .then((res) => {
         if(res.login) {
+          localStorage.removeItem("persist:root");
           dispatch(newuser(res.user));
           
         } else {

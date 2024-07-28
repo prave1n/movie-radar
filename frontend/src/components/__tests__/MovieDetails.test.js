@@ -139,7 +139,7 @@ describe('MovieDetails Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit Review' }));
 
     await waitFor(() => {
-      //expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/reviews/1?userId=user1', expect.any(Object));
+      //expect(global.fetch).toHaveBeenCalledWith('https://movie-radar-1.onrender.com/reviews/1?userId=user1', expect.any(Object));
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
   });
