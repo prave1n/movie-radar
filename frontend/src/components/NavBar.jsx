@@ -42,9 +42,6 @@ function NavBar() {
           <Button color="inherit" component={Link} to="/friends">
             Friends List
           </Button>
-          <Button color="inherit" component={Link} to="/activityList">
-            Activity List
-          </Button>
           <Button color="inherit" onClick={logoutHandler}>
             Log Out
           </Button>
