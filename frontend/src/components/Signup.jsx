@@ -39,16 +39,19 @@ function Signup() {
       if (fname.trim() === "" || lname.trim() === "" || uName.trim() === "") {
         alert("Please fill in all the fields to create an account");
         result = false;
+        setLoading(false);
       }
       if (!/\S+@\S+\.\S+/.test(email)) {
         alert("Please enter a valid email");
         result = false;
+        setLoading(false);
       }
       if (!pswchecker.test(psw)) {
         alert(
           "Password must have minimum eight characters, at least one captial letter,at least one captial letter, one number and one special character:"
         );
         result = false;
+        setLoading(false);
       }
       if (result) {
         await fetch("https://movie-radar-2.onrender.com/signIn", {
@@ -181,7 +184,7 @@ function Signup() {
                 }}
               />
 
-              <TextField
+              {/* <TextField
                 margin="normal"
                 required
                 fullWidth
@@ -192,7 +195,7 @@ function Signup() {
                 onChange={(e) => {
                   setPfp(e.target.value);
                 }}
-              />
+              /> */}
 
               <TextField
                 margin="normal"
