@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updatePlayLists } from "../store/userSlice";
+import { updatePlayLists } from "../../store/userSlice";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { addmovie } from "../store/userSlice";
+import { addmovie } from "../../store/userSlice";
 import { Link } from "react-router-dom";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import IconButton from "@mui/material/IconButton";
@@ -16,10 +16,10 @@ import MenuItem from "@mui/material/MenuItem";
 import AddIcon from "@mui/icons-material/Add";
 import Divider from "@mui/material/Divider";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import MuiAlert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Snackbar from "@mui/material/Snackbar";
 import CircularProgress from "@mui/material/CircularProgress";
+import {setPopUp} from '../../store/popupSlice';
+
 
 function MovieCard({ movie }) {
   const id = useSelector((state) => state.user.userid);
@@ -43,42 +43,15 @@ function MovieCard({ movie }) {
     setAnchorEl(null);
   };
 
-  const [movieAdd, setmovieAdd] = React.useState({
-    show: false,
-    vertical: "top",
-    horizontal: "right",
-  });
+  
   // eslint-disable-next-line
-  const { show, vertical, horizontal } = movieAdd;
-
-  const addmovieAlert = (newState) => {
-    setmovieAdd({
-      show: true,
-      vertical: "top",
-      horizontal: "right",
-    });
-  };
-
-  const addmovieClose = (event) => {
-    event.preventDefault();
-    setmovieAdd({
-      show: false,
-      vertical: "top",
-      horizontal: "right",
-    });
-  };
-
-  const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
-
   const [averageRating, setAverageRating] = useState(null);
 
   useEffect(() => {
     const fetchAverageRating = async () => {
       try {
         const response = await fetch(
-          `https://movie-radar-2.onrender.com/movie/${movie.dbid}/average-rating`
+          `http://localhost:8080/movie/${movie.dbid}/average-rating`
         );
         const data = await response.json();
         setAverageRating(data.averageRating);
@@ -91,14 +64,16 @@ function MovieCard({ movie }) {
   }, [movie.dbid]);
 
   const addMovieHandler = async (e) => {
+    e.preventDefault();
+    setAnchorEl(null);
     if (watchlist.filter((x) => x._id === movie._id).length !== 0) {
-      alert("This movie already part of your watchlist");
+      dispatch(setPopUp({variant:"error", message:"This movie already part of your watchlist"}))
       return;
     }
 
     let mov = [...watchlist, movie];
-    e.preventDefault();
-    await fetch("https://movie-radar-2.onrender.com/addmovie", {
+    
+    await fetch("http://localhost:8080/addmovie", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": true,
@@ -115,7 +90,7 @@ function MovieCard({ movie }) {
       .then((res) => {
         console.log(res);
         dispatch(addmovie({ movie: movie }));
-        addmovieAlert();
+        dispatch(setPopUp({variant:"success", message:"Movie added successfully"}))
       });
   };
 
@@ -132,10 +107,10 @@ function MovieCard({ movie }) {
         .filter((x) => x._id === playListID)[0]
         .movies.filter((y) => y === movie._id).length !== 0
     ) {
-      alert("This movie is already part of the playlist");
+      dispatch(setPopUp({variant:"error", message: "This movie is already part of the playlist"}))
     } else {
       try {
-        await fetch("https://movie-radar-2.onrender.com/addToPlayList", {
+        await fetch("http://localhost:8080/addToPlayList", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -151,7 +126,7 @@ function MovieCard({ movie }) {
             return res.json();
           })
           .then((res) => {
-            addmovieAlert();
+            dispatch(setPopUp({variant:"success", message:"Movie added successfully"}))
             dispatch(updatePlayLists(res.user.playLists));
             setChecker(res.user.playLists);
             setAnchorEl(null);
@@ -163,21 +138,6 @@ function MovieCard({ movie }) {
   };
   return (
     <Card sx={{ maxWidth: 200, position: "relative" }}>
-      <Snackbar
-        open={movieAdd.show}
-        autoHideDuration={6000}
-        onClose={addmovieClose}
-        anchorOrigin={{ vertical, horizontal }}
-      >
-        <Alert
-          onClose={addmovieClose}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Movie Added Successfully
-        </Alert>
-      </Snackbar>
-
       <CardActionArea>
         <Link
           to={`/movie/${movie.dbid}`}

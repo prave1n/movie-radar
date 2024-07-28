@@ -1,41 +1,38 @@
 import React from "react";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useEffect } from "react";
+import { addFriend } from "../../store/userSlice";
 import { useDispatch } from "react-redux";
-import { removeFriend } from "../store/userSlice";
-import { Link } from "react-router-dom";
 import { Typography, Avatar, Box } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 
-function FriendCard({ userId }) {
+function FriendRequestCard({ from, createdAt, id }) {
   const dispatch = useDispatch();
-  const [fname, setFname] = useState("");
+  const [fname, setfname] = useState("");
   const [lname, setLname] = useState("");
   const [username, setUsername] = useState("");
   const [pfp, setPfp] = useState("");
   const [hide, setHide] = useState(false);
-  const thisId = useSelector((state) => state.user.userid);
-
   useEffect(() => {
     try {
-      fetch(`https://movie-radar-2.onrender.com/getUserDetails`, {
+      fetch(`http://localhost:8080/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: userId,
+          id: from,
         }),
       })
         .then((res) => {
           return res.json();
         })
         .then((res) => {
-          setFname(res.user.fname);
+          setfname(res.user.fname);
           setLname(res.user.lname);
           setUsername(res.user.username);
           setPfp(res.user.pfp);
@@ -46,17 +43,17 @@ function FriendCard({ userId }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const deleteFriendHandler = (e) => {
+  const deleteRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`https://movie-radar-2.onrender.com/friend/delete/${thisId}`, {
+      fetch(`http://localhost:8080/fReq/delete`, {
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: userId,
+          id: id,
         }),
       })
         .then((res) => {
@@ -64,9 +61,33 @@ function FriendCard({ userId }) {
         })
         .then((res) => {
           console.log(res);
-          dispatch(
-            removeFriend(res.friendList.filter((user) => user !== userId))
-          );
+          setHide(true);
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const acceptRequestHandler = (e) => {
+    e.preventDefault();
+    try {
+      fetch(`http://localhost:8080/acceptReq`, {
+        method: "POST",
+        headers: {
+          "Access-Control-Allow-Origin": true,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+        }),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((res) => {
+          console.log(from);
+          dispatch(addFriend({ friendList: from }));
+          setHide(true);
         });
     } catch (err) {
       console.log(err);
@@ -94,19 +115,19 @@ function FriendCard({ userId }) {
             <Button
               sx={{ mt: 3, mb: 2 }}
               variant="contained"
-              color="error"
-              onClick={deleteFriendHandler}
+              onClick={acceptRequestHandler}
             >
-              Remove Friend
+              Accept
             </Button>
-            <Link
-              to={`/user/${username}`}
-              style={{ textDecoration: "none", color: "inherit" }}
+
+            <Button
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              color="error"
+              onClick={deleteRequestHandler}
             >
-              <Button variant="contained" sx={{ mt: 3, mb: 2 }}>
-                View Profile
-              </Button>
-            </Link>
+              Deny
+            </Button>
           </CardActions>
         </Card>
       </div>
@@ -114,27 +135,27 @@ function FriendCard({ userId }) {
   );
 }
 
-export default FriendCard;
+export default FriendRequestCard;
 
 /* 
- <Card style={{ width: "18rem" }}>
+  <div style={{ display: hide ? "none" : "" }}>
+      <div style={{ margin: "20px" }}>
+        <Card style={{ width: "18rem" }}>
           <Card.Body>
             <Card.Title>
-              <Link
-                to={`/user/${username}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                {username}
-              </Link>
-            </Card.Title>
-            <Card.Text>
               {fname} {lname}
-            </Card.Text>
+            </Card.Title>
+            <Card.Subtitle>Sent at: {createdAt}</Card.Subtitle>
           </Card.Body>
           <div style={{ display: "flex", justifyContent: "space-around" }}>
-            <Button variant="outline-danger" onClick={deleteFriendHandler}>
-              Remove Friend
+            <Button variant="outline-success" onClick={acceptRequestHandler}>
+              Accept
+            </Button>
+            <Button variant="outline-danger" onClick={deleteRequestHandler}>
+              Deny
             </Button>
           </div>
         </Card>
+      </div>
+    </div>
 */

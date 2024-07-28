@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Container, Typography, Avatar, Box, Divider } from "@mui/material";
-import UserReviewCard from "./UserReviewCard";
-import NavBar from "./NavBar";
-import PublicPlayListsCard from "./PublicPLaylistsCard";
+import UserReviewCard from "../movie/UserReviewCard";
+import NavBar from "../sections/NavBar";
+import PublicPlayListsCard from "../PublicPLaylistsCard";
+import AlertBox from "../AlertBox";
 
 function UserProfilePage() {
   const [user, setUser] = useState(null);
@@ -18,7 +19,7 @@ function UserProfilePage() {
     const fetchUserData = async () => {
       try {
         const userResponse = await fetch(
-          `https://movie-radar-2.onrender.com/user/${username}`
+          `http://localhost:8080/user/${username}`
         );
         if (!userResponse.ok) {
           throw new Error("User not found");
@@ -27,7 +28,7 @@ function UserProfilePage() {
         setUser(userData);
 
         const reviewsResponse = await fetch(
-          `https://movie-radar-2.onrender.com/user/reviews/byusername/${username}?currentUserId=${userId}`
+          `http://localhost:8080/user/reviews/byusername/${username}?currentUserId=${userId}`
         );
         if (reviewsResponse.status === 404) {
           // User found but has no reviews
@@ -40,7 +41,7 @@ function UserProfilePage() {
         }
 
         const playlistsResponse = await fetch(
-          `https://movie-radar-2.onrender.com/user/playlists/${username}`
+          `http://localhost:8080/user/playlists/${username}`
         );
         if (!playlistsResponse.ok) {
           throw new Error("Failed to fetch playlists");
@@ -59,7 +60,7 @@ function UserProfilePage() {
     const payload = { userId: userEmail };
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -89,7 +90,7 @@ function UserProfilePage() {
     const payload = { userId: userEmail };
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -122,6 +123,7 @@ function UserProfilePage() {
   return (
     <Box>
       <NavBar />
+      <AlertBox/>
       <Container maxWidth="lg">
         <Box display="flex" alignItems="center" my={4}>
           <Avatar

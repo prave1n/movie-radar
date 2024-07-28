@@ -23,7 +23,7 @@ function WatchList() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://movie-radar-2.onrender.com/deleteMovie",
+        "http://localhost:8080/deleteMovie",
         {
           method: "POST",
           headers: {

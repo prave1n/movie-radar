@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import NavBar from "./NavBar";
+import NavBar from "./sections/NavBar";
 import WatchList from "./WatchList";
 import PlayListsCard from "./PlayListsCard";
 import { updatePlayLists } from "../store/userSlice";
@@ -19,6 +19,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
+import AlertBox from "./AlertBox";
 
 function PlayListsPage() {
   const dispatch = useDispatch();
@@ -36,7 +37,7 @@ function PlayListsPage() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://movie-radar-2.onrender.com/createPlaylist",
+        "http://localhost:8080/createPlaylist",
         {
           method: "POST",
           headers: {
@@ -60,6 +61,7 @@ function PlayListsPage() {
   return (
     <div>
       <NavBar />
+      <AlertBox/>
       <WatchList />
       <Container maxWidth="xl" sx={{ mt: 4 }}>
         <Box

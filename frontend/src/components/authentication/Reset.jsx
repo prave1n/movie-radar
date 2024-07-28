@@ -2,7 +2,6 @@ import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
-import "./styles/Reset.css";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -12,16 +11,21 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
+import AlertBox from "../AlertBox";
 
 function Reset() {
   const defaultTheme = createTheme();
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const emailHandler = async (e) => {
     e.preventDefault();
     try {
       console.log(email);
-      await fetch("https://movie-radar-2.onrender.com/sendemail", {
+      await fetch("http://localhost:8080/sendemail", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -36,7 +40,7 @@ function Reset() {
         })
         .then((res) => {
           if (res.email) {
-            alert(res.message);
+            dispatch(setPopUp({variant:"info", message:res.message}))
             // SEND EMAIL
             emailjs.send(
               "service_vwt5hn4", //service ID
@@ -53,11 +57,10 @@ function Reset() {
             );
             navigate(`/forgotpsw/${res.id}`);
           } else {
-            alert(res.message);
+            dispatch(setPopUp({variant:"error", message:res.message}))
           }
         });
     } catch (err) {
-      console.log("failed");
       console.log(err);
     }
   };
@@ -84,6 +87,7 @@ function Reset() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <AlertBox/>
           <Box
             sx={{
               my: 8,

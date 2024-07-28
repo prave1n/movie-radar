@@ -1,8 +1,7 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ResendVerfication from "./ResendVerfication";
+import { newuser } from "../../store/userSlice";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -13,43 +12,56 @@ import Grid from "@mui/material/Grid";
 import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
+import CircularProgress from "@mui/material/CircularProgress";
+import AlertBox from '../AlertBox'
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
 
-function Verify() {
-  const defaultTheme = createTheme();
-  const id = useParams().id;
-  const [otp, setOtp] = useState("");
+export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const defaultTheme = createTheme();
 
-  const otpHandler = (e) => {
+  const [email, setEmail] = useState("");
+  const [psw, setPsw] = useState("");
+  const [loading, setLoading] = useState(false);
+ 
+  const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      fetch("https://movie-radar-2.onrender.com/verify", {
+      await fetch("http://localhost:8080/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: id,
-          otp: otp,
+          email: email,
+          password: psw,
         }),
       })
         .then((res) => {
           return res.json();
         })
         .then((res) => {
-          if (res.result) {
-            alert(res.message);
-            navigate("/");
+          setLoading(false);
+        
+          if (!res.login) {
+            dispatch(setPopUp({variant:"error", message:res.message}))
           } else {
-            console.log(res.otp);
-            alert(res.message);
+            dispatch(newuser(res.user));
+            console.log(res.token);
+            localStorage.setItem("token", res.token);
+            navigate(`/myhome`);
           }
         });
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" sx={{ height: "100vh" }}>
@@ -73,6 +85,7 @@ function Verify() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+      
           <Box
             sx={{
               my: 8,
@@ -84,22 +97,35 @@ function Verify() {
             }}
           >
             <Typography component="h1" variant="h3">
-              Verify Email{" "}
+              Movie Radar{" "}
               <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
             </Typography>
-
-            <Box component="form" noValidate sx={{ mt: 1, width: "525px" }}>
+            <AlertBox/>
+            <Box component="form" noValidate sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="OTP"
-                placeholder="Enter Verification OTP"
-                label="Enter OTP"
-                name="OTP"
+                id="email"
+                placeholder="Enter Email"
+                label="Email Address"
+                name="email"
                 autoFocus
                 onChange={(e) => {
-                  setOtp(e.target.value);
+                  setEmail(e.target.value);
+                }}
+              />
+
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                type="password"
+                name="password"
+                label="Password"
+                id="password"
+                onChange={(e) => {
+                  setPsw(e.target.value);
                 }}
               />
 
@@ -108,11 +134,18 @@ function Verify() {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={otpHandler}
+                onClick={submitHandler}
+                disabled={loading}
               >
-                Verify Email
+                Login
               </Button>
-              <ResendVerfication />
+
+              {loading && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <CircularProgress />
+                </Box>
+              )}
+
               <Grid container>
                 <Grid item xs>
                   <Link href="/reset" variant="body2">
@@ -121,8 +154,8 @@ function Verify() {
                 </Grid>
 
                 <Grid item>
-                  <Link href="/" variant="body2">
-                    {"Already have an account? Login"}
+                  <Link href="/signup" variant="body2">
+                    {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
@@ -133,40 +166,3 @@ function Verify() {
     </ThemeProvider>
   );
 }
-
-export default Verify;
-
-/*
-<div>
-      <div className="sendemailform">
-        <h2>Check your email for verification OTP</h2>
-        <Form>
-          <Form.Group className="mb-3" controlId="formBasicOTP">
-            <Form.Label>Enter your OTP: </Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter your OTP"
-              onChange={(e) => {
-                setOtp(e.target.value);
-              }}
-              style={{ width: "300px" }}
-            />
-          </Form.Group>
-
-          <Button
-            variant="primary"
-            type="submit"
-            onClick={(e) => {
-              otpHandler(e);
-            }}
-            style={{ width: "300px" }}
-          >
-            Check OTP
-          </Button>
-
-          <ResendVerfication />
-        </Form>
-      </div>
-    </div>
-
-*/

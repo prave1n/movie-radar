@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import MovieCard from "./MovieCard";
-import MovieSearchBar from "./MovieSearchBar";
-import NavBar from "./NavBar";
+import MovieCard from "./movie/MovieCard";
+import MovieSearchBar from "./movie/MovieSearchBar";
+import NavBar from "./sections/NavBar";
 import Pagination from "./Pagination";
-import Footer from "./Footer";
+import Footer from "./sections/Footer";
+import AlertBox from "./AlertBox";
+
 import {
   Container,
   Typography,
@@ -131,7 +133,7 @@ function Home() {
     if (isLoading) return;
 
     setIsLoading(true);
-    let url = `https://movie-radar-2.onrender.com/movie?page=${page}&limit=30`;
+    let url = `http://localhost:8080/movie?page=${page}&limit=30`;
     const params = new URLSearchParams();
 
     if (sortOption !== "default") {
@@ -184,6 +186,7 @@ function Home() {
       <NavBar />
       <br />
       <Container maxWidth="xl">
+      <AlertBox/>
         <Grid container spacing={3}>
           <Grid item xs={12} md={2.5}>
             <Paper elevation={3}>

@@ -14,6 +14,8 @@ import PublicIcon from "@mui/icons-material/Public";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
+import {setPopUp} from '../store/popupSlice';
+
 
 function PlayListsCard({ list }) {
   const [movies, setMovies] = useState([]);
@@ -25,7 +27,7 @@ function PlayListsCard({ list }) {
 
   useEffect(() => {
     try {
-      fetch("https://movie-radar-2.onrender.com/getMovieList", {
+      fetch("http://localhost:8080/getMovieList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -49,7 +51,7 @@ function PlayListsCard({ list }) {
   const delPlayList = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/delPlayList", {
+      fetch("http://localhost:8080/delPlayList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -75,7 +77,7 @@ function PlayListsCard({ list }) {
   const delMovie = (e, movieID) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/delmoviePlayList", {
+      fetch("http://localhost:8080/delmoviePlayList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -91,7 +93,7 @@ function PlayListsCard({ list }) {
           return res.json();
         })
         .then((res) => {
-          alert(`Movie deleted from ${list.name}`);
+          dispatch(setPopUp({variant:"info", message:`Movie deleted from ${list.name}`}))
           dispatch(updatePlayLists(res.user.playLists));
         });
     } catch (err) {
@@ -102,7 +104,7 @@ function PlayListsCard({ list }) {
   const changePrivacyHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/changePrivacy", {
+      fetch("http://localhost:8080/changePrivacy", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -118,7 +120,7 @@ function PlayListsCard({ list }) {
           return res.json();
         })
         .then((res) => {
-          alert(`${list.name} changed to ${pub ? "Private" : "Public"}`);
+          dispatch(setPopUp({variant:"info", message:`${list.name}'s privacy changed to ${pub ? "private" : "public"}`}))
           dispatch(updatePlayLists(res.playLists));
           setPublic(!pub);
         });

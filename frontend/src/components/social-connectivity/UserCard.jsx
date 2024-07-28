@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Typography, Avatar, Box } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -16,7 +15,7 @@ function UserCard({ user, pending }) {
 
   const addFriendHandler = (e) => {
     try {
-      fetch(`https://movie-radar-2.onrender.com/fReq/${thisId}`, {
+      fetch(`http://localhost:8080/fReq/${thisId}`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

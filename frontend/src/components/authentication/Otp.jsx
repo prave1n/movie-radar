@@ -11,8 +11,12 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
+import AlertBox from "../AlertBox";
 
 function Otp() {
+  const dispatch = useDispatch();
   const defaultTheme = createTheme();
   const [otp, setOtp] = useState("");
   const [psw, setPsw] = useState("");
@@ -24,7 +28,7 @@ function Otp() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/checkOtp", {
+      fetch("http://localhost:8080/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -40,10 +44,10 @@ function Otp() {
         })
         .then((res) => {
           if (res.result) {
-            alert(res.message);
+            dispatch(setPopUp({variant:"success", message:res.message}))
             setcorrectOtp(false);
           } else {
-            alert(res.message);
+            dispatch(setPopUp({variant:"error", message:res.message}))
           }
         });
     } catch (err) {
@@ -55,7 +59,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("https://movie-radar-2.onrender.com/changepsw", {
+        fetch("http://localhost:8080/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -70,14 +74,14 @@ function Otp() {
             return res.json();
           })
           .then((res) => {
-            alert(res.message);
-            navigate("/ ");
+            dispatch(setPopUp({variant:"success", message:res.message}))
+            navigate("/");
           });
       } catch (err) {
         console.log(err);
       }
     } else {
-      alert("Passwords do not match");
+      dispatch(setPopUp({variant:"error", message:"Passwords do not match"}))
     }
   };
 
@@ -104,6 +108,7 @@ function Otp() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <AlertBox/>
           <Box
             sx={{
               my: 8,

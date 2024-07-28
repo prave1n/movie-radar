@@ -1,5 +1,5 @@
 import React from "react";
-import NavBar from "./NavBar";
+import NavBar from "../sections/NavBar";
 import UserList from "./UserList";
 import FriendRequests from "./FriendRequests";
 import FriendsList from "./FriendList";
@@ -9,6 +9,7 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 import ActivityList from "./ActivityList";
+import AlertBox from "../AlertBox";
 
 export default function FriendsPage() {
   const [value, setValue] = React.useState("1");
@@ -19,7 +20,7 @@ export default function FriendsPage() {
   return (
     <div>
       <NavBar />
-
+      <AlertBox/>
       <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
         <TabContext value={value}>
           <Tabs value={value} onChange={handleChange} centered>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import MovieCard from "./MovieCard";
-import NavBar from "./NavBar";
+import MovieCard from "./movie/MovieCard";
+import NavBar from "./sections/NavBar";
 import {
   Button,
   Typography,
@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import GenreSelectorPopup from "./GenreSelectorPopup";
 import "./styles/MyHome.css";
+import AlertBox from "./AlertBox";
 
 function MyHome() {
   const [moviesByGenre, setMoviesByGenre] = useState([]);
@@ -22,7 +23,7 @@ function MyHome() {
 
   const fetchMovies = useCallback(() => {
     setIsLoading(true);
-    fetch(`https://movie-radar-2.onrender.com/myhome?userId=${userId}`)
+    fetch(`http://localhost:8080/myhome?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setMoviesByGenre(data);
@@ -36,7 +37,7 @@ function MyHome() {
 
   const fetchRecommendedMovies = useCallback(() => {
     fetch(
-      `https://movie-radar-2.onrender.com/recommended-movies?userId=${userId}`
+      `http://localhost:8080/recommended-movies?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -49,7 +50,7 @@ function MyHome() {
 
   const fetchUserDetails = useCallback(() => {
     fetch(
-      `https://movie-radar-2.onrender.com/get-preferred-genres?userId=${userId}`
+      `http://localhost:8080/get-preferred-genres?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -69,7 +70,7 @@ function MyHome() {
   }, [fetchMovies, fetchUserDetails, fetchRecommendedMovies]);
 
   const handleSaveGenres = (selectedGenres) => {
-    fetch("https://movie-radar-2.onrender.com/update-preferred-genres", {
+    fetch("http://localhost:8080/update-preferred-genres", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -96,6 +97,7 @@ function MyHome() {
     <Box>
       <NavBar />
       <Container maxWidth="lg">
+        <AlertBox/>
         <Typography
           variant="h2"
           align="center"

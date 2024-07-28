@@ -2,13 +2,17 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import emailjs from "@emailjs/browser";
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
 
 function ResendVerfication() {
   const id = useParams().id;
+  const dispatch = useDispatch();
+
   const submitHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-2.onrender.com/resend", {
+      fetch("http://localhost:8080/resend", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -35,9 +39,9 @@ function ResendVerfication() {
               },
               "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
             );
-            alert(res.message);
+            dispatch(setPopUp({variant:"info", message:res.message}))
           } else {
-            alert(res.message);
+            dispatch(setPopUp({variant:"error", message:res.message}))
           }
         });
     } catch (err) {

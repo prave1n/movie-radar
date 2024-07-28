@@ -1,26 +1,25 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Login from './components/Login';
+import Login from './components/authentication/Login';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Signup from './components/Signup';
+import Signup from './components/authentication/Signup';
 import Home from './components/Home';
 import MyHome from  './components/MyHome'
-import MovieDetails from './components/MovieDetails';
-import Profile from './components/Profile';
+import MovieDetails from './components/movie/MovieDetails';
+import Profile from './components/user_profile/Profile';
 import UserReviews from './components/UserReviews';
-import Reset from './components/Reset';
-import Otp from './components/Otp'; 
+import Reset from './components/authentication/Reset';
+import Otp from './components/authentication/Otp'; 
 import {useEffect } from 'react';
-import FriendsPage from './components/FriendsPage';
+import FriendsPage from './components/social-connectivity/FriendsPage';
 import { useDispatch } from 'react-redux';
 import { newuser } from './store/userSlice';
 import { clearuser } from './store/userSlice';
 import { useSelector } from 'react-redux';
-import Verify from './components/Verify';
+import Verify from './components/authentication/Verify';
 import PlayListsPage from './components/PlayListsPage';
-import ActivityList from './components/ActivityList';
-import FriendsProfilePage from './components/FriendsProfilePage'
-import AlertBox from './components/AlertBox';
+import FriendsProfilePage from './components/user_profile/FriendsProfilePage'
+
 
 function App() { 
   const loggedIn = useSelector((state) => state.user.authorized);
@@ -30,7 +29,7 @@ function App() {
     const token = localStorage.getItem("token")
  
     try {
-      fetch("https://movie-radar-2.onrender.com/auth", {
+      fetch("http://localhost:8080/auth", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -89,8 +88,6 @@ function App() {
           <Route path="/verify/:id" element={ <Verify/>} />
 
           <Route path="/friends" element={!loggedIn ? <Login/> : <FriendsPage />} />
-
-          <Route exact path = '/activityList' element={!loggedIn ? <Login/> : <ActivityList/>} />
 
           <Route path="/user/:username" element={!loggedIn ? <Login/> : <FriendsProfilePage />} />
 

@@ -22,11 +22,12 @@ import MovieIcon from "@mui/icons-material/Movie";
 import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 
-import UserReviewCard from "./UserReviewCard";
-import MovieCard from "./MovieCard";
-import NavBar from "./NavBar";
-import GenreSelectorPopup from "./GenreSelectorPopup";
-import PlayListsCard from "./PlayListsCard";
+import UserReviewCard from "../movie/UserReviewCard";
+import MovieCard from "../movie/MovieCard";
+import NavBar from "../sections/NavBar";
+import GenreSelectorPopup from "../GenreSelectorPopup";
+import PlayListsCard from "../PlayListsCard";
+import AlertBox from "../AlertBox";
 
 const theme = createTheme({
   palette: {
@@ -77,7 +78,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetch(
-      `https://movie-radar-2.onrender.com/get-preferred-genres?userId=${userId}`
+      `http://localhost:8080/get-preferred-genres?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => setPreferredGenres(data.preferredGenres))
@@ -85,7 +86,7 @@ const Profile = () => {
         console.error("Error fetching preferred genres:", error)
       );
 
-    fetch(`https://movie-radar-2.onrender.com/profile/${userId}`)
+    fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
@@ -94,12 +95,12 @@ const Profile = () => {
         setUsername(data.username);
       });
 
-    fetch(`https://movie-radar-2.onrender.com/watchlist/${userId}`)
+    fetch(`http://localhost:8080/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
     fetch(
-      `https://movie-radar-2.onrender.com/user/reviews/${email}?userId=${userId}`
+      `http://localhost:8080/user/reviews/${email}?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -122,7 +123,7 @@ const Profile = () => {
   const handleSaveGenres = async (selectedGenres) => {
     try {
       const response = await fetch(
-        "https://movie-radar-2.onrender.com/update-preferred-genres",
+        "http://localhost:8080/update-preferred-genres",
         {
           method: "POST",
           headers: {
@@ -148,7 +149,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -179,7 +180,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -208,7 +209,7 @@ const Profile = () => {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        `http://localhost:8080/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -232,7 +233,7 @@ const Profile = () => {
     setError(null);
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/profile/${userId}`,
+        `http://localhost:8080/profile/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -259,6 +260,7 @@ const Profile = () => {
   return (
     <ThemeProvider theme={theme}>
       <NavBar />
+      <AlertBox/>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h3" gutterBottom>
           Profile

@@ -19,7 +19,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StarIcon from "@mui/icons-material/Star";
 import ReviewCard from "./ReviewCard";
-import NavBar from "./NavBar";
+import NavBar from "../sections/NavBar";
+import AlertBox from "../AlertBox";
 
 const theme = createTheme({
   palette: {
@@ -72,14 +73,14 @@ function MovieDetails() {
   const userId = useSelector((state) => state.user.userid);
 
   const fetchMovieDetails = useCallback(() => {
-    fetch(`https://movie-radar-2.onrender.com/movie/${id}`)
+    fetch(`http://localhost:8080/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data))
       .catch((error) => console.error("Error fetching movie details:", error));
   }, [id]);
 
   const fetchReviews = useCallback(() => {
-    fetch(`https://movie-radar-2.onrender.com/reviews/${id}?userId=${userId}`)
+    fetch(`http://localhost:8080/reviews/${id}?userId=${userId}`)
       .then((response) => response.json())
       .then((data) => setReviews(data))
       .catch((error) => {
@@ -89,7 +90,7 @@ function MovieDetails() {
   }, [id, userId]);
 
   const fetchAverageRating = useCallback(() => {
-    fetch(`https://movie-radar-2.onrender.com/movie/${id}/average-rating`)
+    fetch(`http://localhost:8080/movie/${id}/average-rating`)
       .then((response) => response.json())
       .then((data) => {
         if (data.averageRating != null) {
@@ -129,7 +130,7 @@ function MovieDetails() {
     };
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review`,
+        `http://localhost:8080/review`,
         {
           method: "POST",
           headers: {
@@ -157,7 +158,7 @@ function MovieDetails() {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        `http://localhost:8080/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -179,7 +180,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -214,7 +215,7 @@ function MovieDetails() {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -288,6 +289,7 @@ function MovieDetails() {
   return (
     <ThemeProvider theme={theme}>
       <NavBar />
+      <AlertBox/>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Button
           startIcon={<ArrowBackIcon />}

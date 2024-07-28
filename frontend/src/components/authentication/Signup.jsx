@@ -1,7 +1,6 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./styles/Signup.css";
 import emailjs from "@emailjs/browser";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -14,16 +13,20 @@ import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
+import AlertBox from "../AlertBox";
 
 function Signup() {
   const defaultTheme = createTheme();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
   const [uName, setUname] = useState("");
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
-  const [pfp, setPfp] = useState("");
+  const [pfp, ] = useState("");
   const [loading, setLoading] = useState(false);
 
   //let result = true;
@@ -37,24 +40,25 @@ function Signup() {
     let result = true;
     try {
       if (fname.trim() === "" || lname.trim() === "" || uName.trim() === "") {
-        alert("Please fill in all the fields to create an account");
+        dispatch(setPopUp({variant:"error", message:"Please fill in all the fields to create an account"}))
         result = false;
         setLoading(false);
+        return;
       }
       if (!/\S+@\S+\.\S+/.test(email)) {
-        alert("Please enter a valid email");
+        dispatch(setPopUp({variant:"error", message:"Please enter a valid email"}))
         result = false;
         setLoading(false);
+        return;
       }
       if (!pswchecker.test(psw)) {
-        alert(
-          "Password must have minimum eight characters, at least one captial letter,at least one captial letter, one number and one special character:"
-        );
+        dispatch(setPopUp({variant:"error", message:"Password must have minimum eight characters, at least one captial letter,at least one captial letter, one number and one special character"}))
         result = false;
         setLoading(false);
+        return;
       }
       if (result) {
-        await fetch("https://movie-radar-2.onrender.com/signIn", {
+        await fetch("http://localhost:8080/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -74,7 +78,6 @@ function Signup() {
           })
           .then((res) => {
             setLoading(false);
-            console.log(res);
 
             // SEND EMAIL
             if (res.result) {
@@ -90,13 +93,10 @@ function Signup() {
                 },
                 "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
               );
-
-              alert(
-                "Account Created Successfully. Please verify your email before logging in"
-              );
+              dispatch(setPopUp({variant:"success", message:"Account Created Successfully. Please verify your email before logging in"}))
               navigate(`/verify/${res.userId}`);
             } else {
-              alert(res.message);
+              dispatch(setPopUp({variant:"error", message:res.message}))
             }
           });
       }
@@ -129,6 +129,7 @@ function Signup() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <AlertBox/>
           <Box
             sx={{
               my: 8,

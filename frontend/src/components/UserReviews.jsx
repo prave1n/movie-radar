@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import UserReviewCard from "./UserReviewCard";
+import UserReviewCard from "./movie/UserReviewCard";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import NavBar from "./NavBar";
+import NavBar from "./sections/NavBar";
+import AlertBox from "./AlertBox";
 
 const UserReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -16,7 +17,7 @@ const UserReviews = () => {
     const fetchUserReviews = async () => {
       try {
         const response = await fetch(
-          `https://movie-radar-2.onrender.com/user/reviews/${email}?userId=${userId}`
+          `http://localhost:8080/user/reviews/${email}?userId=${userId}`
         );
         if (!response.ok) {
           const errorData = await response.json();
@@ -40,7 +41,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
+        `http://localhost:8080/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -72,7 +73,7 @@ const UserReviews = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
+        `http://localhost:8080/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -104,7 +105,7 @@ const UserReviews = () => {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `https://movie-radar-2.onrender.com/review/${reviewId}`,
+        `http://localhost:8080/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -122,6 +123,7 @@ const UserReviews = () => {
     <div>
       <NavBar />
       <Container>
+      <AlertBox/>
         <h1>Your Reviews</h1>
         {error && <p className="text-danger">Error: {error}</p>}
         <Row>

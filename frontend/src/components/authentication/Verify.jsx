@@ -1,9 +1,8 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { newuser } from "../store/userSlice";
-import "./styles/Login.css";
+import ResendVerfication from "./ResendVerfication";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -14,52 +13,46 @@ import Grid from "@mui/material/Grid";
 import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
-import CircularProgress from "@mui/material/CircularProgress";
+import AlertBox from "../AlertBox";
+import {setPopUp} from '../../store/popupSlice';
+import { useDispatch } from "react-redux";
 
-export default function Login() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+function Verify() {
   const defaultTheme = createTheme();
+  const id = useParams().id;
+  const [otp, setOtp] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [email, setEmail] = useState("");
-  const [psw, setPsw] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const submitHandler = async (e) => {
+  const otpHandler = (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
-      await fetch("https://movie-radar-2.onrender.com/login", {
+      fetch("http://localhost:8080/verify", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          password: psw,
+          id: id,
+          otp: otp,
         }),
       })
         .then((res) => {
           return res.json();
         })
         .then((res) => {
-          setLoading(false);
-          if (!res.login) {
-            alert(res.message);
+          if (res.result) {
+            dispatch(setPopUp({variant:"success", message:res.message}))
+            navigate("/");
           } else {
-            dispatch(newuser(res.user));
-            console.log(res.token);
-            localStorage.setItem("token", res.token);
-            navigate(`/myhome`);
+            dispatch(setPopUp({variant:"error", message:res.message}))
           }
         });
     } catch (err) {
       console.log(err);
-      setLoading(false);
     }
   };
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" sx={{ height: "100vh" }}>
@@ -83,6 +76,7 @@ export default function Login() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+          <AlertBox/>
           <Box
             sx={{
               my: 8,
@@ -94,35 +88,22 @@ export default function Login() {
             }}
           >
             <Typography component="h1" variant="h3">
-              Movie Radar{" "}
-              <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
+              Email Verification{" "}
+              <LocalMoviesRoundedIcon sx={{ m: 0, fontSize: "54px" }} />
             </Typography>
 
-            <Box component="form" noValidate sx={{ mt: 1 }}>
+            <Box component="form" noValidate sx={{ mt: 1, width: "525px" }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                placeholder="Enter Email"
-                label="Email Address"
-                name="email"
+                id="OTP"
+                placeholder="Enter Verification OTP"
+                label="Enter OTP"
+                name="OTP"
                 autoFocus
                 onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-              />
-
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                type="password"
-                name="password"
-                label="Password"
-                id="password"
-                onChange={(e) => {
-                  setPsw(e.target.value);
+                  setOtp(e.target.value);
                 }}
               />
 
@@ -131,18 +112,11 @@ export default function Login() {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={submitHandler}
-                disabled={loading}
+                onClick={otpHandler}
               >
-                Login
+                Verify Email
               </Button>
-
-              {loading && (
-                <Box display="flex" justifyContent="center" mt={2}>
-                  <CircularProgress />
-                </Box>
-              )}
-
+              <ResendVerfication />
               <Grid container>
                 <Grid item xs>
                   <Link href="/reset" variant="body2">
@@ -151,8 +125,8 @@ export default function Login() {
                 </Grid>
 
                 <Grid item>
-                  <Link href="/signup" variant="body2">
-                    {"Don't have an account? Sign Up"}
+                  <Link href="/" variant="body2">
+                    {"Already have an account? Login"}
                   </Link>
                 </Grid>
               </Grid>
@@ -163,3 +137,40 @@ export default function Login() {
     </ThemeProvider>
   );
 }
+
+export default Verify;
+
+/*
+<div>
+      <div className="sendemailform">
+        <h2>Check your email for verification OTP</h2>
+        <Form>
+          <Form.Group className="mb-3" controlId="formBasicOTP">
+            <Form.Label>Enter your OTP: </Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter your OTP"
+              onChange={(e) => {
+                setOtp(e.target.value);
+              }}
+              style={{ width: "300px" }}
+            />
+          </Form.Group>
+
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={(e) => {
+              otpHandler(e);
+            }}
+            style={{ width: "300px" }}
+          >
+            Check OTP
+          </Button>
+
+          <ResendVerfication />
+        </Form>
+      </div>
+    </div>
+
+*/
