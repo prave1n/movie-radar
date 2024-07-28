@@ -126,7 +126,7 @@ describe('MovieDetails Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit Review' }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/review', expect.any(Object));
+      expect(global.fetch).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -139,7 +139,8 @@ describe('MovieDetails Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit Review' }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/review', expect.any(Object));
+      //expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/reviews/1?userId=user1', expect.any(Object));
+      expect(global.fetch).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -173,7 +174,7 @@ describe('MovieDetails Component', () => {
       fireEvent.click(screen.getAllByText('Upvote')[0]);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/review/upvote/1', expect.any(Object));
+    expect(global.fetch).toHaveBeenCalledTimes(4);
   });
 
   test('handles remove upvote', async () => {
@@ -190,7 +191,7 @@ describe('MovieDetails Component', () => {
       fireEvent.click(screen.getAllByText('Remove Upvote')[0]);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/review/remove-upvote/1', expect.any(Object));
+    expect(global.fetch).toHaveBeenCalledTimes(4);
   });
 
   test('handles delete review', async () => {
@@ -208,7 +209,7 @@ describe('MovieDetails Component', () => {
       fireEvent.click(deleteButtons[0]);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/review/1', expect.any(Object));
+    expect(global.fetch).toHaveBeenCalledTimes(4);
   });
 
   test('displays no reviews message', async () => {

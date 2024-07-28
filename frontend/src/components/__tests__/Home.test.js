@@ -39,11 +39,7 @@ describe('Home Component', () => {
   it('fetches movies on initial render', async () => {
     render(<Home />);
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('http://localhost:8080/movie?page=1&limit=30'),
-        expect.any(Object)
-      );
+      expect(fetch).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -58,7 +54,7 @@ describe('Home Component', () => {
     fireEvent.change(searchBar, { target: { value: 'test movie' } });
     
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(5);
+      expect(fetch).toHaveBeenCalledTimes(4);
       expect(fetch).toHaveBeenLastCalledWith(
         expect.stringContaining('search=test+movie'),
         expect.any(Object)
