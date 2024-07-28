@@ -925,6 +925,7 @@ app.post('/acceptReq', async (req,res) => {
 
 app.delete('/friend/delete/:id', async (req,res) => {
     const id = req.params.id
+    await User.findByIdAndUpdate(req.body.id, {$pull: {friendList: id}})
     await User.findByIdAndUpdate(id, {$pull: {friendList: req.body.id}})
     .then((user) => {
         res.send({msg: "Friend Deleted", friendList: user.friendList})

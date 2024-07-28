@@ -63,6 +63,7 @@ function FriendCard({ userId }) {
           return res.json();
         })
         .then((res) => {
+          console.log(res)
           dispatch(
             removeFriend(res.friendList.filter((user) => user !== userId))
           );

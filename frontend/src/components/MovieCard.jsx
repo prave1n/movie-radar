@@ -91,6 +91,11 @@ function MovieCard({ movie }) {
   }, [movie.dbid]);
 
   const addMovieHandler = async (e) => {
+    if(watchlist.filter(x => x._id === movie._id).length !== 0) {
+      alert("This movie already part of your watchlist")
+      return;
+    }
+    
     let mov = [...watchlist, movie];
     e.preventDefault();
     await fetch("http://localhost:8080/addmovie", {

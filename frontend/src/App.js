@@ -20,6 +20,7 @@ import Verify from './components/Verify';
 import PlayListsPage from './components/PlayListsPage';
 import ActivityList from './components/ActivityList';
 import FriendsProfilePage from './components/FriendsProfilePage'
+import AlertBox from './components/AlertBox';
 
 function App() { 
   const loggedIn = useSelector((state) => state.user.authorized);
@@ -62,6 +63,7 @@ function App() {
   return (
     <BrowserRouter>
     <Routes>
+          
           <Route exact path = '/' element={!loggedIn ? <Login/> : <Home/>}/>
 
           <Route exact path = '/signup' element={<Signup/>}/>
