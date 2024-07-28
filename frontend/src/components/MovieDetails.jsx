@@ -67,6 +67,7 @@ function MovieDetails() {
   const [rating, setRating] = useState(0.0);
   const [reviewText, setReviewText] = useState("");
   const [averageRating, setAverageRating] = useState(null);
+  const [error, setError] = useState(null);
   const email = useSelector((state) => state.user.email);
   const userId = useSelector((state) => state.user.userid);
 
@@ -111,6 +112,15 @@ function MovieDetails() {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    if (rating < 0.5 || rating > 5) {
+      setError("Rating must be between 0.5 and 5.");
+      return;
+    }
+    if (reviewText.trim() === "") {
+      setError("Review text cannot be empty.");
+      return;
+    }
+    setError(null);
     const payload = {
       user: email,
       movie: id,
@@ -320,6 +330,11 @@ function MovieDetails() {
           <Typography variant="h5" gutterBottom>
             Add a Review
           </Typography>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <form onSubmit={handleReviewSubmit}>
             <Box mb={2}>
               <Typography component="legend">Your Rating</Typography>
