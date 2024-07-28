@@ -22,17 +22,20 @@ function WatchList() {
   const deleteHandler = async (e, movie) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8080/deleteMovie", {
-        method: "POST",
-        headers: {
-          "Access-Control-Allow-Origin": true,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          movie: watchlist.filter((x) => x._id !== movie._id),
-        }),
-      });
+      const response = await fetch(
+        "https://movie-radar-2.onrender.com/deleteMovie",
+        {
+          method: "POST",
+          headers: {
+            "Access-Control-Allow-Origin": true,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: id,
+            movie: watchlist.filter((x) => x._id !== movie._id),
+          }),
+        }
+      );
       const data = await response.json();
       console.log(data.message);
       dispatch(removemovie(watchlist.filter((x) => x._id !== movie._id)));

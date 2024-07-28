@@ -9,7 +9,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import Paper from '@mui/material/Paper';
+import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 
 function Otp() {
@@ -24,7 +24,7 @@ function Otp() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("http://localhost:8080/checkOtp", {
+      fetch("https://movie-radar-2.onrender.com/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -55,7 +55,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("http://localhost:8080/changepsw", {
+        fetch("https://movie-radar-2.onrender.com/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -83,24 +83,26 @@ function Otp() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-        <Grid container component="main" sx={{ height: '100vh' }}>
-          <CssBaseline />
-          <Grid
-            item
-            xs={false}
-            sm={4}
-            md={7}
-            sx={{
+      <Grid container component="main" sx={{ height: "100vh" }}>
+        <CssBaseline />
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
             backgroundImage:
               'url("https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149146012.jpg?t=st=1721701937~exp=1721705537~hmac=5dd9bbda451d84f6a3392b952937515e0c6a3ef359c231df1a60d87fd705db2f&w=1380")',
-              backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-              backgroundSize: 'cover',
-              backgroundPosition: 'left',
-              position:"relative"
+            backgroundColor: (t) =>
+              t.palette.mode === "light"
+                ? t.palette.grey[50]
+                : t.palette.grey[900],
+            backgroundSize: "cover",
+            backgroundPosition: "left",
+            position: "relative",
           }}
         />
-       
+
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
@@ -116,8 +118,11 @@ function Otp() {
               Enter Your OTP{" "}
             </Typography>
 
-            <Box component="form" noValidate sx={{ mt: 1, width:"525px", display: correctOtp ? "" : "none"}}>
-              
+            <Box
+              component="form"
+              noValidate
+              sx={{ mt: 1, width: "525px", display: correctOtp ? "" : "none" }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -131,7 +136,6 @@ function Otp() {
                   setOtp(e.target.value);
                 }}
               />
-
 
               <Button
                 type="submit"
@@ -158,8 +162,11 @@ function Otp() {
               </Grid>
             </Box>
 
-            <Box component="form" noValidate sx={{ mt: 1, width:"525px", display: correctOtp ? "none" : ""}}>
-              
+            <Box
+              component="form"
+              noValidate
+              sx={{ mt: 1, width: "525px", display: correctOtp ? "none" : "" }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -186,7 +193,6 @@ function Otp() {
                 }}
               />
 
-
               <Button
                 type="submit"
                 fullWidth
@@ -212,10 +218,9 @@ function Otp() {
               </Grid>
             </Box>
           </Box>
-          </Grid>
         </Grid>
-      </ThemeProvider>
-    
+      </Grid>
+    </ThemeProvider>
   );
 }
 

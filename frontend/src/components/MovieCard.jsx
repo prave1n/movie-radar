@@ -78,7 +78,7 @@ function MovieCard({ movie }) {
     const fetchAverageRating = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/movie/${movie.dbid}/average-rating`
+          `https://movie-radar-2.onrender.com/movie/${movie.dbid}/average-rating`
         );
         const data = await response.json();
         setAverageRating(data.averageRating);
@@ -91,14 +91,14 @@ function MovieCard({ movie }) {
   }, [movie.dbid]);
 
   const addMovieHandler = async (e) => {
-    if(watchlist.filter(x => x._id === movie._id).length !== 0) {
-      alert("This movie already part of your watchlist")
+    if (watchlist.filter((x) => x._id === movie._id).length !== 0) {
+      alert("This movie already part of your watchlist");
       return;
     }
-    
+
     let mov = [...watchlist, movie];
     e.preventDefault();
-    await fetch("http://localhost:8080/addmovie", {
+    await fetch("https://movie-radar-2.onrender.com/addmovie", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": true,
@@ -135,7 +135,7 @@ function MovieCard({ movie }) {
       alert("This movie is already part of the playlist");
     } else {
       try {
-        await fetch("http://localhost:8080/addToPlayList", {
+        await fetch("https://movie-radar-2.onrender.com/addToPlayList", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,

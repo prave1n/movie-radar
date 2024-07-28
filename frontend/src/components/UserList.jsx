@@ -17,7 +17,7 @@ function FriendsList() {
 
   useEffect(() => {
     try {
-      fetch("http://localhost:8080/getUsers", {
+      fetch("https://movie-radar-2.onrender.com/getUsers", {
         method: "GET",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -35,7 +35,7 @@ function FriendsList() {
     }
 
     try {
-      fetch(`http://localhost:8080/pendingReq/${thisId}`, {
+      fetch(`https://movie-radar-2.onrender.com/pendingReq/${thisId}`, {
         method: "GET",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -66,32 +66,29 @@ function FriendsList() {
     >
       <h1>Users</h1>
       <SearchBar setSearch={updateSearch} />
-      <div  style={{
-          alignItems: "center",
-          justifyContent:"space-evenly",
-          display: "flex",
-          flexWrap:"wrap",
-          maxWidth: "1700px"
-        }}
-      >
-        
-        {userList
-          .filter((x) =>
-            (x.fname + " " + x.lname)
-              .toLowerCase()
-              .includes(search.toLowerCase()) || 
-              (x.username)
-              .toLowerCase()
-              .includes(search.toLowerCase())
-          )
-          .map((user) => {
-            return (
-              
-                <UserCard user={user} pending={pending} />
-              
-            );
-          })}
-      </div>
+      {search && (
+        <div
+          style={{
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            display: "flex",
+            flexWrap: "wrap",
+            maxWidth: "1700px",
+          }}
+        >
+          {userList
+            .filter(
+              (x) =>
+                (x.fname + " " + x.lname)
+                  .toLowerCase()
+                  .includes(search.toLowerCase()) ||
+                x.username.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((user) => (
+              <UserCard key={user.id} user={user} pending={pending} />
+            ))}
+        </div>
+      )}
     </div>
   );
 }

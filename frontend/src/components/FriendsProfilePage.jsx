@@ -18,7 +18,7 @@ function UserProfilePage() {
     const fetchUserData = async () => {
       try {
         const userResponse = await fetch(
-          `http://localhost:8080/user/${username}`
+          `https://movie-radar-2.onrender.com/user/${username}`
         );
         if (!userResponse.ok) {
           throw new Error("User not found");
@@ -27,7 +27,7 @@ function UserProfilePage() {
         setUser(userData);
 
         const reviewsResponse = await fetch(
-          `http://localhost:8080/user/reviews/byusername/${username}?currentUserId=${userId}`
+          `https://movie-radar-2.onrender.com/user/reviews/byusername/${username}?currentUserId=${userId}`
         );
         if (reviewsResponse.status === 404) {
           // User found but has no reviews
@@ -40,7 +40,7 @@ function UserProfilePage() {
         }
 
         const playlistsResponse = await fetch(
-          `http://localhost:8080/user/playlists/${username}`
+          `https://movie-radar-2.onrender.com/user/playlists/${username}`
         );
         if (!playlistsResponse.ok) {
           throw new Error("Failed to fetch playlists");
@@ -59,7 +59,7 @@ function UserProfilePage() {
     const payload = { userId: userEmail };
     try {
       const response = await fetch(
-        `http://localhost:8080/review/upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -89,7 +89,7 @@ function UserProfilePage() {
     const payload = { userId: userEmail };
     try {
       const response = await fetch(
-        `http://localhost:8080/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-2.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {

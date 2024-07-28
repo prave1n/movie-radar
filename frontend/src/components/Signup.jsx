@@ -13,6 +13,7 @@ import Grid from "@mui/material/Grid";
 import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function Signup() {
   const defaultTheme = createTheme();
@@ -23,6 +24,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
   const [pfp, setPfp] = useState("");
+  const [loading, setLoading] = useState(false);
 
   //let result = true;
   const pswchecker = new RegExp(
@@ -31,6 +33,7 @@ function Signup() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     let result = true;
     try {
       if (fname.trim() === "" || lname.trim() === "" || uName.trim() === "") {
@@ -48,7 +51,7 @@ function Signup() {
         result = false;
       }
       if (result) {
-        await fetch("http://localhost:8080/signIn", {
+        await fetch("https://movie-radar-2.onrender.com/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -67,6 +70,7 @@ function Signup() {
             return res.json();
           })
           .then((res) => {
+            setLoading(false);
             console.log(res);
 
             // SEND EMAIL
@@ -95,6 +99,7 @@ function Signup() {
       }
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
 
@@ -222,9 +227,16 @@ function Signup() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={submitHandler}
+                disabled={loading}
               >
                 SIGN UP
               </Button>
+
+              {loading && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <CircularProgress />
+                </Box>
+              )}
 
               <Grid container>
                 <Grid item xs>

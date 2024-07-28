@@ -12,16 +12,19 @@ function ActivityList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/getActivityList`, {
-          method: "POST",
-          headers: {
-            "Access-Control-Allow-Origin": true,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            friendList: friendList,
-          }),
-        });
+        const response = await fetch(
+          `https://movie-radar-2.onrender.com/getActivityList`,
+          {
+            method: "POST",
+            headers: {
+              "Access-Control-Allow-Origin": true,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              friendList: friendList,
+            }),
+          }
+        );
         const result = await response.json();
         setList(result.list);
       } catch (err) {

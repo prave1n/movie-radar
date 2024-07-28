@@ -35,17 +35,20 @@ function PlayListsPage() {
   const createHandler = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8080/createPlaylist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          name,
-          description,
-        }),
-      });
+      const response = await fetch(
+        "https://movie-radar-2.onrender.com/createPlaylist",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id,
+            name,
+            description,
+          }),
+        }
+      );
       const data = await response.json();
       dispatch(updatePlayLists(data.playLists));
       setOpen(false);

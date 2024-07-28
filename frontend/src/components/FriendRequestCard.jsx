@@ -3,22 +3,22 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { addFriend } from "../store/userSlice";
 import { useDispatch } from "react-redux";
-import { Typography, Avatar, Box} from "@mui/material";
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
+import { Typography, Avatar, Box } from "@mui/material";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
 
 function FriendRequestCard({ from, createdAt, id }) {
   const dispatch = useDispatch();
   const [fname, setfname] = useState("");
   const [lname, setLname] = useState("");
   const [username, setUsername] = useState("");
-  const[pfp, setPfp] = useState("")
+  const [pfp, setPfp] = useState("");
   const [hide, setHide] = useState(false);
   useEffect(() => {
     try {
-      fetch(`http://localhost:8080/getUserDetails`, {
+      fetch(`https://movie-radar-2.onrender.com/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -35,7 +35,7 @@ function FriendRequestCard({ from, createdAt, id }) {
           setfname(res.user.fname);
           setLname(res.user.lname);
           setUsername(res.user.username);
-          setPfp(res.user.pfp)
+          setPfp(res.user.pfp);
         });
     } catch (err) {
       console.log(err);
@@ -46,7 +46,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const deleteRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`http://localhost:8080/fReq/delete`, {
+      fetch(`https://movie-radar-2.onrender.com/fReq/delete`, {
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -71,7 +71,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const acceptRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`http://localhost:8080/acceptReq`, {
+      fetch(`https://movie-radar-2.onrender.com/acceptReq`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -97,30 +97,38 @@ function FriendRequestCard({ from, createdAt, id }) {
   return (
     <div style={{ display: hide ? "none" : "" }}>
       <div style={{ margin: "20px" }}>
-      <Card sx={{ maxWidth: 475, minWidth: 475, padding: 1.5}}>
-        <CardContent>
-        <Box display="flex" alignItems="center" my={3}>
-          <Avatar
-            src={pfp}
-            alt={username}
-            sx={{ width: 100, height: 100, mr: 3 }}
-          />
-          <Box>
-            <Typography variant="h4">{username}</Typography>
-            <Typography variant="subtitle1">{`${fname} ${lname}`}</Typography>
-          </Box>
-        </Box>
-        </CardContent>
-        <CardActions sx={{ justifyContent: 'center' }}>
-            <Button sx={{ mt: 3, mb: 2 }} variant="contained" onClick={acceptRequestHandler}>
+        <Card sx={{ maxWidth: 475, minWidth: 475, padding: 1.5 }}>
+          <CardContent>
+            <Box display="flex" alignItems="center" my={3}>
+              <Avatar
+                src={pfp}
+                alt={username}
+                sx={{ width: 100, height: 100, mr: 3 }}
+              />
+              <Box>
+                <Typography variant="h4">{username}</Typography>
+                <Typography variant="subtitle1">{`${fname} ${lname}`}</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+          <CardActions sx={{ justifyContent: "center" }}>
+            <Button
+              sx={{ mt: 3, mb: 2 }}
+              variant="contained"
+              onClick={acceptRequestHandler}
+            >
               Accept
             </Button>
-           
-            <Button variant="contained" sx={{ mt: 3, mb: 2 }} color="error" onClick={deleteRequestHandler}>
-              Deny 
+
+            <Button
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              color="error"
+              onClick={deleteRequestHandler}
+            >
+              Deny
             </Button>
-            
-        </CardActions>
+          </CardActions>
         </Card>
       </div>
     </div>

@@ -14,6 +14,7 @@ import Grid from "@mui/material/Grid";
 import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -22,11 +23,13 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await fetch("http://localhost:8080/login", {
+      await fetch("https://movie-radar-2.onrender.com/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -41,6 +44,7 @@ export default function Login() {
           return res.json();
         })
         .then((res) => {
+          setLoading(false);
           if (!res.login) {
             alert(res.message);
           } else {
@@ -52,6 +56,7 @@ export default function Login() {
         });
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
 
@@ -127,9 +132,16 @@ export default function Login() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={submitHandler}
+                disabled={loading}
               >
                 Login
               </Button>
+
+              {loading && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <CircularProgress />
+                </Box>
+              )}
 
               <Grid container>
                 <Grid item xs>
