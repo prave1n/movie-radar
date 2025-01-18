@@ -8,8 +8,7 @@ import os
 from bson import ObjectId
 
 # MongoDB connection
-client = MongoClient(os.environ.get('MONGODB_URI',
-                                    'mongodb+srv://linkesvarun:JUF076PvImPU5eQt@clustertest.chekyvj.mongodb.net/sample_tester?tlsAllowInvalidCertificates=true'))
+client = MongoClient(os.environ.get('MONGODB_URI'))
 db = client['sample_tester']
 print(f"Connected to database: {db.name}")
 
