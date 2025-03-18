@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
-import {setPopUp} from '../../store/popupSlice';
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 import AlertBox from "../AlertBox";
 
@@ -25,7 +25,7 @@ function Reset() {
     e.preventDefault();
     try {
       console.log(email);
-      await fetch("https://movie-radar-1.onrender.com/sendemail", {
+      await fetch("https://movie-radar-1-qk2b.onrender.com/sendemail", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -40,7 +40,7 @@ function Reset() {
         })
         .then((res) => {
           if (res.email) {
-            dispatch(setPopUp({variant:"info", message:res.message}))
+            dispatch(setPopUp({ variant: "info", message: res.message }));
             // SEND EMAIL
             emailjs.send(
               "service_vwt5hn4", //service ID
@@ -57,7 +57,7 @@ function Reset() {
             );
             navigate(`/forgotpsw/${res.id}`);
           } else {
-            dispatch(setPopUp({variant:"error", message:res.message}))
+            dispatch(setPopUp({ variant: "error", message: res.message }));
           }
         });
     } catch (err) {
@@ -87,7 +87,7 @@ function Reset() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <AlertBox/>
+          <AlertBox />
           <Box
             sx={{
               my: 8,

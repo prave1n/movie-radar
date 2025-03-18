@@ -14,8 +14,7 @@ import PublicIcon from "@mui/icons-material/Public";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
-import {setPopUp} from '../store/popupSlice';
-
+import { setPopUp } from "../store/popupSlice";
 
 function PlayListsCard({ list }) {
   const [movies, setMovies] = useState([]);
@@ -27,7 +26,7 @@ function PlayListsCard({ list }) {
 
   useEffect(() => {
     try {
-      fetch("https://movie-radar-1.onrender.com/getMovieList", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/getMovieList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -51,7 +50,7 @@ function PlayListsCard({ list }) {
   const delPlayList = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/delPlayList", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/delPlayList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -77,7 +76,7 @@ function PlayListsCard({ list }) {
   const delMovie = (e, movieID) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/delmoviePlayList", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/delmoviePlayList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -93,7 +92,12 @@ function PlayListsCard({ list }) {
           return res.json();
         })
         .then((res) => {
-          dispatch(setPopUp({variant:"info", message:`Movie deleted from ${list.name}`}))
+          dispatch(
+            setPopUp({
+              variant: "info",
+              message: `Movie deleted from ${list.name}`,
+            })
+          );
           dispatch(updatePlayLists(res.user.playLists));
         });
     } catch (err) {
@@ -104,7 +108,7 @@ function PlayListsCard({ list }) {
   const changePrivacyHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/changePrivacy", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/changePrivacy", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -120,7 +124,14 @@ function PlayListsCard({ list }) {
           return res.json();
         })
         .then((res) => {
-          dispatch(setPopUp({variant:"info", message:`${list.name}'s privacy changed to ${pub ? "private" : "public"}`}))
+          dispatch(
+            setPopUp({
+              variant: "info",
+              message: `${list.name}'s privacy changed to ${
+                pub ? "private" : "public"
+              }`,
+            })
+          );
           dispatch(updatePlayLists(res.playLists));
           setPublic(!pub);
         });

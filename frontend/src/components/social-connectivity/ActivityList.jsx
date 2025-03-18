@@ -13,7 +13,7 @@ function ActivityList() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://movie-radar-1.onrender.com/getActivityList`,
+          `https://movie-radar-1-qk2b.onrender.com/getActivityList`,
           {
             method: "POST",
             headers: {

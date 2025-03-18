@@ -18,7 +18,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const [hide, setHide] = useState(false);
   useEffect(() => {
     try {
-      fetch(`https://movie-radar-1.onrender.com/getUserDetails`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -46,7 +46,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const deleteRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`https://movie-radar-1.onrender.com/fReq/delete`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/fReq/delete`, {
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -71,7 +71,7 @@ function FriendRequestCard({ from, createdAt, id }) {
   const acceptRequestHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`https://movie-radar-1.onrender.com/acceptReq`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/acceptReq`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

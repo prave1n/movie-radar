@@ -15,7 +15,7 @@ function UserCard({ user, pending }) {
 
   const addFriendHandler = (e) => {
     try {
-      fetch(`https://movie-radar-1.onrender.com/fReq/${thisId}`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/fReq/${thisId}`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

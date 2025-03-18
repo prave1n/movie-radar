@@ -17,7 +17,7 @@ function FriendsList() {
 
   useEffect(() => {
     try {
-      fetch("https://movie-radar-1.onrender.com/getUsers", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/getUsers", {
         method: "GET",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -35,7 +35,7 @@ function FriendsList() {
     }
 
     try {
-      fetch(`https://movie-radar-1.onrender.com/pendingReq/${thisId}`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/pendingReq/${thisId}`, {
         method: "GET",
         headers: {
           "Access-Control-Allow-Origin": true,

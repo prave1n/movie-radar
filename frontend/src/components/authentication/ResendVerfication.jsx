@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import emailjs from "@emailjs/browser";
-import {setPopUp} from '../../store/popupSlice';
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 
 function ResendVerfication() {
@@ -12,7 +12,7 @@ function ResendVerfication() {
   const submitHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/resend", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/resend", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -39,9 +39,9 @@ function ResendVerfication() {
               },
               "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
             );
-            dispatch(setPopUp({variant:"info", message:res.message}))
+            dispatch(setPopUp({ variant: "info", message: res.message }));
           } else {
-            dispatch(setPopUp({variant:"error", message:res.message}))
+            dispatch(setPopUp({ variant: "error", message: res.message }));
           }
         });
     } catch (err) {

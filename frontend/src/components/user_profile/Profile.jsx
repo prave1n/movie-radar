@@ -78,7 +78,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetch(
-      `https://movie-radar-1.onrender.com/get-preferred-genres?userId=${userId}`
+      `https://movie-radar-1-qk2b.onrender.com/get-preferred-genres?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => setPreferredGenres(data.preferredGenres))
@@ -86,7 +86,7 @@ const Profile = () => {
         console.error("Error fetching preferred genres:", error)
       );
 
-    fetch(`https://movie-radar-1.onrender.com/profile/${userId}`)
+    fetch(`https://movie-radar-1-qk2b.onrender.com/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data);
@@ -95,12 +95,12 @@ const Profile = () => {
         setUsername(data.username);
       });
 
-    fetch(`https://movie-radar-1.onrender.com/watchlist/${userId}`)
+    fetch(`https://movie-radar-1-qk2b.onrender.com/watchlist/${userId}`)
       .then((res) => res.json())
       .then((data) => setWatchlist(data));
 
     fetch(
-      `https://movie-radar-1.onrender.com/user/reviews/${email}?userId=${userId}`
+      `https://movie-radar-1-qk2b.onrender.com/user/reviews/${email}?userId=${userId}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -123,7 +123,7 @@ const Profile = () => {
   const handleSaveGenres = async (selectedGenres) => {
     try {
       const response = await fetch(
-        "https://movie-radar-1.onrender.com/update-preferred-genres",
+        "https://movie-radar-1-qk2b.onrender.com/update-preferred-genres",
         {
           method: "POST",
           headers: {
@@ -149,7 +149,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-1.onrender.com/review/upvote/${reviewId}`,
+        `https://movie-radar-1-qk2b.onrender.com/review/upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -180,7 +180,7 @@ const Profile = () => {
 
     try {
       const response = await fetch(
-        `https://movie-radar-1.onrender.com/review/remove-upvote/${reviewId}`,
+        `https://movie-radar-1-qk2b.onrender.com/review/remove-upvote/${reviewId}`,
         {
           method: "POST",
           headers: {
@@ -209,7 +209,7 @@ const Profile = () => {
   const handleDeleteReview = async (reviewId) => {
     try {
       const response = await fetch(
-        `https://movie-radar-1.onrender.com/review/${reviewId}`,
+        `https://movie-radar-1-qk2b.onrender.com/review/${reviewId}`,
         {
           method: "DELETE",
         }
@@ -233,7 +233,7 @@ const Profile = () => {
     setError(null);
     try {
       const response = await fetch(
-        `https://movie-radar-1.onrender.com/profile/${userId}`,
+        `https://movie-radar-1-qk2b.onrender.com/profile/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -260,7 +260,7 @@ const Profile = () => {
   return (
     <ThemeProvider theme={theme}>
       <NavBar />
-      <AlertBox/>
+      <AlertBox />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h3" gutterBottom>
           Profile

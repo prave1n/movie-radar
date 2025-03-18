@@ -37,7 +37,7 @@ function PlayListsPage() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://movie-radar-1.onrender.com/createPlaylist",
+        "https://movie-radar-1-qk2b.onrender.com/createPlaylist",
         {
           method: "POST",
           headers: {
@@ -61,7 +61,7 @@ function PlayListsPage() {
   return (
     <div>
       <NavBar />
-      <AlertBox/>
+      <AlertBox />
       <WatchList />
       <Container maxWidth="xl" sx={{ mt: 4 }}>
         <Box

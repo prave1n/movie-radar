@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
-import {setPopUp} from '../../store/popupSlice';
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 import AlertBox from "../AlertBox";
 
@@ -28,7 +28,7 @@ function Otp() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/checkOtp", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/checkOtp", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -44,10 +44,10 @@ function Otp() {
         })
         .then((res) => {
           if (res.result) {
-            dispatch(setPopUp({variant:"success", message:res.message}))
+            dispatch(setPopUp({ variant: "success", message: res.message }));
             setcorrectOtp(false);
           } else {
-            dispatch(setPopUp({variant:"error", message:res.message}))
+            dispatch(setPopUp({ variant: "error", message: res.message }));
           }
         });
     } catch (err) {
@@ -59,7 +59,7 @@ function Otp() {
     e.preventDefault();
     if (psw === cfmpsw) {
       try {
-        fetch("https://movie-radar-1.onrender.com/changepsw", {
+        fetch("https://movie-radar-1-qk2b.onrender.com/changepsw", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -74,14 +74,16 @@ function Otp() {
             return res.json();
           })
           .then((res) => {
-            dispatch(setPopUp({variant:"success", message:res.message}))
+            dispatch(setPopUp({ variant: "success", message: res.message }));
             navigate("/");
           });
       } catch (err) {
         console.log(err);
       }
     } else {
-      dispatch(setPopUp({variant:"error", message:"Passwords do not match"}))
+      dispatch(
+        setPopUp({ variant: "error", message: "Passwords do not match" })
+      );
     }
   };
 
@@ -108,7 +110,7 @@ function Otp() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <AlertBox/>
+          <AlertBox />
           <Box
             sx={{
               my: 8,

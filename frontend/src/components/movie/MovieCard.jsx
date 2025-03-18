@@ -18,8 +18,7 @@ import Divider from "@mui/material/Divider";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import {setPopUp} from '../../store/popupSlice';
-
+import { setPopUp } from "../../store/popupSlice";
 
 function MovieCard({ movie }) {
   const id = useSelector((state) => state.user.userid);
@@ -43,7 +42,6 @@ function MovieCard({ movie }) {
     setAnchorEl(null);
   };
 
-  
   // eslint-disable-next-line
   const [averageRating, setAverageRating] = useState(null);
 
@@ -51,7 +49,7 @@ function MovieCard({ movie }) {
     const fetchAverageRating = async () => {
       try {
         const response = await fetch(
-          `https://movie-radar-1.onrender.com/movie/${movie.dbid}/average-rating`
+          `https://movie-radar-1-qk2b.onrender.com/movie/${movie.dbid}/average-rating`
         );
         const data = await response.json();
         setAverageRating(data.averageRating);
@@ -67,13 +65,18 @@ function MovieCard({ movie }) {
     e.preventDefault();
     setAnchorEl(null);
     if (watchlist.filter((x) => x._id === movie._id).length !== 0) {
-      dispatch(setPopUp({variant:"error", message:"This movie already part of your watchlist"}))
+      dispatch(
+        setPopUp({
+          variant: "error",
+          message: "This movie already part of your watchlist",
+        })
+      );
       return;
     }
 
     let mov = [...watchlist, movie];
-    
-    await fetch("https://movie-radar-1.onrender.com/addmovie", {
+
+    await fetch("https://movie-radar-1-qk2b.onrender.com/addmovie", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": true,
@@ -90,7 +93,9 @@ function MovieCard({ movie }) {
       .then((res) => {
         console.log(res);
         dispatch(addmovie({ movie: movie }));
-        dispatch(setPopUp({variant:"success", message:"Movie added successfully"}))
+        dispatch(
+          setPopUp({ variant: "success", message: "Movie added successfully" })
+        );
       });
   };
 
@@ -107,10 +112,15 @@ function MovieCard({ movie }) {
         .filter((x) => x._id === playListID)[0]
         .movies.filter((y) => y === movie._id).length !== 0
     ) {
-      dispatch(setPopUp({variant:"error", message: "This movie is already part of the playlist"}))
+      dispatch(
+        setPopUp({
+          variant: "error",
+          message: "This movie is already part of the playlist",
+        })
+      );
     } else {
       try {
-        await fetch("https://movie-radar-1.onrender.com/addToPlayList", {
+        await fetch("https://movie-radar-1-qk2b.onrender.com/addToPlayList", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -126,7 +136,12 @@ function MovieCard({ movie }) {
             return res.json();
           })
           .then((res) => {
-            dispatch(setPopUp({variant:"success", message:"Movie added successfully"}))
+            dispatch(
+              setPopUp({
+                variant: "success",
+                message: "Movie added successfully",
+              })
+            );
             dispatch(updatePlayLists(res.user.playLists));
             setChecker(res.user.playLists);
             setAnchorEl(null);

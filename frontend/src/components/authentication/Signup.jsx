@@ -13,7 +13,7 @@ import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
-import {setPopUp} from '../../store/popupSlice';
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 import AlertBox from "../AlertBox";
 
@@ -26,7 +26,7 @@ function Signup() {
   const [uName, setUname] = useState("");
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
-  const [pfp, ] = useState("");
+  const [pfp] = useState("");
   const [loading, setLoading] = useState(false);
 
   //let result = true;
@@ -40,25 +40,38 @@ function Signup() {
     let result = true;
     try {
       if (fname.trim() === "" || lname.trim() === "" || uName.trim() === "") {
-        dispatch(setPopUp({variant:"error", message:"Please fill in all the fields to create an account"}))
+        dispatch(
+          setPopUp({
+            variant: "error",
+            message: "Please fill in all the fields to create an account",
+          })
+        );
         result = false;
         setLoading(false);
         return;
       }
       if (!/\S+@\S+\.\S+/.test(email)) {
-        dispatch(setPopUp({variant:"error", message:"Please enter a valid email"}))
+        dispatch(
+          setPopUp({ variant: "error", message: "Please enter a valid email" })
+        );
         result = false;
         setLoading(false);
         return;
       }
       if (!pswchecker.test(psw)) {
-        dispatch(setPopUp({variant:"error", message:"Password must have minimum eight characters, at least one captial letter,at least one captial letter, one number and one special character"}))
+        dispatch(
+          setPopUp({
+            variant: "error",
+            message:
+              "Password must have minimum eight characters, at least one captial letter,at least one captial letter, one number and one special character",
+          })
+        );
         result = false;
         setLoading(false);
         return;
       }
       if (result) {
-        await fetch("https://movie-radar-1.onrender.com/signIn", {
+        await fetch("https://movie-radar-1-qk2b.onrender.com/signIn", {
           method: "POST",
           headers: {
             "Access-Control-Allow-Origin": true,
@@ -93,10 +106,16 @@ function Signup() {
                 },
                 "VkDdWcg4J7ipzkxpk" // PUBLIC KEY
               );
-              dispatch(setPopUp({variant:"success", message:"Account Created Successfully. Please verify your email before logging in"}))
+              dispatch(
+                setPopUp({
+                  variant: "success",
+                  message:
+                    "Account Created Successfully. Please verify your email before logging in",
+                })
+              );
               navigate(`/verify/${res.userId}`);
             } else {
-              dispatch(setPopUp({variant:"error", message:res.message}))
+              dispatch(setPopUp({ variant: "error", message: res.message }));
             }
           });
       }
@@ -129,7 +148,7 @@ function Signup() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <AlertBox/>
+          <AlertBox />
           <Box
             sx={{
               my: 8,

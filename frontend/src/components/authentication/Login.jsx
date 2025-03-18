@@ -13,8 +13,8 @@ import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
-import AlertBox from '../AlertBox'
-import {setPopUp} from '../../store/popupSlice';
+import AlertBox from "../AlertBox";
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 
 export default function Login() {
@@ -25,12 +25,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [psw, setPsw] = useState("");
   const [loading, setLoading] = useState(false);
- 
+
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch("https://movie-radar-1.onrender.com/login", {
+      await fetch("https://movie-radar-1-qk2b.onrender.com/login", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -46,9 +46,9 @@ export default function Login() {
         })
         .then((res) => {
           setLoading(false);
-        
+
           if (!res.login) {
-            dispatch(setPopUp({variant:"error", message:res.message}))
+            dispatch(setPopUp({ variant: "error", message: res.message }));
           } else {
             dispatch(newuser(res.user));
             console.log(res.token);
@@ -85,7 +85,6 @@ export default function Login() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-      
           <Box
             sx={{
               my: 8,
@@ -100,7 +99,7 @@ export default function Login() {
               Movie Radar{" "}
               <LocalMoviesRoundedIcon sx={{ m: 1, fontSize: "54px" }} />
             </Typography>
-            <AlertBox/>
+            <AlertBox />
             <Box component="form" noValidate sx={{ mt: 1 }}>
               <TextField
                 margin="normal"

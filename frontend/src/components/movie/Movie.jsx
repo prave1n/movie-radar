@@ -3,7 +3,7 @@ import React from "react";
 function Movie() {
   const submitHandle = (e) => {
     e.preventDefault();
-    fetch("https://movie-radar-1.onrender.com/getMovie", {
+    fetch("https://movie-radar-1-qk2b.onrender.com/getMovie", {
       method: "GET",
       headers: {
         "Access-Control-Allow-Origin": true,

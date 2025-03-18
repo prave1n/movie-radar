@@ -17,7 +17,7 @@ function PublicPlayListsCard({ list }) {
 
   useEffect(() => {
     try {
-      fetch("https://movie-radar-1.onrender.com/getMovieList", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/getMovieList", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,

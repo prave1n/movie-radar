@@ -14,7 +14,7 @@ import LocalMoviesRoundedIcon from "@mui/icons-material/LocalMoviesRounded";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import AlertBox from "../AlertBox";
-import {setPopUp} from '../../store/popupSlice';
+import { setPopUp } from "../../store/popupSlice";
 import { useDispatch } from "react-redux";
 
 function Verify() {
@@ -27,7 +27,7 @@ function Verify() {
   const otpHandler = (e) => {
     e.preventDefault();
     try {
-      fetch("https://movie-radar-1.onrender.com/verify", {
+      fetch("https://movie-radar-1-qk2b.onrender.com/verify", {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -43,10 +43,10 @@ function Verify() {
         })
         .then((res) => {
           if (res.result) {
-            dispatch(setPopUp({variant:"success", message:res.message}))
+            dispatch(setPopUp({ variant: "success", message: res.message }));
             navigate("/");
           } else {
-            dispatch(setPopUp({variant:"error", message:res.message}))
+            dispatch(setPopUp({ variant: "error", message: res.message }));
           }
         });
     } catch (err) {
@@ -76,7 +76,7 @@ function Verify() {
         />
 
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <AlertBox/>
+          <AlertBox />
           <Box
             sx={{
               my: 8,

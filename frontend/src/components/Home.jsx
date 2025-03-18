@@ -133,7 +133,7 @@ function Home() {
     if (isLoading) return;
 
     setIsLoading(true);
-    let url = `https://movie-radar-1.onrender.com/movie?page=${page}&limit=30`;
+    let url = `https://movie-radar-1-qk2b.onrender.com/movie?page=${page}&limit=30`;
     const params = new URLSearchParams();
 
     if (sortOption !== "default") {
@@ -186,7 +186,7 @@ function Home() {
       <NavBar />
       <br />
       <Container maxWidth="xl">
-      <AlertBox/>
+        <AlertBox />
         <Grid container spacing={3}>
           <Grid item xs={12} md={2.5}>
             <Paper elevation={3}>

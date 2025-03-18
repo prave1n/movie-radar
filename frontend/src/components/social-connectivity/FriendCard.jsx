@@ -16,12 +16,12 @@ function FriendCard({ userId }) {
   const [lname, setLname] = useState("");
   const [username, setUsername] = useState("");
   const [pfp, setPfp] = useState("");
-  const [hide, ] = useState(false);
+  const [hide] = useState(false);
   const thisId = useSelector((state) => state.user.userid);
 
   useEffect(() => {
     try {
-      fetch(`https://movie-radar-1.onrender.com/getUserDetails`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/getUserDetails`, {
         method: "POST",
         headers: {
           "Access-Control-Allow-Origin": true,
@@ -49,7 +49,7 @@ function FriendCard({ userId }) {
   const deleteFriendHandler = (e) => {
     e.preventDefault();
     try {
-      fetch(`https://movie-radar-1.onrender.com/friend/delete/${thisId}`, {
+      fetch(`https://movie-radar-1-qk2b.onrender.com/friend/delete/${thisId}`, {
         method: "DELETE",
         headers: {
           "Access-Control-Allow-Origin": true,
